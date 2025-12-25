@@ -9,6 +9,10 @@ import { createInMemoryTodoRepository } from '@features/todo/infra/inMemoryTodoR
 import { ConsoleTelemetry } from '@shared/infra/telemetry/ConsoleTelemetry'
 import { QueryClient } from '@tanstack/react-query'
 
+/**
+ * Application Dependency Injection container
+ * Holds all services, adapters, and the React Query client
+ */
 export interface AppContainer {
   queryClient: QueryClient
   adapters: {
@@ -17,6 +21,11 @@ export interface AppContainer {
   }
 }
 
+/**
+ * Creates and configures the dependency injection container
+ * Initializes all repositories, use cases, adapters, and React Query
+ * @returns Fully configured application container with all dependencies
+ */
 export const createContainer = (): AppContainer => {
   const queryClient = new QueryClient({
     defaultOptions: {

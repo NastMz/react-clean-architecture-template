@@ -4,6 +4,12 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import type { FormEvent } from 'react'
 import { useState } from 'react'
 
+/**
+ * Todo Page Component
+ * Displays list of todos with add/toggle functionality
+ * Uses React Query for async state management and cache invalidation
+ * Demonstrates CRUD operations and optimistic updates
+ */
 export const TodoPage = () => {
   const { adapters } = useContainer()
   const [title, setTitle] = useState('')

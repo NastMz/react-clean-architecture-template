@@ -5,10 +5,22 @@ import { mutationOptions, queryOptions } from '@tanstack/react-query'
 import type { AuthUseCases } from '../application/authUseCases'
 import type { Credentials, Session } from '../domain/User'
 
+/**
+ * Query keys for auth-related React Query operations
+ * Ensures consistent cache invalidation and query identification
+ */
 export const authQueryKeys = {
   session: ['auth', 'session'] as const,
 }
 
+/**
+ * Authentication Adapters Factory
+ * Bridges authentication use cases with React Query
+ * Creates reusable query and mutation options
+ * @param useCases - Authentication business logic
+ * @param queryClient - React Query client for cache management
+ * @returns Object containing query and mutation configurations
+ */
 export const createAuthAdapters = ({
   useCases,
   queryClient,

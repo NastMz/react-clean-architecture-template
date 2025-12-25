@@ -5,10 +5,22 @@ import { mutationOptions, queryOptions } from '@tanstack/react-query'
 import type { TodoUseCases } from '../application/todoUseCases'
 import type { CreateTodoInput, Todo } from '../domain/Todo'
 
+/**
+ * Query keys for todo-related React Query operations
+ * Ensures consistent cache invalidation and query identification
+ */
 export const todoQueryKeys = {
   all: ['todos'] as const,
 }
 
+/**
+ * Todo Adapters Factory
+ * Bridges todo use cases with React Query
+ * Creates reusable query and mutation options
+ * @param useCases - Todo business logic
+ * @param queryClient - React Query client for cache management
+ * @returns Object containing query and mutation configurations
+ */
 export const createTodoAdapters = ({
   useCases,
   queryClient,

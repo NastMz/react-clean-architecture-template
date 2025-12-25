@@ -2,8 +2,14 @@ import type { AppError } from '../../domain/errors/AppError'
 import { AppErrorFactory } from '../../domain/errors/AppError'
 import { Result } from '../../domain/result/Result'
 
+/**
+ * HTTP method types supported by the client
+ */
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
+/**
+ * HTTP request configuration
+ */
 export interface HttpRequest {
   method: HttpMethod
   url: string
@@ -11,20 +17,44 @@ export interface HttpRequest {
   body?: unknown
 }
 
+/**
+ * HTTP response wrapper
+ * @template T - Type of response data
+ */
 export interface HttpResponse<T> {
   status: number
   data: T
 }
 
+/**
+ * HTTP Client Port (Interface)
+ * Defines the contract for HTTP communication
+ * Implementation can be swapped (fetch, axios, etc.)
+ */
 export interface HttpClient {
+  /**
+   * Makes an HTTP request
+   * @template T - Expected response data type
+   * @param request - HTTP request configuration
+   * @returns Result containing response or AppError
+   */
   request<T>(request: HttpRequest): Promise<Result<HttpResponse<T>, AppError>>
 }
 
+/**
+ * Configuration options for HTTP client
+ */
 export interface HttpClientOptions {
   baseUrl?: string
   getAuthToken?: () => string | null
 }
 
+/**
+ * Creates an HTTP client using the Fetch API
+ * Handles authentication, error mapping, and response parsing
+ * @param options - Client configuration
+ * @returns Configured HttpClient implementation
+ */
 export const createFetchHttpClient = (options: HttpClientOptions = {}): HttpClient => {
   const baseUrl = options.baseUrl?.replace(/\/$/, '') ?? ''
 

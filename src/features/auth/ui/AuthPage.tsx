@@ -4,6 +4,12 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import type { FormEvent } from 'react'
 import { useState } from 'react'
 
+/**
+ * Auth Page Component
+ * Displays login form and session information
+ * Uses React Query for async state management
+ * Demonstrates authentication flow with in-memory repository
+ */
 export const AuthPage = () => {
   const { adapters } = useContainer()
   const [credentials, setCredentials] = useState({ email: 'demo@example.com', password: 'demo123' })

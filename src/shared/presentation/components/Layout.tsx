@@ -1,5 +1,10 @@
 import { NavLink, Outlet } from 'react-router-dom'
 
+/**
+ * Root Layout Component
+ * Provides the main shell of the application with navigation header
+ * Uses React Router Outlet for nested route rendering
+ */
 export const RootLayout = () => {
   return (
     <div className="app-shell">

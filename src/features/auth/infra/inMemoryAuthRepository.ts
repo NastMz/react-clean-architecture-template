@@ -6,11 +6,18 @@ import { z } from 'zod'
 import type { AuthRepository } from '../application/ports/AuthRepository'
 import type { Credentials, Session, User } from '../domain/User'
 
+/**
+ * Zod schema for validating login credentials format
+ */
 const credentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
 })
 
+/**
+ * Demo user for testing authentication flow
+ * In a real app, users would be stored in a database
+ */
 const demoUser: User & { password: string } = {
   id: 'user-1',
   email: 'demo@example.com',
@@ -18,6 +25,13 @@ const demoUser: User & { password: string } = {
   password: 'demo123',
 }
 
+/**
+ * In-memory implementation of AuthRepository
+ * Simulates user authentication without external service
+ * Used for development and testing
+ * @param telemetry - Telemetry service for logging authentication events
+ * @returns Implementation of AuthRepository interface
+ */
 export const createInMemoryAuthRepository = (
   telemetry: TelemetryPort & LoggerPort,
 ): AuthRepository => {

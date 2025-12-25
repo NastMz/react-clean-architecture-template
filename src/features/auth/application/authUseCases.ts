@@ -6,12 +6,40 @@ import { Result } from '@shared/domain/result/Result'
 import type { Credentials, Session } from '../domain/User'
 import type { AuthRepository } from './ports/AuthRepository'
 
+/**
+ * Authentication Use Cases Interface
+ * Defines all business logic operations for user authentication
+ */
 export interface AuthUseCases {
+  /**
+   * Authenticates a user with email and password
+   * Tracks telemetry events for monitoring
+   * @param credentials - User's email and password
+   * @returns Result containing authenticated Session or AppError
+   */
   login(credentials: Credentials): Promise<Result<Session, AppError>>
+
+  /**
+   * Logs out the current user
+   * Tracks telemetry events for monitoring
+   * @returns Result containing void or AppError
+   */
   logout(): Promise<Result<void, AppError>>
+
+  /**
+   * Retrieves the current user's active session
+   * @returns Result containing Session or null if not authenticated
+   */
   currentSession(): Promise<Result<Session | null, AppError>>
 }
 
+/**
+ * Creates authentication use cases with injected dependencies
+ * Implements telemetry tracking for all authentication operations
+ * @param repository - Auth repository for persistence operations
+ * @param telemetry - Telemetry service for tracking events
+ * @returns Implementation of AuthUseCases
+ */
 export const createAuthUseCases = (
   repository: AuthRepository,
   telemetry: TelemetryPort & LoggerPort,

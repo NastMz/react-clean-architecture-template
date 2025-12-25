@@ -5,12 +5,39 @@ import { Result } from '@shared/domain/result/Result'
 import type { CreateTodoInput, Todo } from '../domain/Todo'
 import type { TodoRepository } from './ports/TodoRepository'
 
+/**
+ * Todo Use Cases Interface
+ * Defines all business logic operations for todo management
+ */
 export interface TodoUseCases {
+  /**
+   * Retrieves all todos for the current user
+   * @returns Result containing array of todos or AppError
+   */
   listTodos(): Promise<Result<Todo[], AppError>>
+
+  /**
+   * Creates a new todo item
+   * @param input - Todo creation data
+   * @returns Result containing created Todo or AppError
+   */
   createTodo(input: CreateTodoInput): Promise<Result<Todo, AppError>>
+
+  /**
+   * Toggles the completion status of a todo
+   * @param id - The ID of the todo to toggle
+   * @returns Result containing updated Todo or AppError
+   */
   toggleTodo(id: string): Promise<Result<Todo, AppError>>
 }
 
+/**
+ * Creates todo use cases with injected dependencies
+ * Implements telemetry tracking for all todo operations
+ * @param repository - Todo repository for persistence operations
+ * @param telemetry - Telemetry service for tracking events
+ * @returns Implementation of TodoUseCases
+ */
 export const createTodoUseCases = (
   repository: TodoRepository,
   telemetry: TelemetryPort & LoggerPort,

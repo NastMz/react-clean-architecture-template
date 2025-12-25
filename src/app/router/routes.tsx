@@ -3,6 +3,10 @@ import { TodoPage } from '@features/todo/ui/TodoPage'
 import { RootLayout } from '@shared/presentation/components/Layout'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 
+/**
+ * Application router configuration
+ * Defines routes for auth and todo features
+ */
 const router = createBrowserRouter([
   {
     path: '/',
@@ -15,4 +19,8 @@ const router = createBrowserRouter([
   },
 ])
 
+/**
+ * Router provider component
+ * Sets up React Router for application navigation
+ */
 export const AppRouter = () => <RouterProvider router={router} />

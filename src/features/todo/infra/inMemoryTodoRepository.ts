@@ -5,10 +5,19 @@ import { z } from 'zod'
 import type { TodoRepository } from '../application/ports/TodoRepository'
 import type { CreateTodoInput, Todo } from '../domain/Todo'
 
+/**
+ * Zod schema for validating todo creation input
+ */
 const createTodoInputSchema = z.object({
   title: z.string().min(1, 'Title required'),
 })
 
+/**
+ * In-memory implementation of TodoRepository
+ * Stores todos in memory without persistence
+ * Used for development and testing
+ * @returns Implementation of TodoRepository interface
+ */
 export const createInMemoryTodoRepository = (): TodoRepository => {
   let todos: Todo[] = [
     { id: '1', title: 'Study Clean Architecture', completed: true },

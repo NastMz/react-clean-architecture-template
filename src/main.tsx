@@ -1,3 +1,8 @@
+/**
+ * Application entry point
+ * Initializes the React application with providers and router
+ */
+
 import './index.css'
 
 import { AppProviders } from '@app/composition/providers'
