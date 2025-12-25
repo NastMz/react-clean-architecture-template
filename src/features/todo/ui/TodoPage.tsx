@@ -5,10 +5,9 @@ import type { FormEvent } from 'react'
 import { useState } from 'react'
 
 /**
- * Todo Page Component
- * Displays list of todos with add/toggle functionality
- * Uses React Query for async state management and cache invalidation
- * Demonstrates CRUD operations and optimistic updates
+ * Example list-and-form page
+ * Demonstrates CRUD-style queries/mutations with React Query
+ * Template for wiring UI actions to adapters and use cases
  */
 export const TodoPage = () => {
   const { adapters } = useContainer()

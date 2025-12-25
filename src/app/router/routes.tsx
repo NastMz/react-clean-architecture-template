@@ -5,7 +5,7 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 
 /**
  * Application router configuration
- * Defines routes for auth and todo features
+ * Defines template routes for the starter app
  */
 const router = createBrowserRouter([
   {

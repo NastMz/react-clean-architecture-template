@@ -5,10 +5,9 @@ import type { FormEvent } from 'react'
 import { useState } from 'react'
 
 /**
- * Auth Page Component
- * Displays login form and session information
- * Uses React Query for async state management
- * Demonstrates authentication flow with in-memory repository
+ * Example form-driven page using queries and mutations
+ * Shows a simple session-like flow with React Query
+ * Serves as a template for wiring UI to adapters and use cases
  */
 export const AuthPage = () => {
   const { adapters } = useContainer()
