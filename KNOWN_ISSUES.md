@@ -25,57 +25,34 @@
 
 ### Infrastructure & Tooling
 
-- [ ] **Playwright** E2E testing suite
-- [ ] **Plop/Hygen** generators for scaffolding features
-- [ ] **GitHub Actions** CI/CD workflow template
-- [ ] **Environment configs** (.env, .env.prod, etc.)
-
-### Observability
-
-- [ ] **OpenTelemetry backend exporter** examples (Jaeger, Tempo, Grafana)
-- [ ] **Error tracking** integration examples
-- [ ] **Performance monitoring** setup
-- [ ] **Custom metrics** for business events
+- [ ] **GitHub Actions** CI/CD workflow template (linting, tests, build)
+- [ ] **Environment configs** (.env.local, .env.production, etc.)
+- [ ] **Vite environment variables** documentation
 
 ### Authentication & Authorization
 
 - [ ] **Token refresh** mechanism (automatic retry on 401)
-- [ ] **Permission-based** access control (roles/permissions)
-- [ ] **Multi-user** session handling
-- [ ] **Remember me** functionality
-- [ ] **Password reset** flow
+- [ ] **Permission-based** access control (roles/permissions example)
 
 ### Forms & Validation
 
 - [ ] **React Hook Form** + **Zod** integration example
-- [ ] **Form state management** patterns
-- [ ] **Complex validation** scenarios
-- [ ] **Error display** patterns
+- [ ] **Form error display** patterns
 
 ### UI & Design
 
-- [ ] **shadcn/ui** or **Chakra UI** integration template
-- [ ] **Dark mode** support
-- [ ] **Responsive design** improvements
-- [ ] **Accessibility** (a11y) enhancements
+- [ ] **Dark mode** support (Zustand + CSS vars example)
+- [ ] **Accessibility (a11y)** improvements (ARIA labels, semantic HTML)
 
-### Advanced Patterns
-
-**Optimistic updates** with TanStack Query mutations
+### Core React Patterns
 
 - [ ] **Error boundaries** for React error handling
-- [ ] **Suspense boundaries** for loading states
-- [ ] **Offline support** (service workers, IndexedDB)
-- [ ] **Undo/Redo** functionality
-- [ ] **Feature flags** system (env-based or remote)
-- [ ] **Internationalization** (i18n) setup
+- [ ] **Suspense boundaries** for loading states (lazy routes)
 
 ### Testing & Quality
 
 - [ ] **E2E tests** with Playwright (authentication flow, protected routes)
-- [ ] **Visual regression** testing (Storybook + Chromatic)
-- [ ] **Mutation testing** (Stryker)
-- [ ] **Code coverage** enforcement (Istanbul/c8)
+- [ ] **Code coverage** enforcement (c8)
 
 ## Notes
 
