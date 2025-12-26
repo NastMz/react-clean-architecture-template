@@ -15,11 +15,13 @@ The application runs perfectly in dev mode (`pnpm dev`), builds correctly (`pnpm
 
 ## Future Enhancements
 
+- [x] **Storybook** for component documentation (✅ DONE)
+- [x] **Atomic Design** component library (✅ DONE)
+- [x] **HTTP repository** example - Posts feature (✅ DONE)
 - [ ] **Playwright** E2E testing setup
 - [ ] **Plop/Hygen** generators for scaffolding features
 - [ ] **OpenTelemetry** integration
 - [ ] **Sentry** error tracking
-- [ ] **HTTP repository** example (vs in-memory)
 - [ ] **Advanced auth** (token refresh, protected routes)
 - [ ] **Form library** integration (React Hook Form + Zod)
 - [ ] **UI component library** (optional: shadcn/ui, Chakra, MUI)

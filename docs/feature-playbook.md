@@ -75,7 +75,31 @@ export const createProductUseCases = (
 })
 ```
 
-### Step 5: Implement Repository (Infra)
+### Step 5: Create Storybook Stories (Optional)
+
+**`src/features/products/ui/stories/ProductsPage.stories.tsx`**
+
+```tsx
+import type { Meta, StoryObj } from '@storybook/react'
+import { ProductsPage } from '../ProductsPage'
+
+const meta = {
+  title: 'Features/Products',
+  component: ProductsPage,
+  parameters: {
+    layout: 'fullscreen',
+  },
+} satisfies Meta<typeof ProductsPage>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const Default: Story = {
+  render: () => <ProductsPage />,
+}
+```
+
+### Step 6: Implement Repository (Infra)
 
 **`src/features/products/infra/inMemoryProductRepository.ts`**
 

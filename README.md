@@ -18,6 +18,8 @@ A production-ready **Clean Architecture** starter for React applications that en
 - ✅ **ESLint boundary rules** to prevent layer violations
 - ✅ **Prettier + EditorConfig** for consistent formatting
 - ✅ **Husky + lint-staged** for pre-commit quality gates
+- ✅ **Storybook 10** for component documentation and development
+- ✅ **Atomic Design** component library with stories
 - ✅ **2 demo features**: Auth (login/session) + Todo (list/create/toggle)
 
 ---
@@ -92,6 +94,13 @@ Open [http://localhost:5173](http://localhost:5173). You'll see:
 ```bash
 pnpm build
 pnpm preview
+```
+
+### Storybook
+
+```bash
+pnpm storybook         # start Storybook dev server (port 6006)
+pnpm build-storybook   # build static Storybook
 ```
 
 ### Testing

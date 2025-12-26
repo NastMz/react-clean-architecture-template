@@ -48,7 +48,17 @@ A fully functional **production-ready** Clean Architecture React starter with:
 
 - ✅ **Auth** feature: login/logout with session management (in-memory)
 - ✅ **Todo** feature: list/create/toggle tasks (in-memory CRUD)
+- ✅ **Posts** feature: HTTP integration example using JSONPlaceholder API
 - ✅ Both features demonstrate full Clean Architecture flow
+
+### Component Library & Documentation
+
+- ✅ **Storybook 10** for component development and documentation
+- ✅ **Atomic Design** pattern (atoms, molecules, organisms)
+- ✅ Auto-generated docs for all components
+- ✅ Interactive component playground
+- ✅ Stories for Button, Input, Card, Typography atoms
+- ✅ Feature stories demonstrating Clean Architecture
 
 ### Documentation
 
@@ -134,6 +144,8 @@ pnpm format:write  # Format all files
 pnpm typecheck     # TypeScript check
 pnpm test          # Run tests (⚠️ see KNOWN_ISSUES.md)
 pnpm test:watch    # Watch mode
+pnpm storybook     # Start Storybook dev server (port 6006)
+pnpm build-storybook  # Build static Storybook
 ```
 
 ---

@@ -72,7 +72,7 @@ This guide explains the **Clean Architecture** layers and how they interact in t
 - `shared/domain`: `Result`, `AppError`, universal value objects
 - `shared/application`: `TelemetryPort`, `LoggerPort`
 - `shared/infra`: `HttpClient`, `ConsoleTelemetry`
-- `shared/presentation`: `Layout`, hooks, common UI utils
+- `shared/presentation`: `Layout`, atomic design components (atoms, molecules), hooks, common UI utils
 
 Shared is **horizontal reuse** across features.
 
