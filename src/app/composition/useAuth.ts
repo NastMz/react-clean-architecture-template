@@ -1,19 +1,13 @@
-import { useQuery } from '@tanstack/react-query'
-import { useContext } from 'react'
-
-import { ContainerContext } from './ContainerContext'
+import { useSession } from '@features/auth/adapters/authAdapters'
 
 /**
  * Hook to access authentication state throughout the application
- * Returns the current session from the auth adapter
- * Throws if used outside of container provider context
+ * Returns the current session with convenient authentication helpers
  *
  * @returns Object with:
  *   - session: Current authenticated session (user + token) or null if not authenticated
  *   - isAuthenticated: Whether a user is currently logged in
  *   - isLoading: Whether session is being fetched
- *
- * @throws If used without ContainerProvider wrapper
  *
  * @example
  * ```tsx
@@ -25,14 +19,8 @@ import { ContainerContext } from './ContainerContext'
  * ```
  */
 export const useAuth = () => {
-  const container = useContext(ContainerContext)
-
-  if (!container) {
-    throw new Error('useAuth must be used within ContainerProvider')
-  }
-
-  // Query current session from auth adapter
-  const sessionQuery = useQuery(container.adapters.auth.queries.session())
+  // Use the exported hook from adapters instead of accessing container directly
+  const sessionQuery = useSession()
 
   return {
     session: sessionQuery.data ?? null,
