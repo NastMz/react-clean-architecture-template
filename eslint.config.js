@@ -11,15 +11,7 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores([
-    'dist',
-    'coverage',
-    'node_modules',
-    '**/*.md',
-    '**/*.json',
-    '.storybook',
-    'src/stories',
-  ]),
+  globalIgnores(['dist', 'coverage', 'node_modules', '**/*.md', '**/*.json', '.storybook']),
   {
     files: ['**/*.{ts,tsx}'],
     ignores: ['**/tests/**', 'src/app/composition/container.ts'],
