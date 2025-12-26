@@ -28,7 +28,7 @@ A production-ready **Clean Architecture** starter for React applications that en
 
 ## 📁 Architecture Overview
 
-```
+````
 src/
   app/
     composition/       # DI container & providers
@@ -54,7 +54,12 @@ tests/
   unit/              # Domain & use case tests
   integration/       # UI integration tests
   setup.ts
-```
+
+**Special Configuration Files:**
+- `vite-env.d.ts` — TypeScript type declarations for Vite and `import.meta.env` (auto-recognized)
+- `vite.config.ts` — Vite + Vitest configuration with path aliases
+- `eslint.config.js` — ESLint flat config with boundary enforcement rules
+- `tsconfig.json` — Strict TypeScript settings with `verbatimModuleSyntax`
 
 ### Key Principles
 
@@ -76,7 +81,7 @@ tests/
 
 ```bash
 pnpm install
-```
+````
 
 ### Development
 
