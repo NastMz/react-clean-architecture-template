@@ -6,6 +6,8 @@ import { AppHeader, AppMain, AppNav, AppShell, Brand } from './atoms/Layout'
  * Root Layout Component
  * Provides the main shell of the application with navigation header
  * Uses React Router Outlet for nested route rendering
+ *
+ * Only includes the Auth page in navigation - extend with your own features
  */
 export const RootLayout = () => {
   return (
@@ -15,12 +17,6 @@ export const RootLayout = () => {
         <AppNav>
           <NavLink to="/auth" className={({ isActive }) => (isActive ? 'active' : '')}>
             Auth
-          </NavLink>
-          <NavLink to="/todos" className={({ isActive }) => (isActive ? 'active' : '')}>
-            Todos
-          </NavLink>
-          <NavLink to="/posts" className={({ isActive }) => (isActive ? 'active' : '')}>
-            Posts
           </NavLink>
         </AppNav>
       </AppHeader>

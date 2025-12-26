@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { describe, it, expect } from 'vitest'
@@ -48,32 +48,6 @@ describe('ProtectedRoute', () => {
             }),
           },
         },
-        todo: {
-          queries: {
-            todos: () => ({
-              queryKey: ['todo', 'todos'] as const,
-              queryFn: async () => [],
-            }),
-          },
-          mutations: {
-            addTodo: () => ({
-              mutationKey: ['todo', 'addTodo'] as const,
-              mutationFn: async () => ({}),
-            }),
-            toggleTodo: () => ({
-              mutationKey: ['todo', 'toggleTodo'] as const,
-              mutationFn: async () => ({}),
-            }),
-          },
-        },
-        posts: {
-          queries: {
-            posts: () => ({
-              queryKey: ['posts', 'posts'] as const,
-              queryFn: async () => [],
-            }),
-          },
-        },
       },
     }
   }
@@ -97,10 +71,10 @@ describe('ProtectedRoute', () => {
   it('redirects to login when user is not authenticated', () => {
     const container = createMockContainer(null)
 
-    const { container: renderContainer } = render(
+    render(
       <QueryClientProvider client={container.queryClient}>
         <ContainerContext.Provider value={container}>
-          <BrowserRouter initialEntries={['/todos']}>
+          <BrowserRouter initialEntries={['/auth']}>
             <ProtectedRoute element={<div>Protected Content</div>} />
           </BrowserRouter>
         </ContainerContext.Provider>

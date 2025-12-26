@@ -1,20 +1,15 @@
 import { AuthPage } from '@features/auth/ui/AuthPage'
-import { PostsPage } from '@features/posts/ui/PostsPage'
-import { TodoPage } from '@features/todo/ui/TodoPage'
 import { RootLayout } from '@shared/presentation/components/Layout'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 
-import { ProtectedRoute } from './ProtectedRoute'
-
 /**
  * Application router configuration
- * Defines template routes for the starter app
+ * Minimal clean architecture example:
+ * - / : Root layout wrapper
+ *   - /auth : Public login/logout page
  *
- * Route structure:
- * - / : Root layout wrapper for all routes
- *   - /auth : Public login/logout page (no protection)
- *   - /todos : Protected todo management feature
- *   - /posts : Protected posts browsing feature
+ * To add new features: create new routes and wrap with <ProtectedRoute> if needed
+ * See docs/feature-playbook.md for pattern
  */
 const router = createBrowserRouter([
   {
@@ -23,14 +18,6 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/auth" replace /> },
       { path: '/auth', element: <AuthPage /> },
-      {
-        path: '/todos',
-        element: <ProtectedRoute element={<TodoPage />} />,
-      },
-      {
-        path: '/posts',
-        element: <ProtectedRoute element={<PostsPage />} />,
-      },
     ],
   },
 ])

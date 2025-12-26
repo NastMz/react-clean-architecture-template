@@ -208,7 +208,6 @@ pnpm build-storybook  # Build static Storybook
 
 ### To Make It Production-Ready
 
-- [x] **Protected routes** with auth guards
 - [ ] **HTTP repositories** (replace in-memory demos)
 - [ ] **Form library** integration (React Hook Form + Zod)
 - [ ] **E2E tests** (Playwright)

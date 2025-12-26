@@ -172,16 +172,6 @@ Breaking these rules will **fail CI** and pre-commit hooks.
 
 ---
 
-## 🧩 Future Enhancements
-
-- [ ] **Playwright** setup for E2E tests
-- [ ] **Plop/Hygen generators** for scaffolding features
-- [ ] **OpenTelemetry backend** exporter (Jaeger, Tempo, Grafana Loki)
-- [ ] **Protected routes** with auth guards
-- [ ] **Form library** integration (React Hook Form + Zod validation)
-
----
-
 ## 📝 License
 
 MIT
