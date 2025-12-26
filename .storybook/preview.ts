@@ -1,5 +1,7 @@
 import type { Preview } from '@storybook/react'
 
+import '../src/index.css'
+
 const preview: Preview = {
   parameters: {
     controls: {
@@ -8,7 +10,11 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
+    docs: {
+      autodocs: true,
+    },
   },
+  tags: ['autodocs'],
 }
 
 export default preview

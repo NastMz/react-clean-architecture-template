@@ -118,4 +118,12 @@ export default defineConfig([
       ],
     },
   },
+  {
+    files: ['**/*.stories.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])
