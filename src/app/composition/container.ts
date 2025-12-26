@@ -6,6 +6,8 @@ import type { TodoAdapters } from '@features/todo/adapters/todoAdapters'
 import { createTodoAdapters } from '@features/todo/adapters/todoAdapters'
 import { createTodoUseCases } from '@features/todo/application/todoUseCases'
 import { createInMemoryTodoRepository } from '@features/todo/infra/inMemoryTodoRepository'
+import { createPostAdapters } from '@features/posts/adapters/postAdapters'
+import { createFetchHttpClient } from '@shared/infra/http/HttpClient'
 import { ConsoleTelemetry } from '@shared/infra/telemetry/ConsoleTelemetry'
 import { QueryClient } from '@tanstack/react-query'
 
@@ -18,6 +20,7 @@ export interface AppContainer {
   adapters: {
     auth: AuthAdapters
     todo: TodoAdapters
+    posts: ReturnType<typeof createPostAdapters>
   }
 }
 
@@ -38,19 +41,28 @@ export const createContainer = (): AppContainer => {
 
   const telemetry = new ConsoleTelemetry()
 
+  // Initialize HTTP client for external API calls
+  const httpClient = createFetchHttpClient()
+
+  // Auth feature setup
   const authRepository = createInMemoryAuthRepository(telemetry)
   const authUseCases = createAuthUseCases(authRepository, telemetry)
   const authAdapters = createAuthAdapters({ useCases: authUseCases, queryClient })
 
+  // Todo feature setup
   const todoRepository = createInMemoryTodoRepository()
   const todoUseCases = createTodoUseCases(todoRepository, telemetry)
   const todoAdapters = createTodoAdapters({ useCases: todoUseCases, queryClient })
+
+  // Posts feature setup (demonstrates HttpClient usage)
+  const postAdapters = createPostAdapters(httpClient)
 
   return {
     queryClient,
     adapters: {
       auth: authAdapters,
       todo: todoAdapters,
+      posts: postAdapters,
     },
   }
 }

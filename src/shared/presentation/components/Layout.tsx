@@ -19,6 +19,9 @@ export const RootLayout = () => {
           <Link to="/todos" className={({ isActive }) => (isActive ? 'active' : '')}>
             Todos
           </Link>
+          <Link to="/posts" className={({ isActive }) => (isActive ? 'active' : '')}>
+            Posts
+          </Link>
         </AppNav>
       </AppHeader>
       <AppMain>
