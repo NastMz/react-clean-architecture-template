@@ -432,3 +432,42 @@ describe('InMemoryProductRepository', () => {
 ---
 
 **Next**: [Testing Strategy](testing-strategy.md)
+
+---
+
+## Forms & Validation (RHF + Zod)
+
+- Recommended combo: **React Hook Form** + **Zod** for typed validation
+- Ensure inputs forward refs (our `Input` atom already does)
+- Keep validation in UI, business rules in use cases
+
+### Minimal Pattern
+
+```tsx
+import { Input } from '@shared/presentation/components/atoms/Input'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+})
+type FormValues = z.infer<typeof schema>
+
+const form = useForm<FormValues>({ resolver: zodResolver(schema) })
+
+return (
+  <form onSubmit={form.handleSubmit((data) => login(data))}>
+    <Input type="email" {...form.register('email')} />
+    {form.formState.errors.email && <small>{form.formState.errors.email.message}</small>}
+    <Input type="password" {...form.register('password')} />
+    {form.formState.errors.password && <small>{form.formState.errors.password.message}</small>}
+  </form>
+)
+```
+
+### Where to Put It
+
+- Feature UI page (e.g., `features/products/ui/ProductsPage.tsx`)
+- Keep adapters/use cases pure (no RHF/Zod imports outside UI)

@@ -260,3 +260,46 @@ test('login flow', async ({ page }) => {
 ---
 
 **Next**: [Architecture Guide](architecture.md)
+
+---
+
+## Testing Forms (RHF + Zod)
+
+Focus on user interactions and visible feedback:
+
+- Assert field-level errors after blur/submit
+- Assert that valid input triggers adapter mutation
+- Avoid implementation details (no direct RHF internals)
+
+### Example: Auth Form Validation
+
+```tsx
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+
+renderWithProviders(<AuthPage />)
+const email = screen.getByRole('textbox', { name: /email/i })
+const password = screen.getByLabelText(/password/i)
+const submit = screen.getByRole('button', { name: /login/i })
+
+// Shows field error for missing password
+await userEvent.clear(password)
+await userEvent.click(submit)
+await waitFor(() => {
+  expect(screen.getByText(/password is required/i)).toBeInTheDocument()
+})
+
+// Valid credentials trigger session display
+await userEvent.type(email, 'demo@example.com')
+await userEvent.type(password, 'demo123')
+await userEvent.click(submit)
+await waitFor(() => {
+  expect(screen.getByText(/demo user/i)).toBeInTheDocument()
+})
+```
+
+Tips:
+
+- Prefer `getByRole` with accessible names
+- Use `userEvent` for realistic typing/clicks
+- Use `waitFor` for async UI updates
