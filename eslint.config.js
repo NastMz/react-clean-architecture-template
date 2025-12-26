@@ -11,10 +11,18 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist', 'coverage', 'node_modules', '**/*.md', '**/*.json', '.storybook']),
+  globalIgnores([
+    'dist',
+    'coverage',
+    'node_modules',
+    '**/*.md',
+    '**/*.json',
+    '.storybook',
+    'playwright.config.ts',
+  ]),
   {
     files: ['**/*.{ts,tsx}'],
-    ignores: ['**/tests/**', 'src/app/composition/container.ts'],
+    ignores: ['**/tests/**', 'src/app/composition/container.ts', 'playwright.config.ts'],
     extends: [
       js.configs.recommended,
       ...tseslint.configs.recommendedTypeChecked,

@@ -34,7 +34,29 @@ const demoUser: User & { password: string } = {
 export const createInMemoryAuthRepository = (
   telemetry: TelemetryPort & LoggerPort,
 ): AuthRepository => {
-  let session: Session | null = null
+  const STORAGE_KEY = 'demo_session'
+
+  // Load initial session from localStorage if available
+  const loadSession = (): Session | null => {
+    if (typeof window === 'undefined') return null
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      return stored ? (JSON.parse(stored) as Session) : null
+    } catch {
+      return null
+    }
+  }
+
+  const saveSession = (session: Session | null): void => {
+    if (typeof window === 'undefined') return
+    if (session) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
+    } else {
+      localStorage.removeItem(STORAGE_KEY)
+    }
+  }
+
+  let session: Session | null = loadSession()
 
   return {
     async login(credentials: Credentials) {
@@ -54,10 +76,12 @@ export const createInMemoryAuthRepository = (
         user: { id: demoUser.id, email: demoUser.email, name: demoUser.name },
         token: 'demo-token',
       }
+      saveSession(session)
       return Promise.resolve(Result.ok(session))
     },
     async logout() {
       session = null
+      saveSession(null)
       return Promise.resolve(Result.ok(undefined))
     },
     async currentSession() {

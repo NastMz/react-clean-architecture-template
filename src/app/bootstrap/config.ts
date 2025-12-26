@@ -8,6 +8,7 @@ import { getEnv } from './env'
 export interface AppConfig {
   apiBaseUrl: string
   useHttp: boolean
+  authRepositoryType: 'memory' | 'http'
   featureFlags: Record<string, never>
 }
 
@@ -16,11 +17,15 @@ export interface AppConfig {
  * @param env - Environment variables loaded and validated from Zod schema
  * @returns Application configuration object with API settings and feature flags
  */
-export const createAppConfig = (env: AppEnv): AppConfig => ({
-  apiBaseUrl: env.VITE_API_BASE_URL ?? 'https://api.example.com',
-  useHttp: env.VITE_USE_HTTP === 'true',
-  featureFlags: {},
-})
+export const createAppConfig = (env: AppEnv): AppConfig => {
+  const useHttp = env.VITE_USE_HTTP === 'true'
+  return {
+    apiBaseUrl: env.VITE_API_BASE_URL ?? 'https://api.example.com',
+    useHttp,
+    authRepositoryType: useHttp ? 'http' : 'memory',
+    featureFlags: {},
+  }
+}
 
 let cachedConfig: AppConfig | null = null
 

@@ -14,6 +14,9 @@
 - [x] **Protected routes** – useAuth hook + ProtectedRoute guard component
 - [x] **Resilience patterns** – RetryPolicy (exponential backoff) + CircuitBreaker
 - [x] **Hook-based adapters** – UI never touches DI container directly
+- [x] **GitHub Actions CI/CD** – Linting, tests, build, and E2E tests
+- [x] **Environment configuration** – .env files with Zod validation
+- [x] **Playwright E2E tests** – Auth flow and protected routes coverage
 
 ## 🐛 Known Limitations
 
@@ -25,9 +28,9 @@
 
 ### Infrastructure & Tooling
 
-- [ ] **GitHub Actions** CI/CD workflow template (linting, tests, build)
-- [ ] **Environment configs** (.env.local, .env.production, etc.)
-- [ ] **Vite environment variables** documentation
+- [x] **GitHub Actions** CI/CD workflow template (linting, tests, build)
+- [x] **Environment configs** (.env.local, .env.production, etc.)
+- [x] **Vite environment variables** documentation
 
 ### Authentication & Authorization
 
@@ -51,7 +54,7 @@
 
 ### Testing & Quality
 
-- [ ] **E2E tests** with Playwright (authentication flow, protected routes)
+- [x] **E2E tests** with Playwright (authentication flow, protected routes)
 - [ ] **Code coverage** enforcement (c8)
 
 ## Notes

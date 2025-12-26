@@ -1,5 +1,4 @@
-import type { LoggerPort } from '@shared/application/ports/LoggerPort'
-import type { TelemetryPort } from '@shared/application/ports/TelemetryPort'
+import type { LoggerPort, TelemetryPort } from '@shared/application/ports/TelemetryPort'
 import { QueryClient } from '@tanstack/react-query'
 
 import type { AuthAdapters } from '@features/auth/adapters/authAdapters'
@@ -63,7 +62,7 @@ export const createContainer = (telemetry?: TelemetryPort & LoggerPort): AppCont
   const config = getConfig()
 
   const authRepository = (() => {
-    if (!config.useHttp) {
+    if (config.authRepositoryType === 'memory') {
       return createInMemoryAuthRepository(selectedTelemetry)
     }
 
