@@ -1,28 +1,22 @@
-import { useContainer } from '@app/composition/useContainer'
-import { formatAppError } from '@shared/domain/errors/AppError'
 import { Button } from '@shared/presentation/components/atoms/Button'
 import { Card, CardHeader } from '@shared/presentation/components/atoms/Card'
 import { Stack } from '@shared/presentation/components/atoms/Layout'
 import { Alert, Eyebrow, Muted, Title } from '@shared/presentation/components/atoms/Typography'
-import { useQuery as useQueryFn } from '@tanstack/react-query'
 import { useState } from 'react'
 
 import type { Post } from '../domain/Post'
+import { usePost, usePostsList } from './usePostsQueries'
 
 /**
  * Posts page demonstrating HttpClient usage
  * Fetches data from external API and displays posts
- * Shows how to integrate API calls with React Query
+ * Shows how to integrate API calls with React Query via repository pattern
  */
 export const PostsPage = () => {
-  const { adapters } = useContainer()
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
 
-  const postsQuery = useQueryFn(adapters.posts.queries.list())
-
-  const selectedPostQuery = useQueryFn(
-    selectedPostId ? adapters.posts.queries.detail(selectedPostId) : { enabled: false },
-  )
+  const postsQuery = usePostsList()
+  const selectedPostQuery = usePost(selectedPostId)
 
   const handleSelectPost = (id: number) => {
     setSelectedPostId(id)
@@ -31,6 +25,8 @@ export const PostsPage = () => {
   const handleClear = () => {
     setSelectedPostId(null)
   }
+
+  const posts: Post[] = postsQuery.data ?? []
 
   return (
     <Stack>
@@ -41,12 +37,12 @@ export const PostsPage = () => {
             <h2>External API integration demo</h2>
             <Muted>
               Demonstrates HttpClient usage fetching from JSONPlaceholder API. Shows adapter pattern
-              for API integration.
+              for API integration with proper error handling.
             </Muted>
           </div>
         </CardHeader>
 
-        {postsQuery.isError ? <Alert>{formatAppError(postsQuery.error)}</Alert> : null}
+        {postsQuery.isError && postsQuery.error ? <Alert>{postsQuery.error.message}</Alert> : null}
 
         {postsQuery.isLoading ? (
           <Muted>Loading posts…</Muted>
@@ -61,8 +57,7 @@ export const PostsPage = () => {
                 flexDirection: 'column',
               }}
             >
-              {}
-              {postsQuery.data?.map((post: Post) => (
+              {posts.map((post) => (
                 <li
                   key={post.id}
                   style={{
@@ -89,8 +84,8 @@ export const PostsPage = () => {
             <Title>Post Details</Title>
           </CardHeader>
 
-          {selectedPostQuery.isError ? (
-            <Alert>{formatAppError(selectedPostQuery.error)}</Alert>
+          {selectedPostQuery.isError && selectedPostQuery.error ? (
+            <Alert>{selectedPostQuery.error.message}</Alert>
           ) : null}
 
           {selectedPostQuery.isLoading ? (
@@ -98,7 +93,7 @@ export const PostsPage = () => {
           ) : selectedPostQuery.data ? (
             <Stack>
               <div>
-                <Eyebrow>ID: {selectedPostQuery.data.id}</Eyebrow>
+                <Eyebrow>{`ID: ${selectedPostQuery.data.id}`}</Eyebrow>
                 <Title>{selectedPostQuery.data.title}</Title>
                 <p style={{ margin: '1rem 0' }}>{selectedPostQuery.data.body}</p>
                 <Muted>By User #{selectedPostQuery.data.userId}</Muted>

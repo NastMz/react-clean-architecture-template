@@ -10,16 +10,18 @@ import type { Post } from '../domain/Post'
  */
 export const createHttpPostRepository = (httpClient: HttpClient): PostRepository => ({
   async getPosts() {
-    return httpClient.request<Post[]>({
+    const result = await httpClient.request<Post[]>({
       method: 'GET',
       url: 'https://jsonplaceholder.typicode.com/posts',
     })
+    return result.map((response) => response.data)
   },
 
   async getPost(id: number) {
-    return httpClient.request<Post>({
+    const result = await httpClient.request<Post>({
       method: 'GET',
       url: `https://jsonplaceholder.typicode.com/posts/${id}`,
     })
+    return result.map((response) => response.data)
   },
 })

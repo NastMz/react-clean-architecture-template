@@ -1,4 +1,4 @@
-import { Link, Outlet } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router-dom'
 
 import { AppHeader, AppMain, AppNav, AppShell, Brand } from './atoms/Layout'
 
@@ -13,15 +13,15 @@ export const RootLayout = () => {
       <AppHeader>
         <Brand>Clean React Starter</Brand>
         <AppNav>
-          <Link to="/auth" className={({ isActive }) => (isActive ? 'active' : '')}>
+          <NavLink to="/auth" className={({ isActive }) => (isActive ? 'active' : '')}>
             Auth
-          </Link>
-          <Link to="/todos" className={({ isActive }) => (isActive ? 'active' : '')}>
+          </NavLink>
+          <NavLink to="/todos" className={({ isActive }) => (isActive ? 'active' : '')}>
             Todos
-          </Link>
-          <Link to="/posts" className={({ isActive }) => (isActive ? 'active' : '')}>
+          </NavLink>
+          <NavLink to="/posts" className={({ isActive }) => (isActive ? 'active' : '')}>
             Posts
-          </Link>
+          </NavLink>
         </AppNav>
       </AppHeader>
       <AppMain>
