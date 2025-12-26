@@ -32,7 +32,12 @@ A fully functional **production-ready** Clean Architecture React starter with:
 
 ### Code Quality
 
-- ✅ **ESLint** with boundary enforcement rules (blocks infra imports from UI/app)
+- ✅ **ESLint** with comprehensive boundary enforcement rules:
+  - Domain cannot import outer layers
+  - Application cannot import infra or UI
+  - Adapters cannot import infra or UI
+  - UI cannot import application or infra
+  - No relative parent imports (`../`)
 - ✅ **Prettier** + **EditorConfig**
 - ✅ **Husky** + **lint-staged** pre-commit hooks
 - ✅ **Import sorting** (simple-import-sort)
@@ -42,14 +47,21 @@ A fully functional **production-ready** Clean Architecture React starter with:
 - ✅ **Vitest** + **React Testing Library**
 - ✅ Test structure: unit/ + integration/
 - ✅ Sample tests for Result, repositories, and UI flows
-- ⚠️ **Known issue**: Rolldown SSR compatibility (see KNOWN_ISSUES.md)
+- ✅ **Fixed**: Now uses standard Vite (no Rolldown issues)
+
+### Observability
+
+- ✅ **OpenTelemetry** integration for distributed tracing
+- ✅ Smart defaults: invisible in browser, visible logs in tests
+- ✅ Configurable: custom telemetry adapters supported
+- ✅ Ready for Jaeger, Tempo, Datadog, etc.
 
 ### Demo Features
 
 - ✅ **Auth** feature: login/logout with session management (in-memory)
 - ✅ **Todo** feature: list/create/toggle tasks (in-memory CRUD)
 - ✅ **Posts** feature: HTTP integration example using JSONPlaceholder API
-- ✅ Both features demonstrate full Clean Architecture flow
+- ✅ All features demonstrate full Clean Architecture with telemetry
 
 ### Component Library & Documentation
 
@@ -57,8 +69,8 @@ A fully functional **production-ready** Clean Architecture React starter with:
 - ✅ **Atomic Design** pattern (atoms, molecules, organisms)
 - ✅ Auto-generated docs for all components
 - ✅ Interactive component playground
-- ✅ Stories for Button, Input, Card, Typography atoms
-- ✅ Feature stories demonstrating Clean Architecture
+- ✅ Stories co-located with components
+- ✅ No boilerplate templates (all stories are real)
 
 ### Documentation
 
@@ -66,8 +78,9 @@ A fully functional **production-ready** Clean Architecture React starter with:
 - ✅ **docs/architecture.md** – layer explanations + flow examples
 - ✅ **docs/feature-playbook.md** – step-by-step for adding new features
 - ✅ **docs/testing-strategy.md** – how to test each layer
+- ✅ **docs/opentelemetry.md** – telemetry configuration and extension
 - ✅ **docs/decisions/README.md** – ADR template
-- ✅ **KNOWN_ISSUES.md** – test suite workaround + future work
+- ✅ **KNOWN_ISSUES.md** – tracking enhancements
 
 ---
 
@@ -153,10 +166,35 @@ pnpm build-storybook  # Build static Storybook
 ## 🎯 What Makes This Template Special
 
 1. **Actually enforces Clean Architecture** via ESLint (most templates don't)
-2. **Real working examples** (Auth + Todo, not just boilerplate)
-3. **Production patterns**: Result monad, DI, ports, telemetry
-4. **Comprehensive docs** so your team can actually use it
-5. **Pre-commit quality gates** (Husky + lint-staged)
+   - Domain layer isolation
+   - Application layer ports-only
+   - UI/Adapters cannot import infra
+   - Pre-commit hooks prevent violations
+
+2. **Real working examples** (Auth + Todo + Posts, not just boilerplate)
+   - In-memory and HTTP repositories
+   - TanStack Query integration
+   - Full telemetry instrumentation
+
+3. **Production patterns baked in**:
+   - Result<T, E> monad for errors
+   - Dependency Injection composition root
+   - Ports & Adapters architecture
+   - OpenTelemetry for observability
+   - Zod for runtime validation
+
+4. **Comprehensive documentation**:
+   - Architecture deep-dive
+   - Feature playbook (how to add features)
+   - Testing strategy by layer
+   - OpenTelemetry setup guide
+   - ADR template for decisions
+
+5. **Zero friction quality gates**:
+   - ESLint boundary rules
+   - Prettier auto-formatting
+   - Husky + lint-staged pre-commit
+   - Vitest + React Testing Library
 
 ---
 
@@ -167,18 +205,21 @@ pnpm build-storybook  # Build static Storybook
 1. Read [docs/architecture.md](docs/architecture.md) to understand layers
 2. Follow [docs/feature-playbook.md](docs/feature-playbook.md) to add first feature
 3. Adapt `HttpClient` to your API (replace in-memory repos)
-4. Swap `ConsoleTelemetry` for Sentry/OpenTelemetry
+4. Configure telemetry: [docs/opentelemetry.md](docs/opentelemetry.md) (Jaeger, Tempo, etc)
 5. Add UI library (shadcn/ui, Chakra, MUI) if needed
 
 ### To Make It Production-Ready
 
-- [ ] Fix Vitest tests (see KNOWN_ISSUES.md) or switch to standard Vite
-- [ ] Add protected routes (auth guard)
-- [ ] Implement HTTP repositories (vs in-memory)
-- [ ] Add form library (React Hook Form + Zod)
-- [ ] Set up CI/CD (GitHub Actions, etc.)
-- [ ] Add E2E tests (Playwright)
-- [ ] Configure telemetry (Sentry, OpenTelemetry)
+- [x] **Vitest + Vite** – Fixed with standard Vite
+- [ ] **Protected routes** with auth guards
+- [ ] **HTTP repositories** (replace in-memory demos)
+- [ ] **Form library** integration (React Hook Form + Zod)
+- [ ] **E2E tests** (Playwright)
+- [ ] **CI/CD pipeline** (GitHub Actions, GitLab, etc.)
+- [ ] **OpenTelemetry backend** (Jaeger, Tempo, Datadog, etc.)
+- [ ] **Environment-specific configs** (dev, staging, prod)
+- [ ] **API error handling** (network retries, circuit breaker)
+- [ ] **Monitoring & alerts** (uptime, error rates)
 
 ### Optional Enhancements
 

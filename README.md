@@ -167,6 +167,7 @@ Breaking these rules will **fail CI** and pre-commit hooks.
 - [Architecture Guide](docs/architecture.md) – Deep dive into layers
 - [Feature Playbook](docs/feature-playbook.md) – Step-by-step for new features
 - [Testing Strategy](docs/testing-strategy.md) – How to test each layer
+- [OpenTelemetry Guide](docs/opentelemetry.md) – Distributed tracing setup
 - _(Optional)_ [ADRs](docs/decisions/) – Architectural decision records
 
 ---
