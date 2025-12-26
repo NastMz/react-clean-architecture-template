@@ -15,6 +15,8 @@ export interface HttpRequest {
   url: string
   headers?: Record<string, string>
   body?: unknown
+  /** If true, skips onRequest/onResponse and refreshToken interceptor logic */
+  skipInterceptors?: boolean
 }
 
 /**
@@ -47,6 +49,12 @@ export interface HttpClient {
 export interface HttpClientOptions {
   baseUrl?: string
   getAuthToken?: () => string | null
+  /** Optional hook to modify the outgoing request before sending */
+  onRequest?: (req: HttpRequest) => Promise<HttpRequest> | HttpRequest
+  /** Optional hook to observe responses (logging/metrics) */
+  onResponse?: (info: { request: HttpRequest; status: number; durationMs: number }) => void
+  /** Optional token refresh hook. If 401 is received, this will be called and, if a token is returned, the request will be retried once with the new token. */
+  refreshToken?: () => Promise<string | null>
 }
 
 /**
@@ -59,48 +67,107 @@ export const createFetchHttpClient = (options: HttpClientOptions = {}): HttpClie
   const baseUrl = options.baseUrl?.replace(/\/$/, '') ?? ''
 
   return {
-    async request<T>({ method, url, headers, body }: HttpRequest) {
-      const controller = new AbortController()
-      const authHeader = options.getAuthToken?.()
-      const mergedHeaders: Record<string, string> = {
-        'Content-Type': 'application/json',
-        ...(authHeader ? { Authorization: `Bearer ${authHeader}` } : {}),
-        ...headers,
-      }
+    async request<T>({ method, url, headers, body, skipInterceptors }: HttpRequest) {
+      // Allow request mutation via interceptor
+      const initialRequest: HttpRequest = { method, url, headers, body, skipInterceptors }
+      const interceptedRequest = initialRequest.skipInterceptors
+        ? initialRequest
+        : ((await options.onRequest?.(initialRequest)) ?? initialRequest)
 
-      try {
-        const response = await fetch(`${baseUrl}${url}`, {
-          method,
-          headers: mergedHeaders,
-          body: body ? JSON.stringify(body) : undefined,
-          signal: controller.signal,
-        })
-
-        const contentType = response.headers.get('content-type')
-        const parsed: unknown = contentType?.includes('application/json')
-          ? await response.json()
-          : await response.text()
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            return Result.err(AppErrorFactory.unauthorized('Unauthorized'))
-          }
-
-          if (response.status === 409) {
-            return Result.err(AppErrorFactory.conflict('Conflict'))
-          }
-
-          return Result.err(
-            AppErrorFactory.unknown(`Request failed with status ${response.status}`),
-          )
+      const attempt = async (authOverride?: string | null) => {
+        const controller = new AbortController()
+        const authHeader = authOverride ?? options.getAuthToken?.()
+        const mergedHeaders: Record<string, string> = {
+          'Content-Type': 'application/json',
+          ...(authHeader ? { Authorization: `Bearer ${authHeader}` } : {}),
+          ...interceptedRequest.headers,
         }
 
-        return Result.ok({ status: response.status, data: parsed as T })
+        const started = performance.now()
+        try {
+          const response = await fetch(`${baseUrl}${interceptedRequest.url}`, {
+            method: interceptedRequest.method,
+            headers: mergedHeaders,
+            body: interceptedRequest.body ? JSON.stringify(interceptedRequest.body) : undefined,
+            signal: controller.signal,
+          })
+
+          const durationMs = performance.now() - started
+          if (!interceptedRequest.skipInterceptors) {
+            options.onResponse?.({
+              request: interceptedRequest,
+              status: response.status,
+              durationMs,
+            })
+          }
+
+          const contentType = response.headers.get('content-type')
+          const parsed: unknown = contentType?.includes('application/json')
+            ? await response.json()
+            : await response.text()
+
+          return { response, parsed }
+        } finally {
+          controller.abort()
+        }
+      }
+
+      // First attempt
+      let first
+      try {
+        first = await attempt()
       } catch (error) {
         return Result.err(AppErrorFactory.network('Network error', error))
-      } finally {
-        controller.abort()
       }
+
+      const { response, parsed } = first
+      if (!response.ok) {
+        // 401: try refresh and one retry if configured
+        if (
+          !interceptedRequest.skipInterceptors &&
+          response.status === 401 &&
+          options.refreshToken
+        ) {
+          try {
+            const newToken = await options.refreshToken()
+            if (newToken) {
+              let retry
+              try {
+                retry = await attempt(newToken)
+              } catch (error) {
+                return Result.err(AppErrorFactory.network('Network error', error))
+              }
+              if (!retry.response.ok) {
+                if (retry.response.status === 401) {
+                  return Result.err(AppErrorFactory.unauthorized('Unauthorized'))
+                }
+                if (retry.response.status === 409) {
+                  return Result.err(AppErrorFactory.conflict('Conflict'))
+                }
+                return Result.err(
+                  AppErrorFactory.unknown(`Request failed with status ${retry.response.status}`),
+                )
+              }
+              const contentType = retry.response.headers.get('content-type')
+              const parsedRetry: unknown = contentType?.includes('application/json')
+                ? await retry.response.json()
+                : await retry.response.text()
+              return Result.ok({ status: retry.response.status, data: parsedRetry as T })
+            }
+          } catch {
+            // fall-through to unauthorized error mapping
+          }
+          return Result.err(AppErrorFactory.unauthorized('Unauthorized'))
+        }
+
+        if (response.status === 409) {
+          return Result.err(AppErrorFactory.conflict('Conflict'))
+        }
+
+        return Result.err(AppErrorFactory.unknown(`Request failed with status ${response.status}`))
+      }
+
+      return Result.ok({ status: response.status, data: parsed as T })
     },
   }
 }

@@ -122,6 +122,9 @@ const httpClient = createFetchHttpClient({
   },
 })
 
+// Per-request: bypass interceptors (e.g., public endpoints)
+// repository.request({ method: 'GET', url: '/public/info', skipInterceptors: true })
+
 // 2. Uncomment these lines in container.ts:
 const httpClient = createFetchHttpClient({ baseUrl: import.meta.env.VITE_API_BASE_URL })
 const authRepository = createHttpAuthRepository(httpClient, selectedTelemetry, {
