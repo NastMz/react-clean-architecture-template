@@ -3,7 +3,7 @@
  * Initializes the React application with providers and router
  */
 
-import './index.css'
+import './styles/global.css'
 
 import { AppProviders } from '@app/composition/providers'
 import { AppRouter } from '@app/router/routes'

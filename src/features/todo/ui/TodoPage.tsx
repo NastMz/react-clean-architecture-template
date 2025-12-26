@@ -4,6 +4,8 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import type { FormEvent } from 'react'
 import { useState } from 'react'
 
+import ui from '../../styles/ui.module.css'
+
 /**
  * Example list-and-form page
  * Demonstrates CRUD-style queries/mutations with React Query
@@ -25,24 +27,25 @@ export const TodoPage = () => {
   const activeError = todosQuery.error ?? createMutation.error ?? toggleMutation.error
 
   return (
-    <section className="panel">
-      <div className="panel-header">
+    <section className={ui.panel}>
+      <div className={ui.panelHeader}>
         <div>
-          <p className="eyebrow">Todo feature</p>
+          <p className={ui.eyebrow}>Todo feature</p>
           <h2>Task manager demo</h2>
-          <p className="muted">
+          <p className={ui.muted}>
             Demonstrates CRUD via repository pattern, TanStack Query cache invalidation.
           </p>
         </div>
       </div>
 
-      {activeError ? <div className="alert">{formatAppError(activeError)}</div> : null}
+      {activeError ? <div className={ui.alert}>{formatAppError(activeError)}</div> : null}
 
-      <form className="stack" onSubmit={onSubmit}>
-        <label className="stack">
+      <form className={ui.stack} onSubmit={onSubmit}>
+        <label className={ui.stack}>
           <span>New Task</span>
-          <div className="row">
+          <div className={ui.row}>
             <input
+              className={ui.textField}
               name="title"
               type="text"
               placeholder="Buy milk, write tests…"
@@ -50,7 +53,11 @@ export const TodoPage = () => {
               onChange={(event) => setTitle(event.target.value)}
               required
             />
-            <button type="submit" className="btn primary" disabled={createMutation.isPending}>
+            <button
+              type="submit"
+              className={`${ui.btn} ${ui.primary}`}
+              disabled={createMutation.isPending}
+            >
               {createMutation.isPending ? 'Adding…' : 'Add'}
             </button>
           </div>
@@ -58,19 +65,19 @@ export const TodoPage = () => {
       </form>
 
       {todosQuery.isLoading ? (
-        <p className="muted">Loading…</p>
+        <p className={ui.muted}>Loading…</p>
       ) : (
-        <ul className="todo-list">
+        <ul className={ui.todoList}>
           {todosQuery.data?.map((todo) => (
-            <li key={todo.id} className="todo-item">
-              <label className="row">
+            <li key={todo.id} className={ui.todoItem}>
+              <label className={ui.row}>
                 <input
                   type="checkbox"
                   checked={todo.completed}
                   onChange={() => toggleMutation.mutate(todo.id)}
                   disabled={toggleMutation.isPending}
                 />
-                <span className={todo.completed ? 'strikethrough' : ''}>{todo.title}</span>
+                <span className={todo.completed ? ui.strikethrough : ''}>{todo.title}</span>
               </label>
             </li>
           ))}

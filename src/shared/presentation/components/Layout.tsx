@@ -1,5 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 
+import ui from '../../../styles/ui.module.css'
+
 /**
  * Root Layout Component
  * Provides the main shell of the application with navigation header
@@ -7,25 +9,25 @@ import { NavLink, Outlet } from 'react-router-dom'
  */
 export const RootLayout = () => {
   return (
-    <div className="app-shell">
-      <header className="app-header">
-        <div className="brand">Clean React Starter</div>
-        <nav className="app-nav">
+    <div className={ui.appShell}>
+      <header className={ui.appHeader}>
+        <div className={ui.brand}>Clean React Starter</div>
+        <nav className={ui.appNav}>
           <NavLink
             to="/auth"
-            className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+            className={({ isActive }) => (isActive ? `${ui.navLink} ${ui.active}` : ui.navLink)}
           >
             Auth
           </NavLink>
           <NavLink
             to="/todos"
-            className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+            className={({ isActive }) => (isActive ? `${ui.navLink} ${ui.active}` : ui.navLink)}
           >
             Todos
           </NavLink>
         </nav>
       </header>
-      <main className="app-main">
+      <main className={ui.appMain}>
         <Outlet />
       </main>
     </div>

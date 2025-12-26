@@ -4,6 +4,8 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import type { FormEvent } from 'react'
 import { useState } from 'react'
 
+import ui from '../../styles/ui.module.css'
+
 /**
  * Example form-driven page using queries and mutations
  * Shows a simple session-like flow with React Query
@@ -25,24 +27,26 @@ export const AuthPage = () => {
   const activeError = sessionQuery.error ?? loginMutation.error ?? logoutMutation.error
 
   return (
-    <section className="panel">
-      <div className="panel-header">
+    <section className={ui.panel}>
+      <div className={ui.panelHeader}>
         <div>
-          <p className="eyebrow">Auth feature</p>
+          <p className={ui.eyebrow}>Auth feature</p>
           <h2>Session demo</h2>
-          <p className="muted">Login is validated and persisted in-memory via a repository port.</p>
+          <p className={ui.muted}>
+            Login is validated and persisted in-memory via a repository port.
+          </p>
         </div>
       </div>
 
-      {activeError ? <div className="alert">{formatAppError(activeError)}</div> : null}
+      {activeError ? <div className={ui.alert}>{formatAppError(activeError)}</div> : null}
 
       {sessionQuery.data ? (
-        <div className="session-card">
-          <p className="eyebrow">Logged in</p>
-          <p className="title">{sessionQuery.data.user.name}</p>
-          <p className="muted">{sessionQuery.data.user.email}</p>
+        <div className={ui.sessionCard}>
+          <p className={ui.eyebrow}>Logged in</p>
+          <p className={ui.title}>{sessionQuery.data.user.name}</p>
+          <p className={ui.muted}>{sessionQuery.data.user.email}</p>
           <button
-            className="btn ghost"
+            className={`${ui.btn} ${ui.ghost}`}
             onClick={() => logoutMutation.mutate()}
             disabled={logoutMutation.isPending}
           >
@@ -50,10 +54,11 @@ export const AuthPage = () => {
           </button>
         </div>
       ) : (
-        <form className="stack" onSubmit={onSubmit}>
-          <label className="stack">
+        <form className={ui.stack} onSubmit={onSubmit}>
+          <label className={ui.stack}>
             <span>Email</span>
             <input
+              className={ui.textField}
               name="email"
               type="email"
               value={credentials.email}
@@ -63,9 +68,10 @@ export const AuthPage = () => {
               required
             />
           </label>
-          <label className="stack">
+          <label className={ui.stack}>
             <span>Password</span>
             <input
+              className={ui.textField}
               name="password"
               type="password"
               value={credentials.password}
@@ -75,11 +81,15 @@ export const AuthPage = () => {
               required
             />
           </label>
-          <div className="row">
-            <button type="submit" className="btn primary" disabled={loginMutation.isPending}>
+          <div className={ui.row}>
+            <button
+              type="submit"
+              className={`${ui.btn} ${ui.primary}`}
+              disabled={loginMutation.isPending}
+            >
               {loginMutation.isPending ? 'Signing in…' : 'Login'}
             </button>
-            <p className="muted">Use demo@example.com / demo123</p>
+            <p className={ui.muted}>Use demo@example.com / demo123</p>
           </div>
         </form>
       )}
