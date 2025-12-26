@@ -4,6 +4,89 @@ Step-by-step guide to adding a new feature to this Clean Architecture template.
 
 ---
 
+## Before You Start: Choose Your Repository Type
+
+### Option 1: In-Memory Repository (Prototyping)
+
+**Use when:**
+
+- Building UI mockups without a backend
+- Running integration tests
+- Demonstrating features to stakeholders
+
+**Benefits:**
+
+- Zero latency, instant responses
+- No HTTP setup needed
+- Easy to test
+
+**Example:** See [inMemoryAuthRepository.ts](../src/features/auth/infra/inMemoryAuthRepository.ts)
+
+### Option 2: HTTP Repository (Production)
+
+**Use when:**
+
+- Connecting to a real API
+- Need automatic retries for transient failures
+- Want circuit breaker protection
+
+**Benefits:**
+
+- ✅ **RetryPolicy**: 3 automatic retries with exponential backoff (100ms → 5s)
+- ✅ Retries network errors and 5xx status codes
+- ✅ Circuit breaker ready (optional)
+- ✅ Telemetry tracking for all operations
+
+**Example:** See [httpAuthRepository.ts](../src/features/auth/infra/httpAuthRepository.ts)
+
+**How to add resilience patterns to your HTTP repository:**
+
+```typescript
+import { RetryPolicy } from '@shared/infra/resilience/RetryPolicy'
+import { HttpClient } from '@shared/infra/http/HttpClient'
+
+export class HttpProductRepository implements ProductRepository {
+  private readonly retryPolicy: RetryPolicy
+
+  constructor(
+    private httpClient: HttpClient,
+    private telemetry: TelemetryPort,
+    private options: { baseUrl: string },
+  ) {
+    // Configure retry: 3 attempts, exponential backoff
+    this.retryPolicy = new RetryPolicy(3, {
+      baseDelay: 100,
+      maxDelay: 5000,
+      backoffMultiplier: 2,
+    })
+  }
+
+  async list(): Promise<Result<Product[], AppError>> {
+    try {
+      // Wrap HTTP call with retry policy
+      const result = await this.retryPolicy.execute(() =>
+        this.httpClient.request<Product[]>({
+          method: 'GET',
+          url: `${this.options.baseUrl}/products`,
+        }),
+      )
+
+      if (result.isErr) {
+        return Result.err(result.error)
+      }
+
+      return Result.ok(result.value.data)
+    } catch (error) {
+      return Result.err(AppErrorFactory.fromUnknown(error))
+    }
+  }
+}
+```
+
+**Need circuit breaker?** See [CircuitBreaker.ts](../src/shared/infra/resilience/CircuitBreaker.ts) - wrap your `httpClient.request()` call.
+
+---
+
 ## Example: Adding a "Products" Feature
 
 ### Step 1: Create Folder Structure

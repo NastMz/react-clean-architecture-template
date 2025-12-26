@@ -1,8 +1,8 @@
-# 🎉 React Clean Architecture Template - Complete!
+# 🎉 React Clean Architecture Template - Production Ready!
 
 ## ✅ What's Been Built
 
-A fully functional **production-ready** Clean Architecture React starter with:
+A **minimal, production-ready** Clean Architecture React starter with complete Auth implementation:
 
 ### Core Stack
 
@@ -16,7 +16,11 @@ A fully functional **production-ready** Clean Architecture React starter with:
 - ✅ **Result<T, E>** monad for error handling
 - ✅ **AppError** with categories (Validation, Unauthorized, Network, Conflict, Unknown)
 - ✅ **Ports & Adapters** pattern
-- ✅ **Repository** pattern with in-memory implementations
+- ✅ **Repository** pattern with both in-memory and HTTP implementations
+- ✅ **Protected Routes** with `useAuth()` hook and `ProtectedRoute` guard component
+- ✅ **Resilience Patterns**:
+  - RetryPolicy: 3 attempts, exponential backoff (100ms → 5s)
+  - CircuitBreaker: CLOSED → OPEN → HALF_OPEN states (ready to integrate)
 
 ### State Management & Data Fetching
 
@@ -28,7 +32,7 @@ A fully functional **production-ready** Clean Architecture React starter with:
 
 - ✅ **Zod** schemas for runtime validation
 - ✅ DTO mapping (domain ↔ infra)
-- ✅ **TypeScript strict mode**
+- ✅ **TypeScript strict mode** + **verbatimModuleSyntax** + **erasableSyntaxOnly**
 
 ### Code Quality
 
@@ -42,11 +46,18 @@ A fully functional **production-ready** Clean Architecture React starter with:
 - ✅ **Husky** + **lint-staged** pre-commit hooks
 - ✅ **Import sorting** (simple-import-sort)
 
-### Testing (Setup Complete)
+### Testing (29 tests, 100% passing)
 
 - ✅ **Vitest** + **React Testing Library**
 - ✅ Test structure: unit/ + integration/
-- ✅ Sample tests for Result, repositories, and UI flows
+- ✅ Tests for:
+  - Result monad (5 tests)
+  - CircuitBreaker (4 tests)
+  - RetryPolicy (6 tests)
+  - InMemoryAuthRepository (3 tests)
+  - HttpAuthRepository (6 tests)
+  - ProtectedRoute (3 tests)
+  - AuthPage integration (2 tests)
 
 ### Observability
 
@@ -55,12 +66,17 @@ A fully functional **production-ready** Clean Architecture React starter with:
 - ✅ Configurable: custom telemetry adapters supported
 - ✅ Ready for Jaeger, Tempo, Datadog, etc.
 
-### Demo Features
+### Demo Feature: Auth (Complete Reference Implementation)
 
-- ✅ **Auth** feature: login/logout with session management (in-memory)
-- ✅ **Todo** feature: list/create/toggle tasks (in-memory CRUD)
-- ✅ **Posts** feature: HTTP integration example using JSONPlaceholder API
-- ✅ All features demonstrate full Clean Architecture with telemetry
+- ✅ **Domain**: User, Session, Credentials entities
+- ✅ **Application**: login/logout/currentSession use cases + AuthRepository port
+- ✅ **Adapters**: TanStack Query integration (authAdapters.ts)
+- ✅ **Infrastructure**:
+  - inMemoryAuthRepository.ts - Instant demo mode (default)
+  - httpAuthRepository.ts - Production HTTP mode with RetryPolicy
+- ✅ **UI**: AuthPage.tsx with login/logout flow
+- ✅ **Telemetry**: All operations tracked
+- ✅ **Tests**: Unit + integration coverage
 
 ### Component Library & Documentation
 
@@ -73,11 +89,10 @@ A fully functional **production-ready** Clean Architecture React starter with:
 
 ### Documentation
 
-- ✅ **README.md** with setup, scripts, and "add feature" guide
+- ✅ **README.md** with setup, repository switching, and "add feature" guide
 - ✅ **docs/architecture.md** – layer explanations + flow examples
 - ✅ **docs/feature-playbook.md** – step-by-step for adding new features
 - ✅ **docs/testing-strategy.md** – how to test each layer
-- ✅ **docs/opentelemetry.md** – telemetry configuration and extension
 - ✅ **docs/decisions/README.md** – ADR template
 - ✅ **KNOWN_ISSUES.md** – tracking enhancements
 
@@ -90,10 +105,9 @@ pnpm install
 pnpm dev         # http://localhost:5173
 ```
 
-Navigate to:
+Navigate to `/auth` – Login as `demo@example.com` / any password
 
-- `/auth` – Login as `demo@example.com` / `demo123`
-- `/todos` – Add and toggle tasks
+**Switch to production HTTP repository:** See [README.md](./README.md#switching-to-production-http-repository)
 
 ---
 
@@ -103,31 +117,30 @@ Navigate to:
 src/
   app/
     composition/      # DI container + providers (composition root)
-    router/           # React Router routes
+    router/           # React Router routes + ProtectedRoute guard
     bootstrap/        # env + config
   shared/
     domain/           # Result, AppError, core types
     application/      # TelemetryPort, LoggerPort
-    infra/            # HttpClient, ConsoleTelemetry
+    infra/
+      http/           # HttpClient
+      resilience/     # RetryPolicy, CircuitBreaker
+      telemetry/      # ConsoleTelemetry, OpenTelemetryAdapter
     presentation/     # Layout, shared UI
   features/
     auth/
       domain/         # User, Session, Credentials
       application/    # authUseCases + AuthRepository port
       adapters/       # authAdapters (TanStack Query)
-      infra/          # inMemoryAuthRepository
+      infra/          # inMemoryAuthRepository + httpAuthRepository
       ui/             # AuthPage
-    todo/
-      domain/         # Todo
-      application/    # todoUseCases + TodoRepository port
-      adapters/       # todoAdapters (TanStack Query)
-      infra/          # inMemoryTodoRepository
-      ui/             # TodoPage
 tests/
-  unit/             # Domain, use cases, repos
-  integration/      # UI flows
+  unit/             # Domain, use cases, repos, resilience patterns
+  integration/      # UI flows, protected routes
   setup.ts
 ```
+
+**Philosophy:** Minimal template, maximum clarity. One complete example (Auth) shows the full pattern. Teams extend from here.
 
 ---
 
