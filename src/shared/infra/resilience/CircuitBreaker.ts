@@ -34,11 +34,10 @@ export class CircuitBreaker<T> {
   private lastFailureTime?: number
   private readonly failureThreshold: number
   private readonly resetTimeout: number
+  private readonly fn: () => Promise<T>
 
-  constructor(
-    private readonly fn: () => Promise<T>,
-    options?: CircuitBreakerOptions,
-  ) {
+  constructor(fn: () => Promise<T>, options?: CircuitBreakerOptions) {
+    this.fn = fn
     this.failureThreshold = options?.failureThreshold ?? 5
     this.resetTimeout = options?.resetTimeout ?? 30000
   }

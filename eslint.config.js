@@ -19,6 +19,8 @@ export default defineConfig([
     '**/*.json',
     '.storybook',
     'playwright.config.ts',
+    '**/*.stories.tsx',
+    '**/*.stories.ts',
   ]),
   {
     files: ['**/*.{ts,tsx}'],

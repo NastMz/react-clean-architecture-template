@@ -1,11 +1,18 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import {
+  QueryClient,
+  QueryClientProvider,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
-import { BrowserRouter } from 'react-router-dom'
+import { MemoryRouter, BrowserRouter, Routes, Route } from 'react-router-dom'
 import { describe, it, expect } from 'vitest'
 
 import { ContainerContext } from '@app/composition/ContainerContext'
 import { ProtectedRoute } from '@app/router/ProtectedRoute'
 import type { AppContainer } from '@app/composition/container'
+import type { Session, Credentials } from '@features/auth/domain/User'
+import type { AppError } from '@shared/domain/errors/AppError'
 
 describe('ProtectedRoute', () => {
   const mockSession = {
@@ -32,20 +39,23 @@ describe('ProtectedRoute', () => {
       adapters: {
         auth: {
           queries: {
-            session: () => ({
-              queryKey: ['auth', 'session'] as const,
-              queryFn: async () => sessionData,
-            }),
+            session: () =>
+              queryOptions<Session | null, AppError>({
+                queryKey: ['auth', 'session'] as const,
+                queryFn: async () => sessionData,
+              }),
           },
           mutations: {
-            login: () => ({
-              mutationKey: ['auth', 'login'] as const,
-              mutationFn: async () => mockSession,
-            }),
-            logout: () => ({
-              mutationKey: ['auth', 'logout'] as const,
-              mutationFn: async () => undefined,
-            }),
+            login: () =>
+              mutationOptions<Session, AppError, Credentials>({
+                mutationKey: ['auth', 'login'] as const,
+                mutationFn: async () => mockSession,
+              }),
+            logout: () =>
+              mutationOptions<void, AppError, void>({
+                mutationKey: ['auth', 'logout'] as const,
+                mutationFn: async () => {},
+              }),
           },
         },
       },
@@ -74,9 +84,15 @@ describe('ProtectedRoute', () => {
     render(
       <QueryClientProvider client={container.queryClient}>
         <ContainerContext.Provider value={container}>
-          <BrowserRouter initialEntries={['/auth']}>
-            <ProtectedRoute element={<div>Protected Content</div>} />
-          </BrowserRouter>
+          <MemoryRouter initialEntries={['/protected']}>
+            <Routes>
+              <Route
+                path="/protected"
+                element={<ProtectedRoute element={<div>Protected Content</div>} />}
+              />
+              <Route path="/auth" element={<div>Login Page</div>} />
+            </Routes>
+          </MemoryRouter>
         </ContainerContext.Provider>
       </QueryClientProvider>,
     )

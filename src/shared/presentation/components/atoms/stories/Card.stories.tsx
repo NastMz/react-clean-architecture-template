@@ -14,7 +14,7 @@ type Story = StoryObj<typeof meta>
 
 export const Basic: Story = {
   render: () => (
-    <Card style={{ width: '400px' }}>
+    <Card>
       <CardHeader>
         <h2>Card Title</h2>
       </CardHeader>
@@ -25,7 +25,7 @@ export const Basic: Story = {
 
 export const WithContent: Story = {
   render: () => (
-    <Card style={{ width: '400px' }}>
+    <Card>
       <CardHeader>
         <h3>User Profile</h3>
       </CardHeader>

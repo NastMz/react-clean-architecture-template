@@ -34,7 +34,7 @@ describe('RetryPolicy', () => {
 
   it('retries on retryable status codes', async () => {
     const error503 = new Error('Service unavailable')
-    ;(error503 as Record<string, unknown>).statusCode = 503
+    ;(error503 as unknown as Record<string, unknown>).statusCode = 503
 
     mockFn.mockRejectedValueOnce(error503).mockResolvedValue('success')
 
@@ -46,7 +46,7 @@ describe('RetryPolicy', () => {
 
   it('fails on non-retryable errors', async () => {
     const error400 = new Error('Bad request')
-    ;(error400 as Record<string, unknown>).statusCode = 400
+    ;(error400 as unknown as Record<string, unknown>).statusCode = 400
 
     mockFn.mockRejectedValue(error400)
 
@@ -66,7 +66,8 @@ describe('RetryPolicy', () => {
     vi.useFakeTimers()
     mockFn.mockRejectedValue(new TypeError('Network error'))
 
-    const promise = policy.execute(mockFn)
+    // Start execution but don't await
+    void policy.execute(mockFn)
 
     // Should delay before retries
     expect(mockFn).toHaveBeenCalledTimes(1)

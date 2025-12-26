@@ -8,7 +8,7 @@ import { ConsoleTelemetry } from '@shared/infra/telemetry/ConsoleTelemetry'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, beforeEach } from 'vitest'
 
 const createTestContainer = (): AppContainer => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
@@ -21,7 +21,6 @@ const createTestContainer = (): AppContainer => {
     queryClient,
     adapters: {
       auth: authAdapters,
-      todo: {} as never,
     },
   }
 }
@@ -36,6 +35,11 @@ const renderWithProviders = (ui: React.ReactElement) => {
 }
 
 describe('AuthPage integration', () => {
+  beforeEach(() => {
+    // Clear localStorage between tests to avoid session persistence
+    localStorage.clear()
+  })
+
   it('should log in successfully with valid credentials', async () => {
     const user = userEvent.setup()
     renderWithProviders(<AuthPage />)
@@ -63,10 +67,11 @@ describe('AuthPage integration', () => {
     const passwordInput = screen.getByLabelText(/password/i)
     const loginButton = screen.getByRole('button', { name: /login/i })
 
-    await user.clear(emailInput)
-    await user.type(emailInput, 'wrong@example.com')
-    await user.clear(passwordInput)
-    await user.type(passwordInput, 'wrong')
+    // Triple click to select all and then type to replace
+    await user.tripleClick(emailInput)
+    await user.keyboard('wrong@example.com')
+    await user.tripleClick(passwordInput)
+    await user.keyboard('wrong')
     await user.click(loginButton)
 
     await waitFor(() => {
