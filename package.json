@@ -77,11 +77,13 @@
     "vitest": "^2.1.4"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx,json,css,md}": [
+    "*.{ts,tsx}": [
       "prettier --write",
       "eslint --fix --no-warn-ignored",
-      "prettier --check --ignore-unknown",
-      "eslint --max-warnings=0 --no-warn-ignored"
+      "tsc --noEmit"
+    ],
+    "*.{js,jsx,json,css,md}": [
+      "prettier --write"
     ]
   },
   "pnpm": {
