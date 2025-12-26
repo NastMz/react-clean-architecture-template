@@ -1,8 +1,5 @@
-import type { HttpClient } from '@shared/infra/http/HttpClient'
-
-import { createPostUseCases } from '../application/postUseCases'
-import type { Post } from '../domain/Post'
-import { createHttpPostRepository } from '../infra/httpPostRepository'
+import type { PostUseCases } from '@features/posts/application/postUseCases'
+import type { Post } from '@features/posts/domain/Post'
 
 /**
  * Custom error class for posts feature
@@ -17,13 +14,9 @@ class PostsError extends Error {
 
 /**
  * Post Feature Adapters
- * Composition of infrastructure, repositories, and use cases
  * Converts Result<T, E> responses to React Query compatible format
  */
-export const createPostAdapters = (httpClient: HttpClient) => {
-  const postRepository = createHttpPostRepository(httpClient)
-  const useCases = createPostUseCases(postRepository)
-
+export const createPostAdapters = (useCases: PostUseCases) => {
   return {
     /**
      * React Query queries for posts
@@ -39,7 +32,7 @@ export const createPostAdapters = (httpClient: HttpClient) => {
           if (result.isErr) {
             throw new PostsError(result.error.message)
           }
-          return result.value as Post[]
+          return result.value
         }
         return {
           queryKey: ['posts', 'list'],
@@ -56,7 +49,7 @@ export const createPostAdapters = (httpClient: HttpClient) => {
           if (result.isErr) {
             throw new PostsError(result.error.message)
           }
-          return result.value as Post
+          return result.value
         }
         return {
           queryKey: ['posts', id],

@@ -1,7 +1,6 @@
+import { Input } from '@shared/presentation/components/atoms/Input'
 import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
-
-import { Input } from '../Input'
 
 const meta = {
   title: 'Atoms/Input',

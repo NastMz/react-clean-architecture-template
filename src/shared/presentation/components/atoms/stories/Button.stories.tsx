@@ -1,6 +1,5 @@
+import { Button } from '@shared/presentation/components/atoms/Button'
 import type { Meta, StoryObj } from '@storybook/react'
-
-import { Button } from '../Button'
 
 const meta = {
   title: 'Atoms/Button',

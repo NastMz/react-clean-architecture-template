@@ -1,9 +1,8 @@
+import type { TodoRepository } from '@features/todo/application/ports/TodoRepository'
+import type { CreateTodoInput, Todo } from '@features/todo/domain/Todo'
 import { AppErrorFactory } from '@shared/domain/errors/AppError'
 import { Result } from '@shared/domain/result/Result'
 import { z } from 'zod'
-
-import type { TodoRepository } from '../application/ports/TodoRepository'
-import type { CreateTodoInput, Todo } from '../domain/Todo'
 
 /**
  * Zod schema for validating todo creation input

@@ -1,10 +1,9 @@
+import type { AuthRepository } from '@features/auth/application/ports/AuthRepository'
+import type { Credentials, Session, User } from '@features/auth/domain/User'
 import type { LoggerPort, TelemetryPort } from '@shared/application/ports/TelemetryPort'
 import { AppErrorFactory } from '@shared/domain/errors/AppError'
 import { Result } from '@shared/domain/result/Result'
 import { z } from 'zod'
-
-import type { AuthRepository } from '../application/ports/AuthRepository'
-import type { Credentials, Session, User } from '../domain/User'
 
 /**
  * Zod schema for validating login credentials format

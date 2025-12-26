@@ -1,9 +1,8 @@
+import type { TodoUseCases } from '@features/todo/application/todoUseCases'
+import type { CreateTodoInput, Todo } from '@features/todo/domain/Todo'
 import type { AppError } from '@shared/domain/errors/AppError'
 import type { QueryClient } from '@tanstack/react-query'
 import { mutationOptions, queryOptions } from '@tanstack/react-query'
-
-import type { TodoUseCases } from '../application/todoUseCases'
-import type { CreateTodoInput, Todo } from '../domain/Todo'
 
 /**
  * Query keys for todo-related React Query operations

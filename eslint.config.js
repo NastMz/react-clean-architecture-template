@@ -46,6 +46,7 @@ export default defineConfig([
     rules: {
       'import/no-unresolved': 'off',
       'import/order': 'off',
+      'import/no-relative-packages': 'error',
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
@@ -53,6 +54,11 @@ export default defineConfig([
         'error',
         {
           patterns: [
+            {
+              group: ['../*'],
+              message:
+                'Parent directory imports are not allowed. Use path aliases: @app/*, @shared/*, @features/*, @tests/*',
+            },
             {
               group: ['**/features/*/infra/**', '@features/*/infra/**'],
               message: 'UI and application layers cannot import infra directly.',

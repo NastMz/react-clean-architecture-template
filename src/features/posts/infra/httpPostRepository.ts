@@ -1,7 +1,6 @@
+import type { PostRepository } from '@features/posts/application/ports/PostRepository'
+import type { Post } from '@features/posts/domain/Post'
 import type { HttpClient } from '@shared/infra/http/HttpClient'
-
-import type { PostRepository } from '../application/ports/PostRepository'
-import type { Post } from '../domain/Post'
 
 /**
  * HTTP Post Repository Implementation

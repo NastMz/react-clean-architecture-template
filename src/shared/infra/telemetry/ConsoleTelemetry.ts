@@ -1,4 +1,4 @@
-import type { LoggerPort, TelemetryPort } from '../../application/ports/TelemetryPort'
+import type { LoggerPort, TelemetryPort } from '@shared/application/ports/TelemetryPort'
 
 /**
  * Console-based implementation of Telemetry and Logger ports

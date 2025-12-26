@@ -1,6 +1,5 @@
+import { Alert, Eyebrow, Muted, Title } from '@shared/presentation/components/atoms/Typography'
 import type { Meta, StoryObj } from '@storybook/react'
-
-import { Alert, Eyebrow, Muted, Title } from '../Typography'
 
 const meta = {
   title: 'Atoms/Typography',

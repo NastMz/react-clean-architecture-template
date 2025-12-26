@@ -7,6 +7,8 @@ import { createTodoAdapters } from '@features/todo/adapters/todoAdapters'
 import { createTodoUseCases } from '@features/todo/application/todoUseCases'
 import { createInMemoryTodoRepository } from '@features/todo/infra/inMemoryTodoRepository'
 import { createPostAdapters } from '@features/posts/adapters/postAdapters'
+import { createPostUseCases } from '@features/posts/application/postUseCases'
+import { createHttpPostRepository } from '@features/posts/infra/httpPostRepository'
 import { createFetchHttpClient } from '@shared/infra/http/HttpClient'
 import { ConsoleTelemetry } from '@shared/infra/telemetry/ConsoleTelemetry'
 import { QueryClient } from '@tanstack/react-query'
@@ -55,7 +57,9 @@ export const createContainer = (): AppContainer => {
   const todoAdapters = createTodoAdapters({ useCases: todoUseCases, queryClient })
 
   // Posts feature setup (demonstrates HttpClient usage)
-  const postAdapters = createPostAdapters(httpClient)
+  const postRepository = createHttpPostRepository(httpClient)
+  const postUseCases = createPostUseCases(postRepository)
+  const postAdapters = createPostAdapters(postUseCases)
 
   return {
     queryClient,
