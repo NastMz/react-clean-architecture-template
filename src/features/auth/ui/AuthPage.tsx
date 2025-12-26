@@ -1,10 +1,14 @@
 import { useContainer } from '@app/composition/useContainer'
 import { formatAppError } from '@shared/domain/errors/AppError'
+import { Button } from '@shared/presentation/components/atoms/Button'
+import { Card, CardHeader } from '@shared/presentation/components/atoms/Card'
+import { Input } from '@shared/presentation/components/atoms/Input'
+import { Row, Stack } from '@shared/presentation/components/atoms/Layout'
+import { Alert, Eyebrow, Muted, Title } from '@shared/presentation/components/atoms/Typography'
+import { SessionCard } from '@shared/presentation/components/molecules/SessionCard'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import type { FormEvent } from 'react'
 import { useState } from 'react'
-
-import ui from '../../styles/ui.module.css'
 
 /**
  * Example form-driven page using queries and mutations
@@ -27,72 +31,66 @@ export const AuthPage = () => {
   const activeError = sessionQuery.error ?? loginMutation.error ?? logoutMutation.error
 
   return (
-    <section className={ui.panel}>
-      <div className={ui.panelHeader}>
+    <Card>
+      <CardHeader>
         <div>
-          <p className={ui.eyebrow}>Auth feature</p>
+          <Eyebrow>Auth feature</Eyebrow>
           <h2>Session demo</h2>
-          <p className={ui.muted}>
-            Login is validated and persisted in-memory via a repository port.
-          </p>
+          <Muted>Login is validated and persisted in-memory via a repository port.</Muted>
         </div>
-      </div>
+      </CardHeader>
 
-      {activeError ? <div className={ui.alert}>{formatAppError(activeError)}</div> : null}
+      {activeError ? <Alert>{formatAppError(activeError)}</Alert> : null}
 
       {sessionQuery.data ? (
-        <div className={ui.sessionCard}>
-          <p className={ui.eyebrow}>Logged in</p>
-          <p className={ui.title}>{sessionQuery.data.user.name}</p>
-          <p className={ui.muted}>{sessionQuery.data.user.email}</p>
-          <button
-            className={`${ui.btn} ${ui.ghost}`}
+        <SessionCard>
+          <Eyebrow>Logged in</Eyebrow>
+          <Title>{sessionQuery.data.user.name}</Title>
+          <Muted>{sessionQuery.data.user.email}</Muted>
+          <Button
+            variant="ghost"
             onClick={() => logoutMutation.mutate()}
             disabled={logoutMutation.isPending}
           >
             {logoutMutation.isPending ? 'Closing session…' : 'Logout'}
-          </button>
-        </div>
+          </Button>
+        </SessionCard>
       ) : (
-        <form className={ui.stack} onSubmit={onSubmit}>
-          <label className={ui.stack}>
-            <span>Email</span>
-            <input
-              className={ui.textField}
-              name="email"
-              type="email"
-              value={credentials.email}
-              onChange={(event) =>
-                setCredentials((prev) => ({ ...prev, email: event.target.value }))
-              }
-              required
-            />
-          </label>
-          <label className={ui.stack}>
-            <span>Password</span>
-            <input
-              className={ui.textField}
-              name="password"
-              type="password"
-              value={credentials.password}
-              onChange={(event) =>
-                setCredentials((prev) => ({ ...prev, password: event.target.value }))
-              }
-              required
-            />
-          </label>
-          <div className={ui.row}>
-            <button
-              type="submit"
-              className={`${ui.btn} ${ui.primary}`}
-              disabled={loginMutation.isPending}
-            >
-              {loginMutation.isPending ? 'Signing in…' : 'Login'}
-            </button>
-            <p className={ui.muted}>Use demo@example.com / demo123</p>
-          </div>
+        <form onSubmit={onSubmit}>
+          <Stack>
+            <label>
+              <span>Email</span>
+              <Input
+                name="email"
+                type="email"
+                value={credentials.email}
+                onChange={(event) =>
+                  setCredentials((prev) => ({ ...prev, email: event.target.value }))
+                }
+                required
+              />
+            </label>
+            <label>
+              <span>Password</span>
+              <Input
+                name="password"
+                type="password"
+                value={credentials.password}
+                onChange={(event) =>
+                  setCredentials((prev) => ({ ...prev, password: event.target.value }))
+                }
+                required
+              />
+            </label>
+            <Row>
+              <Button type="submit" disabled={loginMutation.isPending}>
+                {loginMutation.isPending ? 'Signing in…' : 'Login'}
+              </Button>
+              <Muted>Use demo@example.com / demo123</Muted>
+            </Row>
+          </Stack>
         </form>
       )}
-    </section>
+    </Card>
   )
 }

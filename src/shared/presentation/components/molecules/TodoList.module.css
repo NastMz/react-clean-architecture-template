@@ -1,0 +1,42 @@
+.todoList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.todoItem {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  transition: background-color 0.2s;
+}
+
+.todoItem:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.label {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.strikethrough {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+@media (prefers-color-scheme: light) {
+  .todoItem {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
+
+  .todoItem:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+  }
+}

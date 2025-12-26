@@ -1,0 +1,16 @@
+.sessionCard {
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: rgba(100, 108, 255, 0.1);
+  border: 1px solid rgba(100, 108, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@media (prefers-color-scheme: light) {
+  .sessionCard {
+    background-color: rgba(100, 108, 255, 0.08);
+    border-color: rgba(100, 108, 255, 0.4);
+  }
+}

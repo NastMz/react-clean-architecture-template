@@ -1,6 +1,6 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 
-import ui from '../../../styles/ui.module.css'
+import { AppHeader, AppMain, AppNav, AppShell, Brand } from './atoms/Layout'
 
 /**
  * Root Layout Component
@@ -9,27 +9,21 @@ import ui from '../../../styles/ui.module.css'
  */
 export const RootLayout = () => {
   return (
-    <div className={ui.appShell}>
-      <header className={ui.appHeader}>
-        <div className={ui.brand}>Clean React Starter</div>
-        <nav className={ui.appNav}>
-          <NavLink
-            to="/auth"
-            className={({ isActive }) => (isActive ? `${ui.navLink} ${ui.active}` : ui.navLink)}
-          >
+    <AppShell>
+      <AppHeader>
+        <Brand>Clean React Starter</Brand>
+        <AppNav>
+          <Link to="/auth" className={({ isActive }) => (isActive ? 'active' : '')}>
             Auth
-          </NavLink>
-          <NavLink
-            to="/todos"
-            className={({ isActive }) => (isActive ? `${ui.navLink} ${ui.active}` : ui.navLink)}
-          >
+          </Link>
+          <Link to="/todos" className={({ isActive }) => (isActive ? 'active' : '')}>
             Todos
-          </NavLink>
-        </nav>
-      </header>
-      <main className={ui.appMain}>
+          </Link>
+        </AppNav>
+      </AppHeader>
+      <AppMain>
         <Outlet />
-      </main>
-    </div>
+      </AppMain>
+    </AppShell>
   )
 }

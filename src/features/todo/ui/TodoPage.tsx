@@ -1,10 +1,14 @@
 import { useContainer } from '@app/composition/useContainer'
 import { formatAppError } from '@shared/domain/errors/AppError'
+import { Button } from '@shared/presentation/components/atoms/Button'
+import { Card, CardHeader } from '@shared/presentation/components/atoms/Card'
+import { Input } from '@shared/presentation/components/atoms/Input'
+import { Row, Stack } from '@shared/presentation/components/atoms/Layout'
+import { Alert, Eyebrow, Muted } from '@shared/presentation/components/atoms/Typography'
+import { TodoItem, TodoList } from '@shared/presentation/components/molecules/TodoList'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import type { FormEvent } from 'react'
 import { useState } from 'react'
-
-import ui from '../../styles/ui.module.css'
 
 /**
  * Example list-and-form page
@@ -27,62 +31,55 @@ export const TodoPage = () => {
   const activeError = todosQuery.error ?? createMutation.error ?? toggleMutation.error
 
   return (
-    <section className={ui.panel}>
-      <div className={ui.panelHeader}>
+    <Card>
+      <CardHeader>
         <div>
-          <p className={ui.eyebrow}>Todo feature</p>
+          <Eyebrow>Todo feature</Eyebrow>
           <h2>Task manager demo</h2>
-          <p className={ui.muted}>
+          <Muted>
             Demonstrates CRUD via repository pattern, TanStack Query cache invalidation.
-          </p>
+          </Muted>
         </div>
-      </div>
+      </CardHeader>
 
-      {activeError ? <div className={ui.alert}>{formatAppError(activeError)}</div> : null}
+      {activeError ? <Alert>{formatAppError(activeError)}</Alert> : null}
 
-      <form className={ui.stack} onSubmit={onSubmit}>
-        <label className={ui.stack}>
-          <span>New Task</span>
-          <div className={ui.row}>
-            <input
-              className={ui.textField}
-              name="title"
-              type="text"
-              placeholder="Buy milk, write tests…"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              required
-            />
-            <button
-              type="submit"
-              className={`${ui.btn} ${ui.primary}`}
-              disabled={createMutation.isPending}
-            >
-              {createMutation.isPending ? 'Adding…' : 'Add'}
-            </button>
-          </div>
-        </label>
+      <form onSubmit={onSubmit}>
+        <Stack>
+          <label>
+            <span>New Task</span>
+            <Row>
+              <Input
+                name="title"
+                type="text"
+                placeholder="Buy milk, write tests…"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                required
+              />
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? 'Adding…' : 'Add'}
+              </Button>
+            </Row>
+          </label>
+        </Stack>
       </form>
 
       {todosQuery.isLoading ? (
-        <p className={ui.muted}>Loading…</p>
+        <Muted>Loading…</Muted>
       ) : (
-        <ul className={ui.todoList}>
+        <TodoList>
           {todosQuery.data?.map((todo) => (
-            <li key={todo.id} className={ui.todoItem}>
-              <label className={ui.row}>
-                <input
-                  type="checkbox"
-                  checked={todo.completed}
-                  onChange={() => toggleMutation.mutate(todo.id)}
-                  disabled={toggleMutation.isPending}
-                />
-                <span className={todo.completed ? ui.strikethrough : ''}>{todo.title}</span>
-              </label>
-            </li>
+            <TodoItem
+              key={todo.id}
+              completed={todo.completed}
+              onToggle={() => toggleMutation.mutate(todo.id)}
+            >
+              {todo.title}
+            </TodoItem>
           ))}
-        </ul>
+        </TodoList>
       )}
-    </section>
+    </Card>
   )
 }
