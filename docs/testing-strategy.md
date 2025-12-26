@@ -114,28 +114,31 @@ describe('InMemoryAuthRepository', () => {
 - Query key correctness
 - Mutation success/error handling
 - Cache invalidation
+- Exported hooks work correctly
 
 **Example:**
 
 ```ts
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { QueryClient } from '@tanstack/react-query'
-import { createTodoAdapters } from '@features/todo/adapters/todoAdapters'
+import { createAuthAdapters } from '@features/auth/adapters/authAdapters'
+import { Result } from '@shared/domain/result/Result'
 
-describe('todoAdapters', () => {
-  it('should invalidate cache on create', async () => {
+describe('authAdapters', () => {
+  it('should invalidate cache on logout', async () => {
     const queryClient = new QueryClient()
     const mockUseCases = {
-      listTodos: vi.fn(),
-      createTodo: vi.fn().mockResolvedValue(Result.ok({ id: '1', title: 'New', completed: false })),
-      toggleTodo: vi.fn(),
+      login: vi.fn(),
+      logout: vi.fn().mockResolvedValue(Result.ok(undefined)),
+      currentSession: vi.fn(),
     }
 
-    const adapters = createTodoAdapters({ useCases: mockUseCases, queryClient })
-    const mutation = adapters.mutations.create()
+    const adapters = createAuthAdapters({ useCases: mockUseCases, queryClient })
+    const mutation = adapters.mutations.logout()
 
-    await mutation.mutationFn({ title: 'New' })
-    // Check cache invalidation (spy on queryClient.invalidateQueries if needed)
+    await mutation.mutationFn()
+    // Check cache is set to null after logout
+    expect(queryClient.getQueryData(['auth', 'session'])).toBeNull()
   })
 })
 ```
@@ -146,9 +149,10 @@ describe('todoAdapters', () => {
 
 **What to test:**
 
-- User flows (login, add todo)
+- User flows (login, logout)
 - Error display
 - Loading states
+- Components use hooks correctly (not useContainer)
 
 **Example:**
 
@@ -159,7 +163,7 @@ import userEvent from '@testing-library/user-event'
 import { AuthPage } from '@features/auth/ui/AuthPage'
 
 describe('AuthPage integration', () => {
-  it('should log in successfully', async () => {
+  it('should log in successfully with valid credentials', async () => {
     const user = userEvent.setup()
     renderWithProviders(<AuthPage />)
 
@@ -171,10 +175,23 @@ describe('AuthPage integration', () => {
       expect(screen.getByText(/Demo User/i)).toBeInTheDocument()
     })
   })
+
+  it('should show error on invalid credentials', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<AuthPage />)
+
+    await user.type(screen.getByLabelText(/email/i), 'wrong@example.com')
+    await user.type(screen.getByLabelText(/password/i), 'wrongpass')
+    await user.click(screen.getByRole('button', { name: /login/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/invalid credentials/i)).toBeInTheDocument()
+    })
+  })
 })
 ```
 
-**Use real adapters + container**, mock infra if needed.
+**Use real adapters + container**, with in-memory repositories for fast tests.
 
 ---
 
