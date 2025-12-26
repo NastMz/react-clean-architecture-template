@@ -208,8 +208,7 @@ pnpm build-storybook  # Build static Storybook
 
 ### To Make It Production-Ready
 
-- [x] **Vitest + Vite** – Fixed with standard Vite
-- [ ] **Protected routes** with auth guards
+- [x] **Protected routes** with auth guards
 - [ ] **HTTP repositories** (replace in-memory demos)
 - [ ] **Form library** integration (React Hook Form + Zod)
 - [ ] **E2E tests** (Playwright)

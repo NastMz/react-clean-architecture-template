@@ -4,6 +4,7 @@ import type { AppContainer } from './container'
 import { ContainerContext } from './ContainerContext'
 
 export { ContainerContext }
+export { useAuth } from './useAuth'
 
 /**
  * Custom React hook for accessing the DI container
