@@ -59,17 +59,17 @@ TelemetryPort + LoggerPort (contracts)
 Every feature automatically gets telemetry:
 
 ```typescript
-// src/features/todo/application/todoUseCases.ts
-export const createTodoUseCases = (
-  repository: TodoRepository,
+// src/features/auth/application/authUseCases.ts
+export const createAuthUseCases = (
+  repository: AuthRepository,
   telemetry: TelemetryPort & LoggerPort, // Injected dependency
-): TodoUseCases => ({
-  async listTodos() {
-    telemetry.track('todo.list')
-    const result = await repository.list()
+): AuthUseCases => ({
+  async login(credentials) {
+    telemetry.track('auth.login', { email: credentials.email })
+    const result = await repository.login(credentials)
     result.match({
-      ok: (todos) => telemetry.info(`Loaded ${todos.length} todos`),
-      err: (error) => telemetry.error('Failed to load todos', { kind: error.kind }),
+      ok: (user) => telemetry.info(`User logged in: ${user.email}`),
+      err: (error) => telemetry.error('Failed to login', { kind: error.kind }),
     })
     return result
   },
@@ -214,23 +214,23 @@ const container = createContainer(new MyDatadogAdapter())
 Each telemetry call creates a span:
 
 ```
-track('todo.create', { title: 'Buy milk' })
+track('auth.login', { email: 'user@example.com' })
   ↓
-Span: event.todo.create
+Span: event.auth.login
   - Attributes:
-    - title: "Buy milk"
+    - email: "user@example.com"
 ```
 
 Logs also create spans:
 
 ```
-error('Failed to load todos', { kind: 'NotFound' })
+error('Failed to login', { kind: 'Unauthorized' })
   ↓
 Span: log.error
   - Attributes:
-    - message: "Failed to load todos"
+    - message: "Failed to login"
     - level: "error"
-    - kind: "NotFound"
+    - kind: "Unauthorized"
   - Exception recorded
 ```
 
@@ -246,8 +246,8 @@ const mockTelemetry = {
   error: vi.fn(),
 }
 
-const useCases = createTodoUseCases(repository, mockTelemetry)
-expect(mockTelemetry.track).toHaveBeenCalledWith('todo.create', expect.any(Object))
+const useCases = createAuthUseCases(repository, mockTelemetry)
+expect(mockTelemetry.track).toHaveBeenCalledWith('auth.login', expect.any(Object))
 ```
 
 ## See Also

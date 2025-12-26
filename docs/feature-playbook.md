@@ -304,7 +304,6 @@ export type AppContainer = {
   queryClient: QueryClient
   adapters: {
     auth: AuthAdapters
-    todo: TodoAdapters
     products: ProductAdapters // <-- add
   }
 }
@@ -320,7 +319,6 @@ export const createContainer = (): AppContainer => {
     queryClient,
     adapters: {
       auth: authAdapters,
-      todo: todoAdapters,
       products: productAdapters, // <-- add
     },
   }
