@@ -132,7 +132,7 @@ pnpm build-storybook   # build static Storybook
 ### Testing
 
 ```bash
-pnpm test          # run all tests (29 tests across 7 files)
+pnpm test          # run all tests
 pnpm test:watch    # watch mode
 ```
 

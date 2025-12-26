@@ -1,5 +1,7 @@
 # Recent Accomplishments & Future Work
 
+> **Note:** If you want to contribute with one of these enhancements, you are welcome, but please open an issue first to discuss the approach.
+
 ## ✅ Recently Completed
 
 - [x] **Comprehensive ESLint boundary enforcement** – Domain, Application, Adapters, and UI layers
@@ -16,7 +18,7 @@
 ## 🐛 Known Limitations
 
 - **Telemetry visualization**: OTel configured but needs backend exporter for dashboards (Jaeger, Tempo, Grafana)
-- **E2E tests**: Basic unit/integration tests included (29 tests), but Playwright E2E not yet implemented
+- **E2E tests**: Basic unit/integration tests included, but Playwright E2E not yet implemented
 - **Form library**: Basic forms work, but React Hook Form + Zod integration example not included
 
 ## 🚀 Future Enhancements
@@ -59,7 +61,7 @@
 
 ### Advanced Patterns
 
-ptimistic updates\*\* with TanStack Query mutations
+**Optimistic updates** with TanStack Query mutations
 
 - [ ] **Error boundaries** for React error handling
 - [ ] **Suspense boundaries** for loading states
@@ -67,7 +69,8 @@ ptimistic updates\*\* with TanStack Query mutations
 - [ ] **Undo/Redo** functionality
 - [ ] **Feature flags** system (env-based or remote)
 - [ ] **Internationalization** (i18n) setup
-- # Testing & Quality
+
+### Testing & Quality
 
 - [ ] **E2E tests** with Playwright (authentication flow, protected routes)
 - [ ] **Visual regression** testing (Storybook + Chromatic)
@@ -78,10 +81,5 @@ ptimistic updates\*\* with TanStack Query mutations
 
 - The template is **production-ready** as-is; enhancements are optional.
 - **Minimalist philosophy**: One complete Auth example shows all patterns (domain, ports, adapters, resilience, testing).
-- Each item can be added incrementally without breaking the foundation.
-- Documentation is comprehensive and includes all extension points.
-- **29 tests** currently passing (unit + integration coverage)
-
-- The template is **production-ready** as-is; enhancements are optional.
 - Each item can be added incrementally without breaking the foundation.
 - Documentation is comprehensive and includes all extension points.
