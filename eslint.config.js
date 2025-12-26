@@ -73,6 +73,76 @@ export default defineConfig([
     },
   },
   {
+    files: ['src/features/*/domain/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '**/features/*/infra/**',
+                '@features/*/infra/**',
+                '**/features/*/application/**',
+                '@features/*/application/**',
+                '**/features/*/adapters/**',
+                '@features/*/adapters/**',
+                '**/features/*/ui/**',
+                '@features/*/ui/**',
+              ],
+              message:
+                'Domain layer cannot import application, adapters, UI, or infra. Domain must be pure and independent.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/features/*/application/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '**/features/*/infra/**',
+                '@features/*/infra/**',
+                '**/features/*/adapters/**',
+                '@features/*/adapters/**',
+                '**/features/*/ui/**',
+                '@features/*/ui/**',
+              ],
+              message:
+                'Application layer can only import domain. Use dependency inversion for infra access.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/features/*/adapters/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/features/*/infra/**', '@features/*/infra/**'],
+              message: 'Adapters cannot import infra directly; receive dependencies via DI.',
+            },
+            {
+              group: ['**/features/*/ui/**', '@features/*/ui/**'],
+              message: 'Adapters cannot import UI components; let UI depend on adapters.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['src/features/*/ui/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': [
@@ -82,6 +152,10 @@ export default defineConfig([
             {
               group: ['**/features/*/infra/**', '@features/*/infra/**'],
               message: 'UI cannot import infra; depend on adapters.',
+            },
+            {
+              group: ['**/features/*/application/**', '@features/*/application/**'],
+              message: 'UI cannot import application layer directly; depend on adapters.',
             },
           ],
         },
