@@ -39,6 +39,7 @@ src/
     application/       # TelemetryPort, etc
     infra/
       http/            # HttpClient
+                        #  - Interceptors: onRequest/onResponse hooks, 401 refresh retry
       resilience/      # RetryPolicy, CircuitBreaker
       telemetry/       # ConsoleTelemetry, OpenTelemetry
     presentation/      # Layout, hooks
@@ -97,6 +98,29 @@ Edit `src/app/composition/container.ts`:
 ```typescript
 // 1. Add API_BASE_URL to .env
 // VITE_API_BASE_URL=https://your-api.com
+
+// (Optional) Enable interceptors: logging + token refresh
+const httpClient = createFetchHttpClient({
+  baseUrl: import.meta.env.VITE_API_BASE_URL,
+  getAuthToken: () => sessionStorage.getItem('access_token'),
+  onRequest: async (req) => {
+    // Example: attach a custom header
+    return { ...req, headers: { ...req.headers, 'X-App': 'clean-template' } }
+  },
+  onResponse: ({ request, status, durationMs }) => {
+    console.info(
+      `[http] ${request.method} ${request.url} -> ${status} in ${durationMs.toFixed(0)}ms`,
+    )
+  },
+  refreshToken: async () => {
+    // Example refresh flow
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/refresh`, { method: 'POST' })
+    if (!res.ok) return null
+    const json = await res.json()
+    sessionStorage.setItem('access_token', json.accessToken)
+    return json.accessToken as string
+  },
+})
 
 // 2. Uncomment these lines in container.ts:
 const httpClient = createFetchHttpClient({ baseUrl: import.meta.env.VITE_API_BASE_URL })
