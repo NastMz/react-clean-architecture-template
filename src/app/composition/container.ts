@@ -11,6 +11,7 @@ import { createPostUseCases } from '@features/posts/application/postUseCases'
 import { createHttpPostRepository } from '@features/posts/infra/httpPostRepository'
 import { createFetchHttpClient } from '@shared/infra/http/HttpClient'
 import { ConsoleTelemetry } from '@shared/infra/telemetry/ConsoleTelemetry'
+import { OpenTelemetryAdapter } from '@shared/infra/telemetry/OpenTelemetryAdapter'
 import { QueryClient } from '@tanstack/react-query'
 
 /**
@@ -41,7 +42,10 @@ export const createContainer = (): AppContainer => {
     },
   })
 
-  const telemetry = new ConsoleTelemetry()
+  // Use OpenTelemetry if available, fallback to ConsoleTelemetry
+  // In browser environments, OTel API is available but traces need backend exporter
+  const telemetry =
+    typeof window !== 'undefined' ? new OpenTelemetryAdapter() : new ConsoleTelemetry()
 
   // Initialize HTTP client for external API calls
   const httpClient = createFetchHttpClient()

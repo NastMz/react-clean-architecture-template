@@ -20,7 +20,8 @@ A production-ready **Clean Architecture** starter for React applications that en
 - ✅ **Husky + lint-staged** for pre-commit quality gates
 - ✅ **Storybook 10** for component documentation and development
 - ✅ **Atomic Design** component library with stories
-- ✅ **2 demo features**: Auth (login/session) + Todo (list/create/toggle)
+- ✅ **OpenTelemetry** integration for distributed tracing
+- ✅ **3 demo features**: Auth (login/session) + Todo (list/create/toggle) + Posts (HTTP API)
 
 ---
 
@@ -174,8 +175,9 @@ Breaking these rules will **fail CI** and pre-commit hooks.
 
 - [ ] **Playwright** setup for E2E tests
 - [ ] **Plop/Hygen generators** for scaffolding features
-- [ ] **OpenTelemetry** telemetry integration
-- [ ] **Sentry** error tracking
+- [ ] **OpenTelemetry backend** exporter (Jaeger, Tempo, Grafana Loki)
+- [ ] **Protected routes** with auth guards
+- [ ] **Form library** integration (React Hook Form + Zod validation)
 
 ---
 
