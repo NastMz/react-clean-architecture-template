@@ -11,11 +11,36 @@ The `OpenTelemetryAdapter` implements both `TelemetryPort` and `LoggerPort` inte
 
 ## Current Setup
 
-By default, the application uses `OpenTelemetryAdapter` in production and `ConsoleTelemetry` in development.
+The container automatically selects the best telemetry implementation:
 
-**Location**: `src/shared/infra/telemetry/OpenTelemetryAdapter.ts`
+- **Browser (default)**: `OpenTelemetryAdapter` - Creates spans invisibly, ready for backend exporter
+- **Tests/SSR (Node.js)**: `ConsoleTelemetry` - Visible logging for debugging
+- **Custom**: Pass your own `TelemetryPort` implementation to `createContainer()`
 
-**DI Container**: `src/app/composition/container.ts` automatically selects the telemetry implementation.
+**Location**: `src/shared/infra/telemetry/OpenTelemetryAdapter.ts` and `ConsoleTelemetry.ts`
+
+**DI Container**: `src/app/composition/container.ts` automatically selects based on environment.
+
+## Telemetry Selection Logic
+
+```typescript
+export const createContainer = (telemetry?: TelemetryPort & LoggerPort) => {
+  const selectedTelemetry =
+    telemetry ??
+    (typeof window !== 'undefined'
+      ? new OpenTelemetryAdapter() // Browser: invisible, ready to extend
+      : new ConsoleTelemetry()) // Node.js/Tests: visible logs
+  // ...
+}
+```
+
+This means:
+
+| Environment        | Default              | Behavior                                   |
+| ------------------ | -------------------- | ------------------------------------------ |
+| **Browser (Prod)** | OpenTelemetryAdapter | Spans created but not exported (invisible) |
+| **Tests/SSR**      | ConsoleTelemetry     | Logs visible in console for debugging      |
+| **Custom**         | Your implementation  | Whatever you pass to `createContainer()`   |
 
 ## Architecture
 
@@ -51,9 +76,48 @@ export const createTodoUseCases = (
 })
 ```
 
-## Configuring an OpenTelemetry Backend
+## Switching Telemetry Implementations
 
-To send traces to a backend (Jaeger, Tempo, Grafana Loki), create `src/app/bootstrap/otel-init.ts`:
+### Default (Browser): Invisible Tracing
+
+By default in the browser, `OpenTelemetryAdapter` creates spans but they go nowhere:
+
+```typescript
+// Just works, no configuration needed
+const container = createContainer()
+// OpenTelemetryAdapter is used automatically
+```
+
+This is **production-safe**: no console noise, no performance impact unless you configure an exporter.
+
+### For Testing: Enable Visible Logs
+
+In tests, `ConsoleTelemetry` is automatically used so you can see logs:
+
+```typescript
+import { ConsoleTelemetry } from '@shared/infra/telemetry/ConsoleTelemetry'
+import { createContainer } from '@app/composition/container'
+
+const container = createContainer()
+// Tests automatically get ConsoleTelemetry (visible logs)
+```
+
+### Custom Implementation
+
+Pass your own telemetry adapter:
+
+```typescript
+import { createContainer } from '@app/composition/container'
+
+const customTelemetry = new MyCustomAdapter()
+const container = createContainer(customTelemetry)
+```
+
+## Enabling Backend Export
+
+By default, spans are created but **not exported**. To send them somewhere:
+
+### Local Development with Jaeger
 
 ```typescript
 import { BasicTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node'
@@ -80,18 +144,22 @@ import { trace } from '@opentelemetry/api'
 trace.setGlobalTracerProvider(tracerProvider)
 ```
 
-Then import it early in `src/main.tsx`:
+Then import it early in `src/main.tsx` **before anything else**:
 
 ```typescript
-import './app/bootstrap/otel-init' // Must be first import
+import './app/bootstrap/otel-init' // MUST be first import
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
 ```
 
-## Local Development with Jaeger
-
-Run Jaeger locally:
+### Running Jaeger Locally
 
 ```bash
 docker run -d --name jaeger \
@@ -115,17 +183,30 @@ For production, use:
 
 Each has its own exporter in the `@opentelemetry` ecosystem.
 
-## Switching Back to Console Telemetry
+## Overriding Telemetry for Specific Environments
 
-For development, edit `src/app/composition/container.ts`:
+The container defaults are smart, but you can override:
+
+**Force ConsoleTelemetry everywhere (verbose logging):**
 
 ```typescript
-// Before
-const telemetry =
-  typeof window !== 'undefined' ? new OpenTelemetryAdapter() : new ConsoleTelemetry()
+import { createContainer } from '@app/composition/container'
+import { ConsoleTelemetry } from '@shared/infra/telemetry/ConsoleTelemetry'
 
-// After (for console output)
-const telemetry = new ConsoleTelemetry()
+const container = createContainer(new ConsoleTelemetry())
+```
+
+**Use custom adapter:**
+
+```typescript
+class MyDatadogAdapter implements TelemetryPort, LoggerPort {
+  track(event, data) {
+    // Send to Datadog...
+  }
+  // ... other methods
+}
+
+const container = createContainer(new MyDatadogAdapter())
 ```
 
 ## Span Structure

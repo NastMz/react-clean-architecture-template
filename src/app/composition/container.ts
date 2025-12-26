@@ -30,9 +30,11 @@ export interface AppContainer {
 /**
  * Creates and configures the dependency injection container
  * Initializes all repositories, use cases, adapters, and React Query
+ * @param telemetry - Optional custom telemetry implementation
+ *                    Defaults to: OpenTelemetryAdapter in browser, ConsoleTelemetry in Node.js/SSR
  * @returns Fully configured application container with all dependencies
  */
-export const createContainer = (): AppContainer => {
+export const createContainer = (telemetry?: TelemetryPort & LoggerPort): AppContainer => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -42,22 +44,25 @@ export const createContainer = (): AppContainer => {
     },
   })
 
-  // Use OpenTelemetry if available, fallback to ConsoleTelemetry
-  // In browser environments, OTel API is available but traces need backend exporter
-  const telemetry =
-    typeof window !== 'undefined' ? new OpenTelemetryAdapter() : new ConsoleTelemetry()
+  // Default telemetry selection:
+  // - Browser: OpenTelemetryAdapter (invisible without backend exporter)
+  // - Node.js/Tests: ConsoleTelemetry (visible for debugging)
+  // - Custom: use provided implementation
+  const selectedTelemetry =
+    telemetry ??
+    (typeof window !== 'undefined' ? new OpenTelemetryAdapter() : new ConsoleTelemetry())
 
   // Initialize HTTP client for external API calls
   const httpClient = createFetchHttpClient()
 
   // Auth feature setup
-  const authRepository = createInMemoryAuthRepository(telemetry)
-  const authUseCases = createAuthUseCases(authRepository, telemetry)
+  const authRepository = createInMemoryAuthRepository(selectedTelemetry)
+  const authUseCases = createAuthUseCases(authRepository, selectedTelemetry)
   const authAdapters = createAuthAdapters({ useCases: authUseCases, queryClient })
 
   // Todo feature setup
   const todoRepository = createInMemoryTodoRepository()
-  const todoUseCases = createTodoUseCases(todoRepository, telemetry)
+  const todoUseCases = createTodoUseCases(todoRepository, selectedTelemetry)
   const todoAdapters = createTodoAdapters({ useCases: todoUseCases, queryClient })
 
   // Posts feature setup (demonstrates HttpClient usage)
