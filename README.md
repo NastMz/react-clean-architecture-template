@@ -100,6 +100,9 @@ Edit `src/app/composition/container.ts`:
 // VITE_API_BASE_URL=https://your-api.com
 
 // (Optional) Enable interceptors: logging + token refresh
+// Use a small separate client for refresh to avoid recursion
+const refreshClient = createFetchHttpClient({ baseUrl: import.meta.env.VITE_API_BASE_URL })
+
 const httpClient = createFetchHttpClient({
   baseUrl: import.meta.env.VITE_API_BASE_URL,
   getAuthToken: () => sessionStorage.getItem('access_token'),
@@ -113,12 +116,19 @@ const httpClient = createFetchHttpClient({
     )
   },
   refreshToken: async () => {
-    // Example refresh flow
-    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/refresh`, { method: 'POST' })
-    if (!res.ok) return null
-    const json = await res.json()
-    sessionStorage.setItem('access_token', json.accessToken)
-    return json.accessToken as string
+    // Example refresh flow via HttpClient, skipping interceptors
+    const result = await refreshClient.request<{ accessToken: string }>({
+      method: 'POST',
+      url: '/auth/refresh',
+      skipInterceptors: true,
+    })
+    return result.match({
+      ok: ({ data }) => {
+        sessionStorage.setItem('access_token', data.accessToken)
+        return data.accessToken
+      },
+      err: () => null,
+    })
   },
 })
 
