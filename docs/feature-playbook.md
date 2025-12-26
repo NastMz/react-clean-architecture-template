@@ -229,7 +229,14 @@ export const createInMemoryProductRepository = (): ProductRepository => {
 **`src/features/products/adapters/productAdapters.ts`**
 
 ```ts
-import { mutationOptions, queryOptions, QueryClient } from '@tanstack/react-query'
+import {
+  mutationOptions,
+  queryOptions,
+  useMutation,
+  useQuery,
+  QueryClient,
+} from '@tanstack/react-query'
+import { useContainer } from '@app/composition/useContainer'
 import { AppError } from '@shared/domain/errors/AppError'
 import { ProductUseCases } from '../application/productUseCases'
 import { CreateProductInput, Product } from '../domain/Product'
@@ -264,7 +271,24 @@ export const createProductAdapters = ({
 }
 
 export type ProductAdapters = ReturnType<typeof createProductAdapters>
+
+/**
+ * Hooks to use in components - import these directly!
+ * No need to access the DI container in your UI code.
+ */
+
+export const useProducts = () => {
+  const { adapters } = useContainer()
+  return useQuery(adapters.products.queries.list())
+}
+
+export const useCreateProduct = () => {
+  const { adapters } = useContainer()
+  return useMutation(adapters.products.mutations.create())
+}
 ```
+
+**Pro tip:** Export hooks from adapters so components never touch the DI container directly!
 
 ### Step 7: Wire in Container
 
@@ -308,14 +332,13 @@ export const createContainer = (): AppContainer => {
 **`src/features/products/ui/ProductsPage.tsx`**
 
 ```tsx
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { useContainer } from '@app/composition/providers'
+import { useProducts, useCreateProduct } from '@features/products/adapters/productAdapters'
 import { formatAppError } from '@shared/domain/errors/AppError'
 
 export const ProductsPage = () => {
-  const { adapters } = useContainer()
-  const productsQuery = useQuery(adapters.products.queries.list())
-  const createMutation = useMutation(adapters.products.mutations.create())
+  // Import hooks directly from adapters - clean and simple!
+  const productsQuery = useProducts()
+  const createMutation = useCreateProduct()
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()

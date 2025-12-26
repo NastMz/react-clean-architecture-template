@@ -1,4 +1,4 @@
-import { useContainer } from '@app/composition/useContainer'
+import { useLogin, useLogout, useSession } from '@features/auth/adapters/authAdapters'
 import { formatAppError } from '@shared/domain/errors/AppError'
 import { Button } from '@shared/presentation/components/atoms/Button'
 import { Card, CardHeader } from '@shared/presentation/components/atoms/Card'
@@ -6,7 +6,6 @@ import { Input } from '@shared/presentation/components/atoms/Input'
 import { Row, Stack } from '@shared/presentation/components/atoms/Layout'
 import { Alert, Eyebrow, Muted, Title } from '@shared/presentation/components/atoms/Typography'
 import { SessionCard } from '@shared/presentation/components/molecules/SessionCard'
-import { useMutation, useQuery } from '@tanstack/react-query'
 import type { FormEvent } from 'react'
 import { useState } from 'react'
 
@@ -16,12 +15,12 @@ import { useState } from 'react'
  * Serves as a template for wiring UI to adapters and use cases
  */
 export const AuthPage = () => {
-  const { adapters } = useContainer()
   const [credentials, setCredentials] = useState({ email: 'demo@example.com', password: 'demo123' })
 
-  const sessionQuery = useQuery(adapters.auth.queries.session())
-  const loginMutation = useMutation(adapters.auth.mutations.login())
-  const logoutMutation = useMutation(adapters.auth.mutations.logout())
+  // Import hooks directly from adapters - no need to touch the DI container!
+  const sessionQuery = useSession()
+  const loginMutation = useLogin()
+  const logoutMutation = useLogout()
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()

@@ -19,9 +19,13 @@ This directory contains **reusable UI hooks** that can be used across multiple f
 
 - Example: `useAuthForm`, `useProductFilters`
 
-❌ **Adapter hooks** (React Query wrappers) → `features/<feature>/adapters/`
+❌ **Adapter hooks** (React Query wrappers) → Export from `features/<feature>/adapters/`
 
-- Example: `useLogin`, `useLogout`, `useProducts`
+- Example: `useLogin`, `useLogout`, `useSession`
+- These are already implemented! Import directly:
+  ```typescript
+  import { useLogin, useSession } from '@features/auth/adapters/authAdapters'
+  ```
 
 ❌ **Domain/application logic** → Never in hooks! Keep in use cases.
 

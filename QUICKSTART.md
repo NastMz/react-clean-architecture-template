@@ -135,11 +135,11 @@ tests/
 
 ### 🪝 Where to Put Custom Hooks
 
-| Hook Type            | Location                       | Examples                                    | Why Here?                             |
-| -------------------- | ------------------------------ | ------------------------------------------- | ------------------------------------- |
-| **Adapter hooks**    | `features/<feature>/adapters/` | `useLogin`, `useLogout`, `useSession`       | Bridge use cases ↔ UI via React Query |
-| **Feature UI hooks** | `features/<feature>/ui/hooks/` | `useAuthForm`, `useProductFilters`          | Feature-specific UI logic             |
-| **Shared UI hooks**  | `shared/presentation/hooks/`   | `useToggle`, `useDebounce`, `useMediaQuery` | Reusable across features              |
+| Hook Type            | Location                       | Examples                                    | Why Here?                                         |
+| -------------------- | ------------------------------ | ------------------------------------------- | ------------------------------------------------- |
+| **Adapter hooks**    | `features/<feature>/adapters/` | `useLogin`, `useLogout`, `useSession`       | Export from adapters, use DI container internally |
+| **Feature UI hooks** | `features/<feature>/ui/hooks/` | `useAuthForm`, `useProductFilters`          | Feature-specific UI logic                         |
+| **Shared UI hooks**  | `shared/presentation/hooks/`   | `useToggle`, `useDebounce`, `useMediaQuery` | Reusable across features                          |
 
 **Rule:** Hooks are **presentation layer only**. Never in `domain/`, `application/`, or `infra/` (those are framework-agnostic).
 
@@ -269,8 +269,10 @@ A: **Depends on what the hook does:**
 
 - **UI-only hooks** (useToggle, useDebounce, useMediaQuery): `src/shared/presentation/hooks/`
 - **Feature-specific UI hooks** (useAuthForm, useProductFilters): `src/features/<feature>/ui/hooks/`
-- **Adapter hooks** (already provided via adapters layer): Import from `<feature>/adapters/`
-  - Example: `useLogin`, `useLogout` → already in `authAdapters.ts`
+- **Adapter hooks** (bridge to use cases): Already exported from `<feature>/adapters/`
+  - Example: `useLogin`, `useLogout`, `useSession` (see `authAdapters.ts`)
+  - Import directly: `import { useLogin } from '@features/auth/adapters/authAdapters'`
+  - No need to touch the DI container in components!
 
 **Never** put hooks in `application/` or `infra/` - those layers are framework-agnostic.
 

@@ -1,8 +1,9 @@
+import { useContainer } from '@app/composition/useContainer'
 import type { AuthUseCases } from '@features/auth/application/authUseCases'
 import type { Credentials, Session } from '@features/auth/domain/User'
 import type { AppError } from '@shared/domain/errors/AppError'
 import type { QueryClient } from '@tanstack/react-query'
-import { mutationOptions, queryOptions } from '@tanstack/react-query'
+import { mutationOptions, queryOptions, useMutation, useQuery } from '@tanstack/react-query'
 
 /**
  * Query keys for auth-related React Query operations
@@ -55,3 +56,49 @@ export const createAuthAdapters = ({
 }
 
 export type AuthAdapters = ReturnType<typeof createAuthAdapters>
+
+/**
+ * React Hooks for Authentication
+ * These hooks use the DI container internally, so you don't have to.
+ * Import and use them directly in your components.
+ *
+ * @example
+ * ```tsx
+ * import { useLogin, useLogout, useSession } from '@features/auth/adapters/authAdapters'
+ *
+ * function MyComponent() {
+ *   const { data: session, isLoading } = useSession()
+ *   const { mutate: login } = useLogin()
+ *   const { mutate: logout } = useLogout()
+ *
+ *   return <button onClick={() => login({ email: '...', password: '...' })}>Login</button>
+ * }
+ * ```
+ */
+
+/**
+ * Hook to get current authentication session
+ * @returns React Query result with session data (null if not authenticated)
+ */
+export const useSession = () => {
+  const { adapters } = useContainer()
+  return useQuery(adapters.auth.queries.session())
+}
+
+/**
+ * Hook to perform login mutation
+ * @returns React Query mutation for logging in with credentials
+ */
+export const useLogin = () => {
+  const { adapters } = useContainer()
+  return useMutation(adapters.auth.mutations.login())
+}
+
+/**
+ * Hook to perform logout mutation
+ * @returns React Query mutation for logging out
+ */
+export const useLogout = () => {
+  const { adapters } = useContainer()
+  return useMutation(adapters.auth.mutations.logout())
+}
