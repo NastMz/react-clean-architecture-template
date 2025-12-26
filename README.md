@@ -115,6 +115,34 @@ const authRepository = createHttpAuthRepository(httpClient, selectedTelemetry, {
 - ✅ Circuit breaker ready (optional, see httpAuthRepository.ts)
 - ✅ Telemetry tracking for all operations
 
+### Forms & Validation
+
+- Use **React Hook Form** + **Zod** for robust, typed forms
+- The `Input` atom forwards refs so `register()` works seamlessly
+- Example pattern inside feature UI:
+
+```tsx
+import { Input } from '@shared/presentation/components/atoms/Input'
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+})
+type FormValues = z.infer<typeof schema>
+
+const form = useForm<FormValues>({ resolver: zodResolver(schema) })
+
+return (
+  <form onSubmit={form.handleSubmit((data) => login(data))}>
+    <Input type="email" {...form.register('email')} />
+    <Input type="password" {...form.register('password')} />
+  </form>
+)
+```
+
 ### Build
 
 ```bash
