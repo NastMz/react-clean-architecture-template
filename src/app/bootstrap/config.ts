@@ -1,4 +1,5 @@
 import type { AppEnv } from './env'
+import { getEnv } from './env'
 
 /**
  * Application configuration interface
@@ -6,6 +7,7 @@ import type { AppEnv } from './env'
  */
 export interface AppConfig {
   apiBaseUrl: string
+  useHttp: boolean
   featureFlags: Record<string, never>
 }
 
@@ -16,5 +18,23 @@ export interface AppConfig {
  */
 export const createAppConfig = (env: AppEnv): AppConfig => ({
   apiBaseUrl: env.VITE_API_BASE_URL ?? 'https://api.example.com',
+  useHttp: env.VITE_USE_HTTP === 'true',
   featureFlags: {},
 })
+
+let cachedConfig: AppConfig | null = null
+
+/**
+ * Singleton accessor for app config (built from validated env).
+ */
+export const getConfig = (): AppConfig => {
+  if (cachedConfig) return cachedConfig
+  cachedConfig = createAppConfig(getEnv())
+  return cachedConfig
+}
+
+if (import.meta.hot) {
+  import.meta.hot.accept(() => {
+    cachedConfig = null
+  })
+}

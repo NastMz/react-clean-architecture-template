@@ -135,14 +135,10 @@ const httpClient = createFetchHttpClient({
 // Per-request: bypass interceptors (e.g., public endpoints)
 // repository.request({ method: 'GET', url: '/public/info', skipInterceptors: true })
 
-// 2. Uncomment these lines in container.ts:
-const httpClient = createFetchHttpClient({ baseUrl: import.meta.env.VITE_API_BASE_URL })
-const authRepository = createHttpAuthRepository(httpClient, selectedTelemetry, {
-  baseUrl: import.meta.env.VITE_API_BASE_URL,
-})
-
-// 3. Comment out the in-memory line:
-// const authRepository = createInMemoryAuthRepository(selectedTelemetry)
+// 2. Enable HTTP repository via env flag:
+// VITE_USE_HTTP=true
+// The container reads env through a Zod-validated wrapper (see app/bootstrap/env.ts)
+// and builds AppConfig (see app/bootstrap/config.ts).
 ```
 
 **Benefits of HTTP repository:**
@@ -262,6 +258,29 @@ Breaking these rules will **fail CI** and pre-commit hooks.
 - [Feature Playbook](docs/feature-playbook.md) – Step-by-step for new features
 - [Testing Strategy](docs/testing-strategy.md) – How to test each layer
 - [OpenTelemetry Guide](docs/opentelemetry.md) – Distributed tracing setup
+- [Environment & Config](#environment--config) – Correct usage of environment variables
+
+### Environment & Config
+
+- Access to `import.meta.env` is centralized in `app/bootstrap/env.ts`, validated with Zod.
+- Use `getEnv()` (singleton, cached) — no direct `import.meta.env` elsewhere.
+- Build config via `getConfig()` in `app/bootstrap/config.ts` (singleton over `createAppConfig(getEnv())`).
+- Rule: only the composition root reads config/env; pass values into infra/adapters via arguments.
+- Note: Changing `.env` requires restarting `pnpm dev` (Vite does not hot-reload env).
+
+```ts
+// app/bootstrap/env.ts
+export const getEnv = () => cachedEnv ?? (cachedEnv = loadEnv())
+
+// app/bootstrap/config.ts
+export const getConfig = () => cachedConfig ?? (cachedConfig = createAppConfig(getEnv()))
+
+// In container
+const config = getConfig()
+const baseUrl = config.apiBaseUrl
+const useHttp = config.useHttp
+```
+
 - _(Optional)_ [ADRs](docs/decisions/) – Architectural decision records
 
 ---

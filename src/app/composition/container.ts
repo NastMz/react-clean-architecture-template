@@ -10,6 +10,7 @@ import { createHttpAuthRepository } from '@features/auth/infra/httpAuthRepositor
 import { createFetchHttpClient } from '@shared/infra/http/HttpClient'
 import { ConsoleTelemetry } from '@shared/infra/telemetry/ConsoleTelemetry'
 import { OpenTelemetryAdapter } from '@shared/infra/telemetry/OpenTelemetryAdapter'
+import { getConfig } from '@app/bootstrap/config'
 
 /**
  * Application Dependency Injection container
@@ -58,17 +59,16 @@ export const createContainer = (telemetry?: TelemetryPort & LoggerPort): AppCont
   // ============================================================================
   // DEMO MODE (default): In-memory repository with mock data
   // PRODUCTION MODE: HTTP repository with resilience patterns and interceptors
-  // Toggle via env: VITE_USE_HTTP=true
-
-  const useHttp = typeof import.meta !== 'undefined' && import.meta.env.VITE_USE_HTTP === 'true'
+  // Config (env access centralized via getConfig -> getEnv)
+  const config = getConfig()
 
   const authRepository = (() => {
-    if (!useHttp) {
+    if (!config.useHttp) {
       return createInMemoryAuthRepository(selectedTelemetry)
     }
 
     // Interceptor-enabled HTTP client
-    const baseUrl = import.meta.env.VITE_API_BASE_URL
+    const baseUrl = config.apiBaseUrl
 
     // Separate client for refresh (no interceptors to avoid recursion)
     const refreshClient = createFetchHttpClient({ baseUrl })
