@@ -6,7 +6,7 @@ import type { AuthAdapters } from '@features/auth/adapters/authAdapters'
 import { createAuthAdapters } from '@features/auth/adapters/authAdapters'
 import { createAuthUseCases } from '@features/auth/application/authUseCases'
 import { createInMemoryAuthRepository } from '@features/auth/infra/inMemoryAuthRepository'
-// import { createHttpAuthRepository } from '@features/auth/infra/httpAuthRepository'
+import { createHttpAuthRepository } from '@features/auth/infra/httpAuthRepository'
 import { createFetchHttpClient } from '@shared/infra/http/HttpClient'
 import { ConsoleTelemetry } from '@shared/infra/telemetry/ConsoleTelemetry'
 import { OpenTelemetryAdapter } from '@shared/infra/telemetry/OpenTelemetryAdapter'
@@ -56,25 +56,59 @@ export const createContainer = (telemetry?: TelemetryPort & LoggerPort): AppCont
   // ============================================================================
   // Auth Repository Setup
   // ============================================================================
-  //
-  // **DEMO MODE (Current)**: In-memory repository with mock data
-  // - No HTTP calls, instant responses
-  // - Credentials: demo@example.com / any password
-  // - Perfect for prototyping and testing UI
-  //
-  // **PRODUCTION MODE**: HTTP repository with resilience patterns
-  // - Uncomment lines below to switch
-  // - Includes automatic retries (3 attempts, exponential backoff)
-  // - Circuit breaker protection available (see httpAuthRepository.ts)
-  // - Requires API_BASE_URL environment variable
-  //
-  // const httpClient = createFetchHttpClient({ baseUrl: import.meta.env.VITE_API_BASE_URL })
-  // const authRepository = createHttpAuthRepository(httpClient, selectedTelemetry, {
-  //   baseUrl: import.meta.env.VITE_API_BASE_URL,
-  // })
-  //
-  // For now, using in-memory demo:
-  const authRepository = createInMemoryAuthRepository(selectedTelemetry)
+  // DEMO MODE (default): In-memory repository with mock data
+  // PRODUCTION MODE: HTTP repository with resilience patterns and interceptors
+  // Toggle via env: VITE_USE_HTTP=true
+
+  const useHttp = typeof import.meta !== 'undefined' && import.meta.env.VITE_USE_HTTP === 'true'
+
+  const authRepository = (() => {
+    if (!useHttp) {
+      return createInMemoryAuthRepository(selectedTelemetry)
+    }
+
+    // Interceptor-enabled HTTP client
+    const baseUrl = import.meta.env.VITE_API_BASE_URL
+
+    // Separate client for refresh (no interceptors to avoid recursion)
+    const refreshClient = createFetchHttpClient({ baseUrl })
+
+    const httpClient = createFetchHttpClient({
+      baseUrl,
+      getAuthToken: () =>
+        typeof window !== 'undefined' ? sessionStorage.getItem('access_token') : null,
+      onRequest: async (req) => ({
+        ...req,
+        headers: { ...req.headers, 'X-App': 'clean-template' },
+      }),
+      onResponse: ({ request, status, durationMs }) => {
+        if (typeof window !== 'undefined') {
+          // Lightweight console logging; swap for telemetry if preferred
+          console.info(
+            `[http] ${request.method} ${request.url} -> ${status} in ${durationMs.toFixed(0)}ms`,
+          )
+        }
+      },
+      refreshToken: async () => {
+        const result = await refreshClient.request<{ accessToken: string }>({
+          method: 'POST',
+          url: '/auth/refresh',
+          skipInterceptors: true,
+        })
+        return result.match({
+          ok: ({ data }) => {
+            if (typeof window !== 'undefined') {
+              sessionStorage.setItem('access_token', data.accessToken)
+            }
+            return data.accessToken
+          },
+          err: () => null,
+        })
+      },
+    })
+
+    return createHttpAuthRepository(httpClient, selectedTelemetry, { baseUrl })
+  })()
   const authUseCases = createAuthUseCases(authRepository, selectedTelemetry)
   const authAdapters = createAuthAdapters({ useCases: authUseCases, queryClient })
 
