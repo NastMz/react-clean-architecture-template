@@ -6,7 +6,7 @@ A fully functional **production-ready** Clean Architecture React starter with:
 
 ### Core Stack
 
-- ✅ **React 19** + **TypeScript 5.9** + **Vite 7** (Rolldown)
+- ✅ **React 19** + **TypeScript 5.9** + **Vite 6**
 - ✅ **pnpm** package manager
 - ✅ **Clean Architecture** folder structure (app/shared/features/tests)
 
@@ -47,7 +47,6 @@ A fully functional **production-ready** Clean Architecture React starter with:
 - ✅ **Vitest** + **React Testing Library**
 - ✅ Test structure: unit/ + integration/
 - ✅ Sample tests for Result, repositories, and UI flows
-- ✅ **Fixed**: Now uses standard Vite (no Rolldown issues)
 
 ### Observability
 
@@ -154,8 +153,7 @@ pnpm lint          # Check ESLint
 pnpm lint:fix      # Auto-fix linting issues
 pnpm format        # Check Prettier
 pnpm format:write  # Format all files
-pnpm typecheck     # TypeScript check
-pnpm test          # Run tests (⚠️ see KNOWN_ISSUES.md)
+pnpm test          # Run tests
 pnpm test:watch    # Watch mode
 pnpm storybook     # Start Storybook dev server (port 6006)
 pnpm build-storybook  # Build static Storybook

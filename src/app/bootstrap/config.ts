@@ -6,9 +6,7 @@ import type { AppEnv } from './env'
  */
 export interface AppConfig {
   apiBaseUrl: string
-  featureFlags: {
-    enablePlaywrightScaffold: boolean
-  }
+  featureFlags: Record<string, never>
 }
 
 /**
@@ -18,7 +16,5 @@ export interface AppConfig {
  */
 export const createAppConfig = (env: AppEnv): AppConfig => ({
   apiBaseUrl: env.VITE_API_BASE_URL ?? 'https://api.example.com',
-  featureFlags: {
-    enablePlaywrightScaffold: false,
-  },
+  featureFlags: {},
 })
