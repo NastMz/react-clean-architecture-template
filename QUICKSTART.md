@@ -46,19 +46,6 @@ A **minimal, production-ready** Clean Architecture React starter with complete A
 - ✅ **Husky** + **lint-staged** pre-commit hooks
 - ✅ **Import sorting** (simple-import-sort)
 
-### Testing (29 tests, 100% passing)
-
-- ✅ **Vitest** + **React Testing Library**
-- ✅ Test structure: unit/ + integration/
-- ✅ Tests for:
-  - Result monad (5 tests)
-  - CircuitBreaker (4 tests)
-  - RetryPolicy (6 tests)
-  - InMemoryAuthRepository (3 tests)
-  - HttpAuthRepository (6 tests)
-  - ProtectedRoute (3 tests)
-  - AuthPage integration (2 tests)
-
 ### Observability
 
 - ✅ **OpenTelemetry** integration for distributed tracing
@@ -126,14 +113,18 @@ src/
       http/           # HttpClient
       resilience/     # RetryPolicy, CircuitBreaker
       telemetry/      # ConsoleTelemetry, OpenTelemetryAdapter
-    presentation/     # Layout, shared UI
+    presentation/
+      components/     # Atomic design: atoms, molecules, organisms
+      hooks/          # 👉 Shared UI hooks (useToggle, useDebounce, etc.)
   features/
     auth/
       domain/         # User, Session, Credentials
       application/    # authUseCases + AuthRepository port
-      adapters/       # authAdapters (TanStack Query)
+      adapters/       # authAdapters (TanStack Query hooks)
       infra/          # inMemoryAuthRepository + httpAuthRepository
-      ui/             # AuthPage
+      ui/
+        hooks/        # 👉 Feature-specific UI hooks (useAuthForm)
+        AuthPage.tsx
 tests/
   unit/             # Domain, use cases, repos, resilience patterns
   integration/      # UI flows, protected routes
@@ -141,6 +132,16 @@ tests/
 ```
 
 **Philosophy:** Minimal template, maximum clarity. One complete example (Auth) shows the full pattern. Teams extend from here.
+
+### 🪝 Where to Put Custom Hooks
+
+| Hook Type            | Location                       | Examples                                    | Why Here?                             |
+| -------------------- | ------------------------------ | ------------------------------------------- | ------------------------------------- |
+| **Adapter hooks**    | `features/<feature>/adapters/` | `useLogin`, `useLogout`, `useSession`       | Bridge use cases ↔ UI via React Query |
+| **Feature UI hooks** | `features/<feature>/ui/hooks/` | `useAuthForm`, `useProductFilters`          | Feature-specific UI logic             |
+| **Shared UI hooks**  | `shared/presentation/hooks/`   | `useToggle`, `useDebounce`, `useMediaQuery` | Reusable across features              |
+
+**Rule:** Hooks are **presentation layer only**. Never in `domain/`, `application/`, or `infra/` (those are framework-agnostic).
 
 ---
 
@@ -182,10 +183,12 @@ pnpm build-storybook  # Build static Storybook
    - UI/Adapters cannot import infra
    - Pre-commit hooks prevent violations
 
-2. **Real working examples** (Auth + Todo + Posts, not just boilerplate)
-   - In-memory and HTTP repositories
-   - TanStack Query integration
+2. **One complete reference implementation** (Auth feature, not toy examples)
+   - Both in-memory (demo) and HTTP (production) repositories
+   - TanStack Query adapters layer
    - Full telemetry instrumentation
+   - Protected routes with authentication guards
+   - Resilience patterns (RetryPolicy + CircuitBreaker)
 
 3. **Production patterns baked in**:
    - Result<T, E> monad for errors
@@ -247,14 +250,29 @@ A: TanStack Query handles server state better. Zustand is lighter for UI state. 
 **Q: Why manual DI instead of InversifyJS?**  
 A: Manual composition is simpler, type-safe, and easier to debug. You don't need a DI framework for React apps.
 
-**Q: Tests are failing?**  
-A: Known Rolldown issue. Switch `"vite": "npm:rolldown-vite@7.2.5"` to `"vite": "^6.0.0"` in package.json, then `pnpm install`.
-
 **Q: Can I use this with Next.js?**  
-A: Yes! The architecture adapts. Move app/ to src/ and adjust routing. SSR requires repos to work server-side.
+A: **Possible but not trivial**. Challenges:
 
-**Q: Why in-memory repos?**  
-A: Easy to demo. Swap for HTTP repos in production (example in feature-playbook.md).
+- Next.js App Router uses React Server Components - you'll need client boundaries
+- Container/DI must work on both server and client (separate instances)
+- React Query needs careful hydration setup
+- TanStack Query works differently in RSC vs client components
+- Repository implementations need server-safe alternatives (cookies, server actions)
+
+**Recommendation**: This template is optimized for **SPA/client-side apps**. For Next.js, consider server-first patterns (server actions, route handlers) instead of this client-heavy architecture.
+
+**Q: Why in-memory repos by default?**  
+A: Instant prototyping without backend. Switch to HTTP repositories when you have an API (see [README.md](./README.md#switching-to-production-http-repository)).
+
+**Q: Where do I put custom hooks?**  
+A: **Depends on what the hook does:**
+
+- **UI-only hooks** (useToggle, useDebounce, useMediaQuery): `src/shared/presentation/hooks/`
+- **Feature-specific UI hooks** (useAuthForm, useProductFilters): `src/features/<feature>/ui/hooks/`
+- **Adapter hooks** (already provided via adapters layer): Import from `<feature>/adapters/`
+  - Example: `useLogin`, `useLogout` → already in `authAdapters.ts`
+
+**Never** put hooks in `application/` or `infra/` - those layers are framework-agnostic.
 
 ---
 
