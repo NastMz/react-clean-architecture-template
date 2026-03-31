@@ -1,305 +1,190 @@
 # React Clean Architecture Template
 
-A production-ready **Clean Architecture** starter for React applications that enforces **boundaries**, demonstrates **DI composition**, and provides a complete **Auth** feature example with **resilience patterns** (RetryPolicy + CircuitBreaker).
+This package is the current SPA template inside `react-clean-architecture-template`.
 
----
+It is useful, but it is not a finished framework. Right now it gives you one real vertical slice (`auth`), a manual composition root, boundary linting, and a small shared foundation. Everything else is still on you.
 
-## 🎯 What's Inside
+## What is actually in here
 
-- ✅ **React 19 + TypeScript** powered by **Vite**
-- ✅ **Clean Architecture** folder structure: `app/`, `shared/`, `features/`, `tests/`
-- ✅ **Dependency Injection** via manual composition root
-- ✅ **Result + AppError** monad for consistent error handling
-- ✅ **TanStack Query** for server state + caching
-- ✅ **Zustand** (optional) for UI state
-- ✅ **Zod** for runtime validation
-- ✅ **React Router** for navigation with protected routes
-- ✅ **Vitest + React Testing Library** for unit/integration tests
-- ✅ **ESLint boundary rules** to prevent layer violations
-- ✅ **Prettier + EditorConfig** for consistent formatting
-- ✅ **Husky + lint-staged** for pre-commit quality gates
-- ✅ **Storybook 10** for component documentation and development
-- ✅ **Atomic Design** component library with stories
-- ✅ **OpenTelemetry** integration for distributed tracing
-- ✅ **Resilience Patterns**: RetryPolicy (exponential backoff) + CircuitBreaker (fault tolerance)
-- ✅ **Production-ready Auth** with both in-memory (demo) and HTTP (production) repositories
+- React 19 + TypeScript + Vite
+- One feature implemented end to end: `auth`
+- Manual DI/composition root in `src/app/composition`
+- Shared building blocks organized by capability, not by abstract layers
+- Runtime validation with Zod in env parsing, forms, HTTP responses, and demo auth inputs
+- TanStack Query for feature adapters
+- Vitest + Testing Library + Playwright wired and runnable
+- Storybook installed, but only used for a small subset of shared atoms today
+- ESLint rules that enforce important boundaries, with some gaps called out in `KNOWN_ISSUES.md`
 
----
+## Repo vs package
 
-## 📁 Architecture Overview
+This repository also contains work related to Foundry, but this package is the template itself.
 
-````
-src/
-  app/
-    composition/       # DI container & providers
-    router/            # Routes + ProtectedRoute guard
-    bootstrap/         # env & config
-  shared/
-    domain/            # Result, AppError, ports
-    application/       # TelemetryPort, etc
-    infra/
-      http/            # HttpClient
-                        #  - Interceptors: onRequest/onResponse hooks, 401 refresh retry
-      resilience/      # RetryPolicy, CircuitBreaker
-      telemetry/       # ConsoleTelemetry, OpenTelemetry
-    presentation/      # Layout, hooks
-  features/
-    auth/
-      domain/          # User, Session
-      application/     # authUseCases.ts + ports
-      adapters/        # authAdapters.ts (TanStack Query)
-      infra/           # inMemoryAuthRepository.ts + httpAuthRepository.ts
-      ui/              # AuthPage.tsx
-tests/
-  unit/              # Domain & use case tests
-  integration/       # UI integration tests
-  setup.ts
+- Package path: `packages/template`
+- Package scripts can be run either from repo root with `pnpm -C packages/template <script>` or from `packages/template` directly with `pnpm <script>`
 
-**Special Configuration Files:**
-- `vite-env.d.ts` — TypeScript type declarations for Vite and `import.meta.env` (auto-recognized)
-- `vite.config.ts` — Vite + Vitest configuration with path aliases
-- `eslint.config.js` — ESLint flat config with boundary enforcement rules
-- `tsconfig.json` — Strict TypeScript settings with `verbatimModuleSyntax`
+## Current source layout
 
-### Key Principles
+```text
+packages/template/
+  src/
+    app/
+      bootstrap/        # env parsing and derived config
+      composition/      # container, providers, app-level hooks
+      router/           # router and ProtectedRoute
+    features/
+      auth/
+        api/            # public API surface
+        adapters/       # TanStack Query adapter factory
+        application/    # use cases and ports
+        composition/    # provider/context used by auth hooks
+        domain/         # feature types
+        infra/          # memory and HTTP repositories
+        ui/             # page and UI-facing hooks
+    shared/
+      contracts/        # framework-agnostic ports shared across features
+      kernel/           # Result and AppError
+      network/          # HttpClient, RetryPolicy, CircuitBreaker
+      observability/    # ConsoleTelemetry and OpenTelemetryAdapter
+      ui/               # RootLayout and shared atoms/molecules
+  tests/
+    e2e/
+    integration/
+    unit/
+```
 
-1. **UI** imports only from **adapters**, never directly from **infra**
-2. **Application** depends on **domain** + ports
-3. **Infra** implements ports
-4. ESLint **blocks** any forbidden cross-layer imports
+The important bit: `shared` is currently organized by capabilities (`kernel`, `network`, `observability`, `ui`, `contracts`). Older docs that talk about `shared/domain`, `shared/application`, or `shared/infra` are outdated.
 
----
+## Public API rule for features
 
-## 🚀 Getting Started
+This template now separates feature consumption from feature wiring.
 
-### Prerequisites
+- `@features/<feature>/api`
+  - Use this from app/router/app-level hooks and from other features that only need the feature's public UI-facing surface.
+  - `auth` currently exports `AuthPage`, `useLogin`, `useLogout`, and `useSession` from here.
+- `@features/<feature>/api/composition`
+  - Use this only from the composition root, tests, or other wiring code.
+  - `auth` currently exports `createAuthAdapters`, `createAuthUseCases`, `createInMemoryAuthRepository`, `createHttpAuthRepository`, `AuthAdaptersProvider`, and `AuthAdapters` from here.
 
-- Node 20+
-- pnpm 8+ (`npm install -g pnpm`)
+Concrete example from the current code:
 
-### Installation
+```ts
+import { AuthPage, useSession } from '@features/auth/api'
+import {
+  AuthAdaptersProvider,
+  createAuthAdapters,
+  createAuthUseCases,
+  createInMemoryAuthRepository,
+} from '@features/auth/api/composition'
+```
 
-```bash
-pnpm install
-````
+Do not import feature internals from `src/app/*`. The ESLint config is explicitly trying to stop that.
 
-### Development
+## Demo mode that actually exists
+
+Default runtime mode is in-memory auth.
+
+- Route available: `/auth`
+- `/` redirects to `/auth`
+- Demo credentials: `demo@example.com` / `demo123`
+- Session persistence: `localStorage` key `demo_session`
+- HTTP auth token refresh example stores `access_token` in `sessionStorage`
+
+If you document any other credentials, you are lying.
+
+## Switching auth to HTTP mode
+
+The package supports an HTTP auth repository, but only if you provide a real backend.
+
+Required env:
+
+```env
+VITE_USE_HTTP=true
+VITE_API_BASE_URL=https://your-api.example.com
+```
+
+Current expected endpoints:
+
+- `POST /auth/login` -> `{ user, token }`
+- `GET /auth/session` -> `{ user, token } | null`
+- `POST /auth/logout` -> empty success response is fine
+- `POST /auth/refresh` -> `{ accessToken }` for the refresh callback configured in `src/app/composition/container.ts`
+
+What is NOT included:
+
+- no backend server
+- no MSW mock layer
+- no generated API client
+- no finished refresh-token strategy beyond the composition-root example
+- no circuit breaker wired into the auth HTTP repository yet
+
+So yes, HTTP mode exists in code. No, it is not plug-and-play production auth by itself.
+
+## Tooling that is really available
+
+From `packages/template/package.json`:
 
 ```bash
 pnpm dev
+pnpm lint
+pnpm lint:fix
+pnpm format
+pnpm format:write
+pnpm typecheck
+pnpm test
+pnpm test:watch
+pnpm test:e2e
+pnpm test:e2e:ui
+pnpm test:e2e:report
+pnpm storybook
+pnpm build-storybook
 ```
 
-Open [http://localhost:5173](http://localhost:5173). The template includes:
+Notes:
 
-- **Auth page** (`/auth`): Demo login (credentials: `demo@example.com` / any password)
-- **Protected Routes**: Example route guard using `useAuth()` hook
-- **In-memory repository**: Instant responses, no backend needed
-- **Telemetry console**: See OpenTelemetry events in browser console
+- `lint` ignores Markdown files, so docs are not architecture-checked by ESLint.
+- `format` does check Markdown with Prettier.
+- Storybook is installed and runnable, but it is not broad component coverage yet.
+- There is CI in `.github/workflows/ci.yml` for typecheck, lint, format, unit/integration tests, Playwright, and build at repo level.
 
-### Switching to Production HTTP Repository
+## Testing that is really available
 
-Edit `src/app/composition/container.ts`:
+Current test inventory is small but real.
 
-```typescript
-// 1. Add API_BASE_URL to .env
-// VITE_API_BASE_URL=https://your-api.com
+- Unit tests for shared primitives and runtime contracts
+  - `tests/unit/shared/Result.test.ts`
+  - `tests/unit/shared/network/HttpClient.test.ts`
+  - `tests/unit/shared/infra/RetryPolicy.test.ts`
+  - `tests/unit/shared/infra/CircuitBreaker.test.ts`
+- Unit tests for auth repositories and app bootstrap config/env
+- Integration tests for `AuthPage` and `ProtectedRoute`
+- Playwright E2E tests for the auth flow in `tests/e2e/auth.spec.ts`
 
-// (Optional) Enable interceptors: logging + token refresh
-// Use a small separate client for refresh to avoid recursion
-const refreshClient = createFetchHttpClient({ baseUrl: import.meta.env.VITE_API_BASE_URL })
+What that does NOT mean:
 
-const httpClient = createFetchHttpClient({
-  baseUrl: import.meta.env.VITE_API_BASE_URL,
-  getAuthToken: () => sessionStorage.getItem('access_token'),
-  onRequest: async (req) => {
-    // Example: attach a custom header
-    return { ...req, headers: { ...req.headers, 'X-App': 'clean-template' } }
-  },
-  onResponse: ({ request, status, durationMs }) => {
-    console.info(
-      `[http] ${request.method} ${request.url} -> ${status} in ${durationMs.toFixed(0)}ms`,
-    )
-  },
-  refreshToken: async () => {
-    // Example refresh flow via HttpClient, skipping interceptors
-    const result = await refreshClient.request<{ accessToken: string }>({
-      method: 'POST',
-      url: '/auth/refresh',
-      skipInterceptors: true,
-    })
-    return result.match({
-      ok: ({ data }) => {
-        sessionStorage.setItem('access_token', data.accessToken)
-        return data.accessToken
-      },
-      err: () => null,
-    })
-  },
-})
+- no broad feature coverage beyond auth
+- no multi-browser matrix in Playwright config
+- no hard coverage threshold enforcement
+- no exhaustive Storybook interaction tests
 
-// Per-request: bypass interceptors (e.g., public endpoints)
-// repository.request({ method: 'GET', url: '/public/info', skipInterceptors: true })
+## Boundaries the template is trying to enforce
 
-// 2. Enable HTTP repository via env flag:
-// VITE_USE_HTTP=true
-// The container reads env through a Zod-validated wrapper (see app/bootstrap/env.ts)
-// and builds AppConfig (see app/bootstrap/config.ts).
-```
+- `src/shared/*` must stay independent from `@app/*` and `@features/*`
+- `src/app/*` can consume features only via `@features/*/api` or `@features/*/api/composition`
+- feature layer rules exist for `domain`, `application`, `adapters`, and `ui`
 
-**Benefits of HTTP repository:**
+That said, not every rule is fully generalized for every future feature yet. Read `KNOWN_ISSUES.md` before pretending this is finished.
 
-- ✅ Automatic retries (3 attempts, exponential backoff)
-- ✅ Retries network errors and 5xx status codes
-- ✅ Circuit breaker ready (optional, see httpAuthRepository.ts)
-- ✅ Telemetry tracking for all operations
+## Read these next
 
-### Forms & Validation
+- `QUICKSTART.md` - fastest way to run and verify the template
+- `KNOWN_ISSUES.md` - current gaps and non-closed areas
+- `docs/feature-playbook.md` - how to add a feature without breaking the current boundaries
+- `docs/architecture.md` - broader architecture explanation
+- `docs/testing-strategy.md` - current testing approach, some parts still need cleanup
 
-- Use **React Hook Form** + **Zod** for robust, typed forms
-- The `Input` atom forwards refs so `register()` works seamlessly
-- Example pattern inside feature UI:
+## Bottom line
 
-```tsx
-import { Input } from '@shared/ui/atoms/Input'
-import { z } from 'zod'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+This template is a solid starting point for a client-side React app with one honest example feature.
 
-const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
-})
-type FormValues = z.infer<typeof schema>
-
-const form = useForm<FormValues>({ resolver: zodResolver(schema) })
-
-return (
-  <form onSubmit={form.handleSubmit((data) => login(data))}>
-    <Input type="email" {...form.register('email')} />
-    <Input type="password" {...form.register('password')} />
-  </form>
-)
-```
-
-### Build
-
-```bash
-pnpm build
-pnpm preview
-```
-
-### Storybook
-
-```bash
-pnpm storybook         # start Storybook dev server (port 6006)
-pnpm build-storybook   # build static Storybook
-```
-
-### Testing
-
-```bash
-pnpm test          # run all tests
-pnpm test:watch    # watch mode
-```
-
-### Linting & Formatting
-
-```bash
-pnpm lint          # check ESLint rules
-pnpm lint:fix      # auto-fix
-pnpm format        # check Prettier
-pnpm format:write  # format all files
-pnpm typecheck     # TypeScript check
-```
-
----
-
-## 📖 How to Add a New Feature
-
-The template is intentionally **minimal** - only Auth example included. Follow these steps to add your own features:
-
-1. **Create folder structure** under `src/features/<feature-name>/`:
-
-   ```
-   domain/              # Your entities and value objects
-   application/ports/   # Repository interfaces
-   application/         # Use cases
-   adapters/            # TanStack Query integration
-   infra/               # Implementations (in-memory, HTTP, etc.)
-   ui/                  # React components
-   ```
-
-2. **Define domain models** in `domain/`
-3. **Define repository port** in `application/ports/`
-4. **Implement use cases** consuming the port
-5. **Implement repository** in `infra/` (start with in-memory, add HTTP later)
-6. **Create TanStack Query adapters** in `adapters/`
-7. **Wire everything** in `app/composition/container.ts`
-8. **Build UI** importing from `adapters` only
-9. **Add route** in `app/router/routes.tsx`
-10. **Write tests** in `tests/`
-
-See the included **Auth** feature as a complete reference implementation.
-
-**Tip:** Use `httpAuthRepository.ts` as a template for adding resilience patterns (retries, circuit breaker) to your HTTP repositories.
-
----
-
-## 🛡️ ESLint Boundary Rules
-
-We enforce **architectural boundaries** via ESLint:
-
-- **UI** cannot import from `infra`
-- **Application** cannot import from `infra` or `ui`
-- **Domain** cannot import from outer layers
-
-Breaking these rules will **fail CI** and pre-commit hooks.
-
----
-
-## 📚 Additional Documentation
-
-- [Architecture Guide](docs/architecture.md) – Deep dive into layers
-- [Feature Playbook](docs/feature-playbook.md) – Step-by-step for new features
-- [Testing Strategy](docs/testing-strategy.md) – How to test each layer
-- [OpenTelemetry Guide](docs/opentelemetry.md) – Distributed tracing setup
-- [Environment & Config](#environment--config) – Correct usage of environment variables
-
-### Environment & Config
-
-- Access to `import.meta.env` is centralized in `app/bootstrap/env.ts`, validated with Zod.
-- Use `getEnv()` (singleton, cached) — no direct `import.meta.env` elsewhere.
-- Build config via `getConfig()` in `app/bootstrap/config.ts` (singleton over `createAppConfig(getEnv())`).
-- Rule: only the composition root reads config/env; pass values into infra/adapters via arguments.
-- Note: Changing `.env` requires restarting `pnpm dev` (Vite does not hot-reload env).
-
-```ts
-// app/bootstrap/env.ts
-export const getEnv = () => cachedEnv ?? (cachedEnv = loadEnv())
-
-// app/bootstrap/config.ts
-export const getConfig = () => cachedConfig ?? (cachedConfig = createAppConfig(getEnv()))
-
-// In container
-const config = getConfig()
-const baseUrl = config.apiBaseUrl
-const useHttp = config.useHttp
-```
-
-- _(Optional)_ [ADRs](docs/decisions/) – Architectural decision records
-
----
-
-## 📝 License
-
-MIT
-
----
-
-## 🤝 Contributing
-
-PRs welcome! Please follow the existing structure and pass all lint/tests before submitting.
-
----
-
-**Enjoy building Clean Architecture React apps!** 🎉
+It is not a full platform, not a code generator, and not a guarantee that every future feature will stay clean unless your team keeps the boundaries tight.

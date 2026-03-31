@@ -13,6 +13,15 @@ const credentialsSchema = z.object({
   password: z.string().min(6),
 })
 
+const sessionSchema = z.object({
+  user: z.object({
+    id: z.string().min(1),
+    email: z.string().email(),
+    name: z.string().min(1),
+  }),
+  token: z.string().min(1),
+})
+
 /**
  * Demo user for testing authentication flow
  * In a real app, users would be stored in a database
@@ -36,13 +45,37 @@ export const createInMemoryAuthRepository = (
 ): AuthRepository => {
   const STORAGE_KEY = 'demo_session'
 
+  const clearStoredSession = (): void => {
+    if (typeof window === 'undefined') return
+
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {
+      // Ignore storage cleanup failures and keep auth state in memory only.
+    }
+  }
+
   // Load initial session from localStorage if available
   const loadSession = (): Session | null => {
     if (typeof window === 'undefined') return null
+
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
-      return stored ? (JSON.parse(stored) as Session) : null
+      if (!stored) return null
+
+      const parsed = sessionSchema.safeParse(JSON.parse(stored))
+      if (!parsed.success) {
+        clearStoredSession()
+        telemetry.warn('Sesion persistida invalida; storage limpiado', {
+          issues: parsed.error.issues,
+        })
+        return null
+      }
+
+      return parsed.data
     } catch {
+      clearStoredSession()
+      telemetry.warn('Sesion persistida corrupta; storage limpiado')
       return null
     }
   }

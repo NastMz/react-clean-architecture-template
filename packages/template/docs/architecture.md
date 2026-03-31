@@ -1,164 +1,184 @@
 # Architecture Guide
 
-This guide explains the **Clean Architecture** layers and how they interact in this React template.
+This document explains the architecture that `packages/template` actually ships today.
 
----
+The short version: there is one real vertical slice (`auth`), one manual composition root, and a small shared foundation. Anything beyond that is a pattern to extend, not a finished platform.
 
-## Core Concepts
+## Current structure
 
-### 1. Dependency Rule
-
-**Dependencies point inward**:
-
-- `domain` → (nothing)
-- `application` → `domain`
-- `infra` → `application`, `domain`
-- `adapters` → `application`, `domain` (exports React hooks)
-- `ui` → `adapters` (imports hooks), `domain` (types only)
-
-**UI never imports infra directly. UI never imports useContainer directly.**
-
-### 2. Layers
-
-#### Domain (`features/*/domain`)
-
-- **Pure** business logic
-- No framework dependencies
-- Value objects, entities, domain errors
-- Example: `User`, `Session`, `Credentials`
-
-#### Application (`features/*/application`)
-
-- Use cases (orchestration)
-- Ports (interfaces for repositories, services)
-- Framework-agnostic (no React, no HTTP details)
-- Example: `authUseCases.ts`, `AuthRepository` port
-
-#### Infra (`features/*/infra`)
-
-- Implements ports
-- HTTP clients, in-memory repos, external APIs
-- Resilience patterns (RetryPolicy, CircuitBreaker)
-- Example: `inMemoryAuthRepository.ts`, `httpAuthRepository.ts` (with automatic retries)
-
-#### Adapters (`features/*/adapters`)
-
-- Bridges UI and application layer
-- TanStack Query queries/mutations factories
-- **Exports React hooks** for UI consumption (`useLogin`, `useSession`, `useLogout`)
-- Encapsulates DI container access (UI never touches container)
-- Example: `authAdapters.ts` exports `useLogin()`, `useLogout()`, `useSession()`
-
-#### UI (`features/*/ui`)
-
-- React components
-- Imports **hooks** from `adapters` (e.g., `useLogin`, `useSession`)
-- Never imports `useContainer` or accesses DI directly
-- Can import from `shared/ui` (RootLayout, atoms, molecules)
-- Example: `AuthPage.tsx` uses `useLogin()`, `useLogout()`, `useSession()`
-
----
-
-## Flow Example: Login
-
-```typescript
-// 1. UI imports hook from adapters
-import { useLogin } from '@features/auth/adapters/authAdapters'
-
-// 2. Component uses hook (no DI container access!)
-const { mutate: login } = useLogin()
-
-// 3. User clicks "Login" button
-login({ email: '...', password: '...' })
+```text
+src/
+  app/
+    bootstrap/      # env parsing and derived runtime config
+    composition/    # container, providers, app-level hooks
+    router/         # AppRouter and ProtectedRoute
+  features/
+    auth/
+      api/          # public surfaces consumed from outside the feature
+      adapters/     # React Query adapter factory
+      application/  # use cases and repository port
+      composition/  # provider/context hook glue for auth adapters
+      domain/       # feature types
+      infra/        # in-memory and HTTP repositories
+      ui/           # page and UI-facing hooks
+  shared/
+    contracts/      # shared ports
+    kernel/         # Result and AppError
+    network/        # HttpClient, RetryPolicy, CircuitBreaker
+    observability/  # ConsoleTelemetry and OpenTelemetryAdapter
+    ui/             # RootLayout and shared presentational components
 ```
 
-**Behind the scenes:**
+Important correction: `shared` is capability-based. Any older doc that talks about `shared/domain`, `shared/application`, `shared/infra`, or `shared/presentation` is stale.
 
-4. `useLogin()` hook internally calls `useContainer()` to get adapters
-5. Mutation invokes `useCases.login()` (Application layer)
-6. Use case calls `repository.login()` (Port - interface)
-7. Infra implementation executes:
-   - **Demo mode**: `inMemoryAuthRepository` (instant mock)
-   - **Production mode**: `httpAuthRepository` (with RetryPolicy, 3 attempts, exponential backoff)
-8. Result flows back wrapped in `Result<Session, AppError>`
-9. Adapter updates TanStack Query cache (`queryClient.setQueryData`)
-10. UI re-renders automatically with new session data
+## Dependency direction
 
----
+Inside a feature, dependencies are meant to point inward:
 
-## Shared Folder
+- `domain` -> no feature-layer dependencies
+- `application` -> `domain` and shared contracts/kernel only
+- `infra` -> implements application ports and can use shared/network
+- `adapters` -> depends on application use cases and React Query
+- `ui` -> depends on feature-local UI hooks or the feature public API, not on infra/application directly
 
-- `shared/kernel`: `Result`, `AppError`, `AppErrorFactory`, truly universal primitives
-- `shared/contracts`: `TelemetryPort`, `LoggerPort` and other cross-feature interfaces
-- `shared/network`:
-  - `HttpClient`: fetch wrapper returning `Result<T, E>`
-  - `RetryPolicy`, `CircuitBreaker`: transport-level resilience patterns
-- `shared/observability`: `ConsoleTelemetry`, `OpenTelemetryAdapter`
-- `shared/ui`:
-  - `atoms/`, `molecules/`: reusable UI building blocks
-  - `hooks/`: reusable UI hooks (useToggle, useDebounce, etc.)
-  - `RootLayout.tsx`: app shell
+At app level:
 
-Shared is **transversal infrastructure and reuse**, not a fake horizontal clean architecture. Feature-level clean architecture lives inside each feature.
+- `src/app/*` can consume a feature only through `@features/*/api` or `@features/*/api/composition`
+- `src/shared/*` must stay independent from `@app/*` and `@features/*`
 
----
+Those rules are partially enforced in `packages/template/eslint.config.js`.
 
-## App Folder
+## Public API split
 
-- `app/composition`:
-  - `container.ts`: DI container (wires repos → use cases → adapters)
-  - `providers.tsx`: React context providers
-  - `useAuth.ts`: Convenience hook for auth state (uses `useSession` internally)
-- `app/router`:
-  - `routes.tsx`: Route definitions
-  - `ProtectedRoute.tsx`: Guard component (redirects if not authenticated)
-- `app/bootstrap`: Environment config
+The most important current convention is the split between feature consumption and feature wiring.
 
-This is the **composition root** where everything wires together.
+### `@features/auth/api`
 
-**Key principle**: Only adapters access the container. UI imports hooks from adapters.
+UI-facing surface consumed by app/router/app-level hooks.
 
----
+Current exports:
 
-## Result & AppError
+- `AuthPage`
+- `useLogin`
+- `useLogout`
+- `useSession`
 
-- `Result<T, E>` is a monad for success/failure
-- `AppError` categorizes errors: `Validation`, `Unauthorized`, `Network`, `Conflict`, `Unknown`
-- Use cases return `Result<...>` to avoid throwing exceptions
-- UI calls `.unwrapOrThrow()` via adapters, TanStack Query handles errors
+### `@features/auth/api/composition`
 
----
+Wiring surface consumed by the composition root and tests.
 
-## Testing Strategy
+Current exports:
 
-- **Domain**: pure unit tests
-- **Application**: test use cases with fake repos
-- **Infra**: test repo implementations
-- **Adapters**: test query/mutation logic
-- **UI**: integration tests with real adapters + mock infra
+- `createAuthAdapters`
+- `createAuthUseCases`
+- `createInMemoryAuthRepository`
+- `createHttpAuthRepository`
+- `AuthAdaptersProvider`
+- `AuthAdapters`
 
-See [Testing Strategy](testing-strategy.md) for details.
+This matters because the adapter factory does not export React hooks by itself. The hooks live in `packages/template/src/features/auth/ui/authHooks.tsx` and are re-exported through `packages/template/src/features/auth/api/index.ts`.
 
----
+## Composition root
 
-## Why This Architecture?
+`packages/template/src/app/composition/container.ts` is the composition root.
 
-- **Testable**: each layer can be tested in isolation
-- **Flexible**: swap infra (in-memory → HTTP → IndexedDB) without touching UI
-- **Maintainable**: boundaries prevent spaghetti code
-- **Scalable**: add features without breaking existing ones
+What it wires today:
 
----
+- one `QueryClient`
+- one telemetry implementation
+- one auth repository, chosen from runtime config
+- auth use cases
+- auth adapters
 
-## Common Pitfalls
+Repository selection is driven by `getConfig()`:
 
-1. **Importing infra from UI**: blocked by ESLint, but watch for `// eslint-disable`
-2. **Using `useContainer()` in UI**: UI should import hooks from adapters, not access container
-3. **Fat adapters**: keep them thin, logic belongs in use cases
-4. **Leaking domain models to UI**: map to view models if needed
-5. **Skipping Result**: don't throw in use cases, return `Result.err`
-6. **Putting hooks in application/infra**: hooks are React-specific, belong in adapters or presentation only
+- default: `memory`
+- when `VITE_USE_HTTP=true`: `http`
 
----
+The app then mounts providers in `packages/template/src/app/composition/providers.tsx`:
 
-**Next**: [Feature Playbook](feature-playbook.md)
+- `ContainerContext.Provider`
+- `QueryClientProvider`
+- `AuthAdaptersProvider`
+- `ReactQueryDevtools`
+
+## Request and auth flow
+
+Current login flow:
+
+1. `AuthPage` uses `useLogin()` from `@features/auth/api`
+2. `useLogin()` reads adapters from `useAuthAdapters()`
+3. the auth adapter returns a React Query mutation option
+4. the mutation calls `authUseCases.login()`
+5. the use case calls the selected repository through the `AuthRepository` port
+6. on success, the adapter writes the session into the React Query cache
+
+The page never imports a repository and does not touch the container directly.
+
+## Runtime modes
+
+### In-memory mode
+
+Default mode, backed by `packages/template/src/features/auth/infra/inMemoryAuthRepository.ts`.
+
+- demo credentials: `demo@example.com` / `demo123`
+- persists session in `localStorage` under `demo_session`
+- validates hydrated session payload with Zod
+
+### HTTP mode
+
+Optional mode, backed by `packages/template/src/features/auth/infra/httpAuthRepository.ts`.
+
+- enabled with `VITE_USE_HTTP=true`
+- requires `VITE_API_BASE_URL`
+- uses `HttpClient`
+- uses `RetryPolicy`
+- supports token refresh callback wiring from the composition root
+
+Important correction: `CircuitBreaker` exists as a shared primitive, but auth HTTP requests are not currently wrapped with it.
+
+## Shared building blocks
+
+What each shared area really does today:
+
+- `@shared/kernel/*` -> `Result` and `AppError`
+- `@shared/contracts/*` -> ports such as telemetry/logging contracts
+- `@shared/network/*` -> HTTP and resilience primitives
+- `@shared/observability/*` -> concrete telemetry implementations
+- `@shared/ui/*` -> layout and reusable presentational components
+
+One more honest note: `packages/template/src/shared/ui/hooks/README.md` is a placeholder, not a real hook library yet.
+
+## Router state
+
+The router is intentionally tiny.
+
+- `/` redirects to `/auth`
+- `/auth` renders `AuthPage`
+- `ProtectedRoute` exists and is integration-tested, but no protected feature route is mounted in `routes.tsx` today
+
+So yes, route protection exists as a pattern. No, the template does not ship a second protected feature proving the whole flow end to end.
+
+## What this architecture is good at
+
+- keeping feature boundaries explicit
+- swapping repository implementations without rewriting the page
+- testing use cases, repositories, and UI at different seams
+- giving teams one concrete reference slice instead of ten fake abstractions
+
+## What it does not prove yet
+
+- multi-feature collaboration
+- generalized lint protection for every future feature root
+- production-grade auth policy
+- template-wide circuit-breaker usage
+- mature shared hook/design-system surface
+
+If someone tells you this package already proves all of that, they're overselling it.
+
+## Related docs
+
+- `packages/template/docs/testing-strategy.md`
+- `packages/template/docs/environment.md`
+- `packages/template/docs/opentelemetry.md`
+- `packages/template/docs/feature-playbook.md`

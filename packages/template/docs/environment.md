@@ -1,56 +1,105 @@
 # Environment Configuration
 
-This project uses **Vite environment variables** for configuration. All environment variables must be prefixed with `VITE_` to be exposed to the client.
+This package keeps environment handling intentionally small.
 
-## Files
+Right now there are only two documented runtime variables because those are the only ones the code actually reads from `import.meta.env`.
 
-- **`.env.example`** - Template with all available configuration options (committed to git)
-- **`.env.local`** - Local development overrides (ignored by git)
-- **`.env.production`** - Production-specific configuration (optional, ignored by git)
+## Source of truth
 
-## Available Variables
+Environment parsing and config derivation live here:
 
-### API Configuration
+- `packages/template/src/app/bootstrap/env.ts`
+- `packages/template/src/app/bootstrap/config.ts`
 
-```bash
-# Base URL for API requests (only used when VITE_USE_HTTP=true)
-VITE_API_BASE_URL=http://localhost:3000/api
+Do not scatter direct `import.meta.env` access around the app. The current pattern is: parse once, derive config once, consume config from the composition root.
+
+## Supported variables
+
+### `VITE_USE_HTTP`
+
+Accepted values:
+
+- `'true'`
+- `'false'`
+- omitted
+
+Behavior:
+
+- `'true'` switches auth to the HTTP repository
+- `'false'` or omitted keeps auth in memory mode
+
+### `VITE_API_BASE_URL`
+
+Requirements:
+
+- must be a valid absolute URL when `VITE_USE_HTTP='true'`
+- otherwise it may be omitted
+
+`env.test.ts` explicitly verifies that the app does not invent a fake base URL outside HTTP mode.
+
+## Validation rules
+
+The Zod schema in `env.ts` enforces:
+
+- `VITE_API_BASE_URL` is optional by default
+- `VITE_USE_HTTP` can only be `'true'` or `'false'`
+- `VITE_API_BASE_URL` becomes required when `VITE_USE_HTTP='true'`
+
+If those rules fail, startup throws a validation error instead of silently running with nonsense config.
+
+## Derived runtime config
+
+`createAppConfig()` currently derives:
+
+- `apiBaseUrl`
+- `useHttp`
+- `authRepositoryType`
+- `featureFlags` as an empty object
+
+That last one is not a real feature-flag system yet. It is just a placeholder slot in the config shape.
+
+## Practical setup
+
+The package includes `.env.example` and ignores local env files in `packages/template/.gitignore`.
+
+Typical local setup:
+
+```env
+VITE_USE_HTTP=true
+VITE_API_BASE_URL=https://your-api.example.com
 ```
 
-### Repository Mode
+If you want demo mode, you usually do not need any env file at all.
 
-```bash
-# Set to 'true' to use HTTP repository instead of in-memory demo
-# When false or omitted, uses in-memory repository with demo data
-VITE_USE_HTTP=false
+## Usage pattern
+
+Read config from composition/bootstrap code, not from random feature files.
+
+```ts
+import { getConfig } from '@app/bootstrap/config'
+
+const config = getConfig()
+
+if (config.authRepositoryType === 'http') {
+  // wire HTTP repository
+}
 ```
 
-## Usage in Code
+That keeps env concerns out of UI and feature internals.
 
-Environment variables are validated using Zod schemas in [src/app/bootstrap/env.ts](../src/app/bootstrap/env.ts):
+## Vite-specific notes
 
-```typescript
-import { getEnv } from '@/app/bootstrap/env'
+- client-exposed variables must use the `VITE_` prefix
+- changing env values requires restarting the Vite dev server
+- HMR cache reset in `env.ts` and `config.ts` does not remove the need for a restart when env files change
 
-const env = getEnv()
-console.log(env.VITE_API_BASE_URL)
-```
+## What this document should not claim
 
-## Setup
+It would be dishonest to say the package already has:
 
-1. Copy `.env.example` to `.env.local`:
+- multiple environment profiles with rich app behavior
+- a finished feature flag system
+- secret management
+- server/runtime config separation beyond Vite client envs
 
-   ```bash
-   cp .env.example .env.local
-   ```
-
-2. Update values in `.env.local` for your local environment
-
-3. **Never commit `.env.local` or `.env.production`** - they're ignored by git
-
-## Notes
-
-- Vite **requires a dev server restart** when changing `.env` files
-- Only variables prefixed with `VITE_` are exposed to the client
-- All variables are validated at startup using Zod schemas
-- Invalid configurations will throw runtime errors with descriptive messages
+It has a small, correct env boundary for one optional HTTP-backed auth flow. That's it.

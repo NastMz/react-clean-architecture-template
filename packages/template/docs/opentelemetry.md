@@ -1,257 +1,128 @@
-# OpenTelemetry Integration
+# OpenTelemetry and Observability
 
-This template includes **OpenTelemetry** for distributed tracing and observability. Events and logs are automatically traced across your application.
+This package includes telemetry abstractions and one OpenTelemetry-backed adapter.
 
-## Overview
+That does NOT mean the template ships a complete observability stack.
 
-The `OpenTelemetryAdapter` implements both `TelemetryPort` and `LoggerPort` interfaces, creating spans for every:
+## What exists in code
 
-- Event tracked via `telemetry.track()`
-- Log message via `telemetry.info()`, `telemetry.warn()`, `telemetry.error()`
+Relevant files:
 
-## Current Setup
+- `packages/template/src/shared/contracts/TelemetryPort.ts`
+- `packages/template/src/shared/observability/ConsoleTelemetry.ts`
+- `packages/template/src/shared/observability/OpenTelemetryAdapter.ts`
+- `packages/template/src/app/composition/container.ts`
 
-The container automatically selects the best telemetry implementation:
+Current behavior in the container:
 
-- **Browser (default)**: `OpenTelemetryAdapter` - Creates spans invisibly, ready for backend exporter
-- **Tests/SSR (Node.js)**: `ConsoleTelemetry` - Visible logging for debugging
-- **Custom**: Pass your own `TelemetryPort` implementation to `createContainer()`
+- browser -> `OpenTelemetryAdapter`
+- non-browser/test-like runtime -> `ConsoleTelemetry`
+- caller can override both by passing a custom telemetry implementation into `createContainer()`
 
-**Location**: `src/shared/observability/OpenTelemetryAdapter.ts` and `ConsoleTelemetry.ts`
+## What `OpenTelemetryAdapter` actually does
 
-**DI Container**: `src/app/composition/container.ts` automatically selects based on environment.
+The adapter uses `@opentelemetry/api` to create spans for:
 
-## Telemetry Selection Logic
+- `track(event, data)` -> `event.<name>` spans
+- `info(message, data)` -> `log.info` spans
+- `warn(message, data)` -> `log.warn` spans
+- `error(message, data)` -> `log.error` spans
 
-```typescript
-export const createContainer = (telemetry?: TelemetryPort & LoggerPort) => {
-  const selectedTelemetry =
-    telemetry ??
-    (typeof window !== 'undefined'
-      ? new OpenTelemetryAdapter() // Browser: invisible, ready to extend
-      : new ConsoleTelemetry()) // Node.js/Tests: visible logs
-  // ...
-}
+It also logs to the browser console. So this is not a silent exporter-only adapter; it is trace API usage plus console output.
+
+## What it does not do by itself
+
+Right now the template does not ship:
+
+- SDK bootstrap code
+- tracer provider registration
+- exporter wiring
+- Jaeger/Tempo/Datadog setup
+- dashboard provisioning
+
+So if you run the app as-is, you get the adapter behavior, but you do not magically get a full tracing backend.
+
+## Where telemetry is used today
+
+The auth slice is the concrete example.
+
+`packages/template/src/features/auth/application/authUseCases.ts` tracks:
+
+- `auth.login.attempt`
+- `auth.login.success`
+- `auth.login.error`
+- `auth.logout.success`
+- `auth.logout.error`
+
+Repository implementations also emit telemetry for auth operations and session errors.
+
+## Default selection logic
+
+This is the real selection rule in `container.ts`:
+
+```ts
+const selectedTelemetry =
+  telemetry ?? (typeof window !== 'undefined' ? new OpenTelemetryAdapter() : new ConsoleTelemetry())
 ```
 
-This means:
+That means tests are usually simpler because they do not depend on a browser telemetry setup.
 
-| Environment        | Default              | Behavior                                   |
-| ------------------ | -------------------- | ------------------------------------------ |
-| **Browser (Prod)** | OpenTelemetryAdapter | Spans created but not exported (invisible) |
-| **Tests/SSR**      | ConsoleTelemetry     | Logs visible in console for debugging      |
-| **Custom**         | Your implementation  | Whatever you pass to `createContainer()`   |
+## Custom telemetry
 
-## Architecture
+You can override the default by passing your own implementation to `createContainer()`.
 
-```
-TelemetryPort + LoggerPort (contracts)
-         ↓
-    OpenTelemetryAdapter
-         ↓
-   @opentelemetry/api
-         ↓
-   [Browser Context API]
-```
+```ts
+import { createContainer } from '@app/composition/container'
 
-## Usage in Features
-
-Every feature automatically gets telemetry:
-
-```typescript
-// src/features/auth/application/authUseCases.ts
-export const createAuthUseCases = (
-  repository: AuthRepository,
-  telemetry: TelemetryPort & LoggerPort, // Injected dependency
-): AuthUseCases => ({
-  async login(credentials) {
-    telemetry.track('auth.login', { email: credentials.email })
-    const result = await repository.login(credentials)
-    result.match({
-      ok: (user) => telemetry.info(`User logged in: ${user.email}`),
-      err: (error) => telemetry.error('Failed to login', { kind: error.kind }),
-    })
-    return result
+const telemetry = {
+  track: (event: string, data?: Record<string, unknown>) => {
+    // send to your analytics pipeline
   },
-})
-```
-
-## Switching Telemetry Implementations
-
-### Default (Browser): Invisible Tracing
-
-By default in the browser, `OpenTelemetryAdapter` creates spans but they go nowhere:
-
-```typescript
-// Just works, no configuration needed
-const container = createContainer()
-// OpenTelemetryAdapter is used automatically
-```
-
-This is **production-safe**: no console noise, no performance impact unless you configure an exporter.
-
-### For Testing: Enable Visible Logs
-
-In tests, `ConsoleTelemetry` is automatically used so you can see logs:
-
-```typescript
-import { ConsoleTelemetry } from '@shared/observability/ConsoleTelemetry'
-import { createContainer } from '@app/composition/container'
-
-const container = createContainer()
-// Tests automatically get ConsoleTelemetry (visible logs)
-```
-
-### Custom Implementation
-
-Pass your own telemetry adapter:
-
-```typescript
-import { createContainer } from '@app/composition/container'
-
-const customTelemetry = new MyCustomAdapter()
-const container = createContainer(customTelemetry)
-```
-
-## Enabling Backend Export
-
-By default, spans are created but **not exported**. To send them somewhere:
-
-### Local Development with Jaeger
-
-```typescript
-import { BasicTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node'
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
-import { Resource } from '@opentelemetry/resources'
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
-
-const exporter = new OTLPTraceExporter({
-  url: 'http://localhost:4318/v1/traces', // Or your Jaeger/Tempo endpoint
-})
-
-const resource = Resource.default().merge(
-  new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: 'react-app',
-    [SemanticResourceAttributes.SERVICE_VERSION]: '1.0.0',
-  }),
-)
-
-const tracerProvider = new BasicTracerProvider({ resource })
-tracerProvider.addSpanProcessor(new SimpleSpanProcessor(exporter))
-
-// Set the global tracer provider
-import { trace } from '@opentelemetry/api'
-trace.setGlobalTracerProvider(tracerProvider)
-```
-
-Then import it early in `src/main.tsx` **before anything else**:
-
-```typescript
-import './app/bootstrap/otel-init' // MUST be first import
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
-```
-
-### Running Jaeger Locally
-
-```bash
-docker run -d --name jaeger \
-  -e COLLECTOR_OTLP_ENABLED=true \
-  -p 16686:16686 \
-  -p 4318:4318 \
-  jaegertracing/all-in-one:latest
-```
-
-Then access traces at: http://localhost:16686
-
-## Production Deployment
-
-For production, use:
-
-- **Jaeger** - Open source, best for on-prem
-- **Grafana Tempo** - Cloud-native, integrates with Loki/Prometheus
-- **Google Cloud Trace** - For GCP
-- **AWS X-Ray** - For AWS
-- **Datadog** - Commercial APM
-
-Each has its own exporter in the `@opentelemetry` ecosystem.
-
-## Overriding Telemetry for Specific Environments
-
-The container defaults are smart, but you can override:
-
-**Force ConsoleTelemetry everywhere (verbose logging):**
-
-```typescript
-import { createContainer } from '@app/composition/container'
-import { ConsoleTelemetry } from '@shared/observability/ConsoleTelemetry'
-
-const container = createContainer(new ConsoleTelemetry())
-```
-
-**Use custom adapter:**
-
-```typescript
-class MyDatadogAdapter implements TelemetryPort, LoggerPort {
-  track(event, data) {
-    // Send to Datadog...
-  }
-  // ... other methods
+  info: (message: string, data?: Record<string, unknown>) => {
+    // log
+  },
+  warn: (message: string, data?: Record<string, unknown>) => {
+    // warn
+  },
+  error: (message: string, data?: Record<string, unknown>) => {
+    // error
+  },
 }
 
-const container = createContainer(new MyDatadogAdapter())
+const container = createContainer(telemetry)
 ```
 
-## Span Structure
+This is the safer extension point than pretending the shipped adapter already matches your production observability requirements.
 
-Each telemetry call creates a span:
+## If you want real OTEL export
 
-```
-track('auth.login', { email: 'user@example.com' })
-  ↓
-Span: event.auth.login
-  - Attributes:
-    - email: "user@example.com"
-```
+You need to add your own bootstrap layer that registers an SDK/provider/exporter before the app starts.
 
-Logs also create spans:
+The package has some OTEL dependencies installed, but there is no active `otel-init` file wired into `packages/template/src/main.tsx` today.
 
-```
-error('Failed to login', { kind: 'Unauthorized' })
-  ↓
-Span: log.error
-  - Attributes:
-    - message: "Failed to login"
-    - level: "error"
-    - kind: "Unauthorized"
-  - Exception recorded
-```
+So any documentation claiming that exporters are already configured would be stale.
 
-## Testing with OpenTelemetry
+## Practical guidance
 
-Tests use `ConsoleTelemetry` by default to keep output simple. You can inject a mock:
+- keep telemetry behind the shared contract
+- track business events from use cases
+- use repo/infrastructure telemetry for transport failures and state transitions
+- add exporter/bootstrap code only when you know where traces should go
 
-```typescript
-const mockTelemetry = {
-  track: vi.fn(),
-  info: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-}
+## Honest status
 
-const useCases = createAuthUseCases(repository, mockTelemetry)
-expect(mockTelemetry.track).toHaveBeenCalledWith('auth.login', expect.any(Object))
-```
+What is production-useful here:
 
-## See Also
+- a port abstraction
+- two concrete implementations
+- a composition-root seam for overrides
+- one feature showing how to emit telemetry
 
-- [OpenTelemetry JS Documentation](https://opentelemetry.io/docs/instrumentation/js/)
-- [OpenTelemetry Concepts](https://opentelemetry.io/docs/concepts/)
-- [OTEL Browser Support](https://opentelemetry.io/docs/instrumentation/js/instrumentation/)
+What is still on your team:
+
+- exporter choice
+- backend setup
+- sampling/privacy policy
+- correlation strategy across frontend and backend
+
+If someone says "OpenTelemetry is done" just because the adapter class exists, they're hand-waving.

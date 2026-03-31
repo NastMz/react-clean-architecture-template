@@ -53,6 +53,13 @@ describe('HttpAuthRepository', () => {
       expect(mockTelemetry.track).toHaveBeenCalledWith('auth.login.success', {
         userId: 'user-1',
       })
+      expect(mockHttpClient.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: 'POST',
+          url: 'https://api.example.com/auth/login',
+          responseSchema: expect.any(Object),
+        }),
+      )
     })
 
     it('should handle login errors from HTTP client', async () => {
@@ -162,6 +169,7 @@ describe('HttpAuthRepository', () => {
       expect(mockHttpClient.request).toHaveBeenCalledWith({
         method: 'GET',
         url: 'https://api.example.com/auth/session',
+        responseSchema: expect.any(Object),
       })
     })
   })

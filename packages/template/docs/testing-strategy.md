@@ -1,305 +1,171 @@
 # Testing Strategy
 
-How to test each layer of the Clean Architecture stack.
+This is the testing strategy the template actually supports today.
 
----
+It is real, but narrow. The repo proves the pattern mostly through `auth`, bootstrap config/env, and shared network/kernel utilities.
 
-## Test Pyramid
+## Current toolchain
 
-1. **Unit tests** (domain, use cases, infra implementations)
-2. **Integration tests** (adapters + UI)
-3. **E2E tests** (Playwright, future)
+- unit and integration tests run with `vitest`
+- DOM testing uses `@testing-library/react` and `@testing-library/user-event`
+- browser environment is `jsdom`
+- global setup lives in `packages/template/tests/setup.ts`
+- E2E runs with Playwright on Chromium only
 
----
+Relevant config files:
 
-## Layer-by-Layer Testing
+- `packages/template/vite.config.ts`
+- `packages/template/playwright.config.ts`
+- `packages/template/tsconfig.test.json`
 
-### 1. Domain (Pure Logic)
+## What exists right now
 
-**What to test:**
+### Unit tests
 
-- Value objects
-- Domain rules
-- `Result` / `AppError` logic
+- shared kernel: `packages/template/tests/unit/shared/Result.test.ts`
+- shared network: `packages/template/tests/unit/shared/network/HttpClient.test.ts`
+- resilience primitives: `packages/template/tests/unit/shared/infra/RetryPolicy.test.ts`, `packages/template/tests/unit/shared/infra/CircuitBreaker.test.ts`
+- bootstrap env/config: `packages/template/tests/unit/app/bootstrap/env.test.ts`
+- auth repositories: `packages/template/tests/unit/features/auth/inMemoryAuthRepository.test.ts`, `packages/template/tests/unit/features/auth/httpAuthRepository.test.ts`
 
-**Example:**
+### Integration tests
 
-```ts
-import { describe, expect, it } from 'vitest'
-import { Result } from '@shared/kernel/Result'
+- `packages/template/tests/integration/auth/AuthPage.test.tsx`
+- `packages/template/tests/integration/router/ProtectedRoute.test.tsx`
 
-describe('Result', () => {
-  it('should map Ok values', () => {
-    const result = Result.ok(5).map((n) => n * 2)
-    expect(result.value).toBe(10)
-  })
-})
-```
+These tests create a real-ish container shape and mount providers instead of mocking React Query away completely.
 
-**No mocks needed** – domain is pure.
+### E2E tests
 
----
+- `packages/template/tests/e2e/auth.spec.ts`
 
-### 2. Application (Use Cases)
+Playwright covers the auth happy path, logout, and invalid-credentials behavior against the running app.
 
-**What to test:**
+## What does not exist yet
 
-- Use case orchestration
-- Error handling
-- Telemetry calls
+- no coverage thresholds
+- no multi-browser Playwright matrix
+- no MSW-based API integration layer
+- no broad story-driven interaction testing workflow
+- no second feature proving the same strategy outside `auth`
 
-**Example:**
+So don't pretend this is a mature testing platform. It is a good baseline, not a finished testing story.
 
-```ts
-import { describe, expect, it, vi } from 'vitest'
-import { createAuthUseCases } from '@features/auth/application/authUseCases'
-import { Result } from '@shared/kernel/Result'
+## Layer-by-layer guidance
 
-describe('authUseCases', () => {
-  it('should call telemetry on login success', async () => {
-    const mockRepo = {
-      login: vi.fn().mockResolvedValue(Result.ok({ user: {}, token: 'abc' })),
-      logout: vi.fn(),
-      currentSession: vi.fn(),
-    }
-    const mockTelemetry = { track: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() }
+### Domain
 
-    const useCases = createAuthUseCases(mockRepo, mockTelemetry)
-    await useCases.login({ email: 'test@example.com', password: 'pass' })
+Use pure unit tests.
 
-    expect(mockTelemetry.track).toHaveBeenCalledWith('auth.login.attempt', expect.any(Object))
-    expect(mockTelemetry.track).toHaveBeenCalledWith('auth.login.success', expect.any(Object))
-  })
-})
-```
+- no React
+- no DOM
+- no network
+- no container
 
-**Use fake repos** (simple mocks).
+Good targets:
 
----
+- data transformations
+- `Result` behavior
+- `AppError` mapping rules
 
-### 3. Infra (Repository Implementations)
+### Application
 
-**What to test:**
+Test use cases by faking the port, not by dragging infra into the test.
 
-- Validation (Zod schemas)
-- State mutations (in-memory)
-- HTTP calls (with fetch mock or MSW)
+For auth, that means:
 
-**Example:**
+- fake `AuthRepository`
+- fake telemetry contract when you need assertions on tracking
+- assert returned `Result` and orchestration behavior
 
-```ts
-import { describe, expect, it } from 'vitest'
-import { createInMemoryAuthRepository } from '@features/auth/infra/inMemoryAuthRepository'
+There is not much application-specific coverage today, which is fine to admit. If you add new use cases, this is one of the first gaps to close.
 
-describe('InMemoryAuthRepository', () => {
-  it('should login with valid credentials', async () => {
-    const repo = createInMemoryAuthRepository({
-      track: vi.fn(),
-      info: vi.fn(),
-      warn: vi.fn(),
-      error: vi.fn(),
-    })
-    const result = await repo.login({ email: 'demo@example.com', password: 'demo123' })
-    expect(result.isOk).toBe(true)
-  })
-})
-```
+### Infra
 
----
+Test repository implementations directly.
 
-### 4. Adapters (TanStack Query)
+What auth infra tests already prove:
 
-**What to test:**
+- in-memory login/logout/current session behavior
+- localStorage hydration cleanup for corrupt or invalid session payloads
+- HTTP repository URL construction
+- HTTP repository success/error handling
+- RetryPolicy-backed request flow
 
-- Query key correctness
-- Mutation success/error handling
-- Cache invalidation
-- Exported hooks work correctly
+Important nuance: the HTTP repository tests use mocked `HttpClient`; they are still unit tests, not real API integration tests.
 
-**Example:**
+### Adapters
 
-```ts
-import { describe, expect, it, vi } from 'vitest'
-import { QueryClient } from '@tanstack/react-query'
-import { createAuthAdapters } from '@features/auth/adapters/authAdapters'
-import { Result } from '@shared/kernel/Result'
+Adapters return React Query query/mutation options. Test them at that seam when needed.
 
-describe('authAdapters', () => {
-  it('should invalidate cache on logout', async () => {
-    const queryClient = new QueryClient()
-    const mockUseCases = {
-      login: vi.fn(),
-      logout: vi.fn().mockResolvedValue(Result.ok(undefined)),
-      currentSession: vi.fn(),
-    }
+Focus on:
 
-    const adapters = createAuthAdapters({ useCases: mockUseCases, queryClient })
-    const mutation = adapters.mutations.logout()
+- query keys
+- success cache writes
+- logout cache clearing
+- mutation/query behavior around `unwrapOrThrow()`
 
-    await mutation.mutationFn()
-    // Check cache is set to null after logout
-    expect(queryClient.getQueryData(['auth', 'session'])).toBeNull()
-  })
-})
-```
+Today the repo gets indirect adapter coverage through integration tests more than through dedicated adapter test files.
 
----
+### UI and router
 
-### 5. UI (Integration Tests)
+Use integration tests with providers.
 
-**What to test:**
+`AuthPage.test.tsx` is the reference pattern:
 
-- User flows (login, logout)
-- Error display
-- Loading states
-- Components use hooks correctly (not useContainer)
+- create a `QueryClient`
+- create auth repo/use cases/adapters
+- wrap with `ContainerContext`, `QueryClientProvider`, and `AuthAdaptersProvider`
+- drive the page through accessible selectors
 
-**Example:**
+That is the right level for forms and route guards in this template.
 
-```tsx
-import { describe, expect, it } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { AuthPage } from '@features/auth/ui/AuthPage'
+## Test helpers and setup
 
-describe('AuthPage integration', () => {
-  it('should log in successfully with valid credentials', async () => {
-    const user = userEvent.setup()
-    renderWithProviders(<AuthPage />)
+`packages/template/tests/setup.ts` currently does two practical things:
 
-    await user.type(screen.getByLabelText(/email/i), 'demo@example.com')
-    await user.type(screen.getByLabelText(/password/i), 'demo123')
-    await user.click(screen.getByRole('button', { name: /login/i }))
+- installs `@testing-library/jest-dom`
+- ensures `localStorage` and `sessionStorage` exist in the test runtime
 
-    await waitFor(() => {
-      expect(screen.getByText(/Demo User/i)).toBeInTheDocument()
-    })
-  })
+That matters because the in-memory auth repository persists state and the HTTP wiring reads `sessionStorage` for token refresh examples.
 
-  it('should show error on invalid credentials', async () => {
-    const user = userEvent.setup()
-    renderWithProviders(<AuthPage />)
+## Running the checks
 
-    await user.type(screen.getByLabelText(/email/i), 'wrong@example.com')
-    await user.type(screen.getByLabelText(/password/i), 'wrongpass')
-    await user.click(screen.getByRole('button', { name: /login/i }))
-
-    await waitFor(() => {
-      expect(screen.getByText(/invalid credentials/i)).toBeInTheDocument()
-    })
-  })
-})
-```
-
-**Use real adapters + container**, with in-memory repositories for fast tests.
-
----
-
-## Test Helpers
-
-### `renderWithProviders`
-
-```tsx
-const createTestContainer = (): AppContainer => {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  // ... wire up features
-  return { queryClient, adapters: { ... } }
-}
-
-const renderWithProviders = (ui: React.ReactElement) => {
-  const container = createTestContainer()
-  return render(
-    <ContainerContext.Provider value={container}>
-      <QueryClientProvider client={container.queryClient}>{ui}</QueryClientProvider>
-    </ContainerContext.Provider>,
-  )
-}
-```
-
----
-
-## Coverage Goals
-
-- **Domain**: 100% (easy, pure functions)
-- **Application**: 80%+ (use cases)
-- **Infra**: 70%+ (focus on critical paths)
-- **Adapters**: 60%+ (query/mutation logic)
-- **UI**: 50%+ (happy paths + error cases)
-
----
-
-## Running Tests
+From `packages/template`:
 
 ```bash
-pnpm test          # run all
-pnpm test:watch    # watch mode
-pnpm test -- --coverage  # coverage report
+pnpm test
+pnpm test:watch
+pnpm test:e2e
+pnpm test:e2e:ui
+pnpm test:e2e:report
 ```
 
----
+From repo root, the equivalent is `pnpm -C packages/template <script>`.
 
-## E2E Tests (Future: Playwright)
+## Coverage reality
 
-1. Install Playwright: `pnpm add -D @playwright/test`
-2. Add `tests/e2e/auth.spec.ts`:
+Vitest coverage reporters are configured, so `pnpm test -- --coverage` works.
 
-```ts
-import { test, expect } from '@playwright/test'
+But let's be precise:
 
-test('login flow', async ({ page }) => {
-  await page.goto('http://localhost:5173/auth')
-  await page.fill('input[name="email"]', 'demo@example.com')
-  await page.fill('input[name="password"]', 'demo123')
-  await page.click('button[type="submit"]')
-  await expect(page.locator('text=Demo User')).toBeVisible()
-})
-```
+- coverage is reportable
+- coverage is not enforced by threshold
+- a decent-looking percentage would still mostly describe the auth slice and shared utilities
 
-3. Run: `pnpm playwright test`
+Numbers without scope awareness are bullshit. Read the test inventory, not just the badge someone wishes they had.
 
----
+## Recommended next additions
 
-**Next**: [Architecture Guide](architecture.md)
+If you extend the template, the highest-value testing follow-ups are:
 
----
+1. add direct application-layer tests for new use cases
+2. add adapter-focused tests when cache behavior gets more complex
+3. add integration tests for any new route/page immediately
+4. expand E2E only after the flow is stable enough to deserve it
 
-## Testing Forms (RHF + Zod)
+## Related docs
 
-Focus on user interactions and visible feedback:
-
-- Assert field-level errors after blur/submit
-- Assert that valid input triggers adapter mutation
-- Avoid implementation details (no direct RHF internals)
-
-### Example: Auth Form Validation
-
-```tsx
-import { render, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-
-renderWithProviders(<AuthPage />)
-const email = screen.getByRole('textbox', { name: /email/i })
-const password = screen.getByLabelText(/password/i)
-const submit = screen.getByRole('button', { name: /login/i })
-
-// Shows field error for missing password
-await userEvent.clear(password)
-await userEvent.click(submit)
-await waitFor(() => {
-  expect(screen.getByText(/password is required/i)).toBeInTheDocument()
-})
-
-// Valid credentials trigger session display
-await userEvent.type(email, 'demo@example.com')
-await userEvent.type(password, 'demo123')
-await userEvent.click(submit)
-await waitFor(() => {
-  expect(screen.getByText(/demo user/i)).toBeInTheDocument()
-})
-```
-
-Tips:
-
-- Prefer `getByRole` with accessible names
-- Use `userEvent` for realistic typing/clicks
-- Use `waitFor` for async UI updates
+- `packages/template/docs/architecture.md`
+- `packages/template/docs/e2e-testing.md`
+- `packages/template/KNOWN_ISSUES.md`

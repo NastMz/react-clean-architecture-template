@@ -1,6 +1,7 @@
 import type { AppError } from '@shared/kernel/AppError'
 import { AppErrorFactory } from '@shared/kernel/AppError'
 import { Result } from '@shared/kernel/Result'
+import { z } from 'zod'
 
 /**
  * HTTP method types supported by the client
@@ -17,6 +18,11 @@ export interface HttpRequest {
   body?: unknown
   /** If true, skips onRequest/onResponse and refreshToken interceptor logic */
   skipInterceptors?: boolean
+  responseSchema?: undefined
+}
+
+export interface ValidatedHttpRequest<T> extends Omit<HttpRequest, 'responseSchema'> {
+  responseSchema: z.ZodType<T>
 }
 
 /**
@@ -40,7 +46,8 @@ export interface HttpClient {
    * @param request - HTTP request configuration
    * @returns Result containing response or AppError
    */
-  request<T>(request: HttpRequest): Promise<Result<HttpResponse<T>, AppError>>
+  request(request: HttpRequest): Promise<Result<HttpResponse<unknown>, AppError>>
+  request<T>(request: ValidatedHttpRequest<T>): Promise<Result<HttpResponse<T>, AppError>>
 }
 
 /**
@@ -66,8 +73,30 @@ export interface HttpClientOptions {
 export const createFetchHttpClient = (options: HttpClientOptions = {}): HttpClient => {
   const baseUrl = options.baseUrl?.replace(/\/$/, '') ?? ''
 
+  const validateResponse = <T>(
+    request: HttpRequest | ValidatedHttpRequest<T>,
+    data: unknown,
+  ): Result<unknown, AppError> => {
+    if (!request.responseSchema) {
+      return Result.ok(data)
+    }
+
+    const parsed = request.responseSchema.safeParse(data)
+    if (!parsed.success) {
+      return Result.err(
+        AppErrorFactory.validation(`Invalid response payload for ${request.method} ${request.url}`, {
+          issues: parsed.error.issues,
+          data,
+        }),
+      )
+    }
+
+    return Result.ok(parsed.data)
+  }
+
   return {
-    async request<T>({ method, url, headers, body, skipInterceptors }: HttpRequest) {
+    async request<T>(request: HttpRequest | ValidatedHttpRequest<T>) {
+      const { method, url, headers, body, skipInterceptors } = request
       // Allow request mutation via interceptor
       const initialRequest: HttpRequest = { method, url, headers, body, skipInterceptors }
       const interceptedRequest = initialRequest.skipInterceptors
@@ -148,11 +177,12 @@ export const createFetchHttpClient = (options: HttpClientOptions = {}): HttpClie
                   AppErrorFactory.unknown(`Request failed with status ${retry.response.status}`),
                 )
               }
-              const contentType = retry.response.headers.get('content-type')
-              const parsedRetry: unknown = contentType?.includes('application/json')
-                ? await retry.response.json()
-                : await retry.response.text()
-              return Result.ok({ status: retry.response.status, data: parsedRetry as T })
+              const validatedRetry = validateResponse(request, retry.parsed)
+              if (validatedRetry.isErr) {
+                return Result.err(validatedRetry.error)
+              }
+
+              return Result.ok({ status: retry.response.status, data: validatedRetry.value })
             }
           } catch {
             // fall-through to unauthorized error mapping
@@ -167,7 +197,12 @@ export const createFetchHttpClient = (options: HttpClientOptions = {}): HttpClie
         return Result.err(AppErrorFactory.unknown(`Request failed with status ${response.status}`))
       }
 
-      return Result.ok({ status: response.status, data: parsed as T })
+      const validated = validateResponse(request, parsed)
+      if (validated.isErr) {
+        return Result.err(validated.error)
+      }
+
+      return Result.ok({ status: response.status, data: validated.value })
     },
   }
 }

@@ -1,182 +1,118 @@
-# Clean Architecture Layers Diagram
+# Current Architecture Diagram
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                          UI LAYER                                │
-│  ┌────────────────┐  ┌────────────────┐                        │
-│  │  AuthPage.tsx  │  │ProtectedRoute  │  React Components      │
-│  └───────┬────────┘  └───────┬────────┘                        │
-│          │                    │                                  │
-│          ▼                    ▼                                  │
-│  ┌────────────────────────────────────┐                         │
-│  │  useLogin(), useSession(), etc.    │  Import hooks from      │
-│  │  (from adapters, NOT container)    │  adapters directly      │
-│  └────────────────┬───────────────────┘                         │
-└───────────────────┼──────────────────────────────────────────────┘
-                    │
-┌───────────────────▼──────────────────────────────────────────────┐
-│                     ADAPTER LAYER                                 │
-│  ┌────────────────────────────────────────┐                     │
-│  │      authAdapters.ts                   │                     │
-│  │  - queries (session)                   │  TanStack Query     │
-│  │  - mutations (login, logout)           │  Queries & Mutations│
-│  │  - exports: useLogin(), useLogout(),   │                     │
-│  │    useSession() hooks                  │  Encapsulates       │
-│  │    (internally uses useContainer)      │  DI container       │
-│  └───────┬────────────────────────────────┘                     │
-│          │                                                        │
-│          ▼                                                        │
-└──────────┼────────────────────────────────────────────────────────┘
-           │
-┌──────────▼────────────────────────────────────────────────────────┐
-│                    APPLICATION LAYER                              │
-│  ┌─────────────────────────────────────────┐                    │
-│  │ authUseCases                            │  Business Logic    │
-│  │ - login(credentials)                    │  Orchestration     │
-│  │ - logout()                              │                    │
-│  │ - currentSession()                      │                    │
-│  └───────┬─────────────────────────────────┘                    │
-│          │                                                        │
-│          ▼                                                        │
-│  ┌─────────────────────────────────────────┐                    │
-│  │ AuthRepository (interface/port)         │  Port (Interface)  │
-│  └───────┬─────────────────────────────────┘                    │
-└──────────┼────────────────────────────────────────────────────────┘
-           │
-┌──────────▼────────────────────────────────────────────────────────┐
-│                     DOMAIN LAYER                                  │
-│  ┌────────────┐  ┌──────────┐  ┌──────────┐                    │
-│  │   User     │  │  Result  │  │ AppError │  Pure Models       │
-│  │  Session   │  │          │  │          │  No Dependencies   │
-│  │Credentials │  │          │  │          │                    │
-│  └────────────┘  └──────────┘  └──────────┘                    │
-└───────────────────────────────────────────────────────────────────┘
-           ▲
-┌──────────┼────────────────────────────────────────────────────────┐
-│                    INFRASTRUCTURE LAYER                           │
-│  ┌──────────────────────┐  ┌──────────────────────┐            │
-│  │ inMemoryAuthRepo     │  │ httpAuthRepository   │            │
-│  │ (demo/testing)       │  │ (production)         │ Data Layer │
-│  │                      │  │ + RetryPolicy        │            │
-│  └──────────────────────┘  └──────────────────────┘            │
-│                                                                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
-│  │  HttpClient  │  │ RetryPolicy  │  │ Telemetry    │ Services│
-│  │  (Result<T>) │  │CircuitBreaker│  │ (OpenTelemetry)        │
-│  └──────────────┘  └──────────────┘  └──────────────┘         │
-└───────────────────────────────────────────────────────────────────┘
+This is the honest diagram for the template as it exists today.
 
-                              │
-                              ▼
-┌───────────────────────────────────────────────────────────────────┐
-│                       COMPOSITION ROOT                             │
-│  ┌────────────────────────────────────────────────┐              │
-│  │              container.ts                       │              │
-│  │  ┌──────────────────────────────────────────┐  │              │
-│  │  │ 1. Create QueryClient                   │  │              │
-│  │  │ 2. Create Telemetry                     │  │              │
-│  │  │ 3. Create Repository (in-memory/HTTP)   │  │              │
-│  │  │ 4. Create UseCases (inject repos)       │  │              │
-│  │  │ 5. Create Adapters (inject useCases)    │  │              │
-│  │  │ 6. Return Container                     │  │              │
-│  │  └──────────────────────────────────────────┘  │              │
-│  └────────────────────────────────────────────────┘              │
-└───────────────────────────────────────────────────────────────────┘
+```text
+App shell
+  main.tsx
+    -> AppProviders
+    -> AppRouter
+
+AppProviders
+  -> createContainer()
+  -> ContainerContext.Provider
+  -> QueryClientProvider
+  -> AuthAdaptersProvider
+  -> ReactQueryDevtools
+
+AppRouter
+  -> /        redirects to /auth
+  -> /auth    renders AuthPage
+
+AuthPage / app-level consumers
+  -> @features/auth/api
+     - AuthPage
+     - useLogin
+     - useLogout
+     - useSession
+
+Feature auth internals
+  ui/authHooks.tsx
+    -> composition/useAuthAdapters.ts
+    -> adapters/authAdapters.ts
+
+  adapters/authAdapters.ts
+    -> application/authUseCases.ts
+    -> React Query query/mutation options
+    -> QueryClient cache writes
+
+  application/authUseCases.ts
+    -> application/ports/AuthRepository.ts
+    -> shared/contracts/TelemetryPort.ts
+    -> shared/kernel/Result.ts
+
+  infra/inMemoryAuthRepository.ts
+    -> default runtime mode
+    -> localStorage demo_session
+    -> Zod input/session validation
+
+  infra/httpAuthRepository.ts
+    -> optional runtime mode
+    -> shared/network/HttpClient.ts
+    -> shared/network/RetryPolicy.ts
+    -> NOT CircuitBreaker today
+
+Shared foundation
+  shared/kernel
+  shared/contracts
+  shared/network
+  shared/observability
+  shared/ui
 ```
 
-## Dependency Rule
+## Dependency rule
 
-**Dependencies always point INWARD** ⬇️
-
-- ✅ UI → Adapters (hooks) → Application → Domain
-- ✅ Infra → Application → Domain
-- ❌ Domain NEVER depends on outer layers
-- ❌ Application NEVER depends on Infra or UI
-- ❌ UI NEVER imports Infra directly
-- ❌ UI NEVER imports `useContainer` directly (use adapter hooks)
-
-## Data Flow Example: User Login
-
-```
-1. User clicks "Login" in AuthPage.tsx (UI)
-                    ↓
-2. Component uses useLogin() hook imported from authAdapters
-                    ↓
-3. Hook internally accesses container and calls loginMutation
-                    ↓
-4. Mutation invokes useCases.login() (Application)
-                    ↓
-5. Use case calls repository.login() (Port)
-                    ↓
-6. Repository implementation (inMemory or HTTP) executes:
-   - Demo: inMemoryAuthRepo (instant mock)
-   - Production: httpAuthRepository with RetryPolicy (3 attempts)
-                    ↓
-7. Returns Result<Session, AppError> (Domain)
-                    ↓
-8. Result flows back through layers
-                    ↓
-9. Adapter updates TanStack Query cache (setQueryData)
-                    ↓
-10. AuthPage re-renders with session data (UI)
+```text
+app -> feature public APIs -> feature internals -> shared
+infra -> application/domain/shared
+shared -> no app imports, no feature imports
 ```
 
-## Shared Layer (Horizontal)
+More explicitly:
 
-```
-┌───────────────────────────────────────────────────────────────┐
-│                      SHARED                                    │
-│  ┌────────────┐  ┌────────────┐  ┌────────────┐             │
-│  │   Domain   │  │Application │  │   Infra    │             │
-│  │  Result    │  │ Telemetry  │  │HttpClient  │             │
-│  │  AppError  │  │   Logger   │  │            │             │
-│  └────────────┘  └────────────┘  └────────────┘             │
-│                                                                │
-│  ┌────────────────────────────────────────────┐              │
-│  │         Presentation                        │              │
-│  │  Layout, Hooks, Common UI Utils            │              │
-│  └────────────────────────────────────────────┘              │
-└───────────────────────────────────────────────────────────────┘
-```
+- `src/app/*` should not import feature internals directly
+- `src/shared/*` should not import from `@app/*` or `@features/*`
+- feature `ui` should not import `application` or `infra` directly
+- feature `adapters` should receive infra through composition, not import it directly
 
-Shared code is reused across all features horizontally.
+## Public API split diagram
 
-## Feature Isolation
+```text
+Outside feature:
+  @features/auth/api
+    - UI-facing consumption
 
-The template demonstrates this with the Auth feature as a complete vertical slice:
-
-```
-features/auth/
-  ├── domain/              # User, Session, Credentials
-  ├── application/         # authUseCases, AuthRepository port
-  ├── adapters/            # authAdapters, exports useLogin/useSession/useLogout
-  ├── infra/               # inMemoryAuthRepository, httpAuthRepository
-  └── ui/                  # AuthPage.tsx
+  @features/auth/api/composition
+    - composition root
+    - tests
+    - wiring code
 ```
 
-**Minimalist approach**: Template includes only Auth as a reference implementation.
-Teams add their own features following this pattern.
+That split is one of the few strong architectural moves this template already proves. Respect it.
 
-Features don't import from each other (except through shared).
+## Runtime mode diagram
 
-## Testing Strategy by Layer
+```text
+getConfig()
+  -> authRepositoryType = memory | http
 
-```
-┌─────────────┬──────────────────┬────────────────────┐
-│   Layer     │   Test Type      │   What to Mock     │
-├─────────────┼──────────────────┼────────────────────┤
-│ Domain      │ Pure unit tests  │ Nothing            │
-│ Application │ Unit tests       │ Repositories       │
-│ Adapters    │ Integration      │ UseCases           │
-│ Infra       │ Unit tests       │ HTTP/Storage       │
-│ UI          │ Integration      │ Container (fake)   │
-└─────────────┴──────────────────┴────────────────────┘
+memory
+  -> createInMemoryAuthRepository()
+
+http
+  -> createFetchHttpClient()
+  -> refresh token callback wiring
+  -> createHttpAuthRepository()
 ```
 
----
+## What this diagram intentionally does not show
 
-**Key Insight**: Clean Architecture is about **dependency inversion**. High-level policies (domain, application) don't depend on low-level details (infra). The flow of control is:
+Because the code does not prove it yet:
 
-UI → Adapters → Application → Domain ← Infra
+- multiple feature slices
+- a protected route mounted in the main router
+- circuit breaker active in auth HTTP requests
+- exporter-backed telemetry pipeline
+- mature shared hook library
 
-But the **source code dependencies** point **inward** only.
+If you need those, build them. Don't draw them into existence.

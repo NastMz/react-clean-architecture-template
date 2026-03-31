@@ -4,15 +4,27 @@ import { z } from 'zod'
  * Zod schema for validating environment variables
  * Ensures type safety and runtime validation of env configuration
  */
-const envSchema = z.object({
-  VITE_API_BASE_URL: z.string().url().optional(),
-  VITE_USE_HTTP: z.enum(['true', 'false']).optional(),
-})
+const envSchema = z
+  .object({
+    VITE_API_BASE_URL: z.string().url().optional(),
+    VITE_USE_HTTP: z.enum(['true', 'false']).optional(),
+  })
+  .superRefine((env, context) => {
+    if (env.VITE_USE_HTTP === 'true' && !env.VITE_API_BASE_URL) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['VITE_API_BASE_URL'],
+        message: 'VITE_API_BASE_URL is required when VITE_USE_HTTP=true',
+      })
+    }
+  })
 
 /**
  * Type-safe environment variables inferred from Zod schema
  */
 export type AppEnv = z.infer<typeof envSchema>
+
+export const parseEnv = (env: unknown): AppEnv => envSchema.parse(env)
 
 let cachedEnv: AppEnv | null = null
 
@@ -21,7 +33,7 @@ let cachedEnv: AppEnv | null = null
  * @throws {ZodError} If environment variables don't match the schema
  * @returns Validated environment variables object
  */
-export const loadEnv = (): AppEnv => envSchema.parse(import.meta.env)
+export const loadEnv = (): AppEnv => parseEnv(import.meta.env)
 
 /**
  * Singleton accessor for env (validated once).

@@ -20,7 +20,7 @@ export interface AppConfig {
 export const createAppConfig = (env: AppEnv): AppConfig => {
   const useHttp = env.VITE_USE_HTTP === 'true'
   return {
-    apiBaseUrl: env.VITE_API_BASE_URL ?? 'https://api.example.com',
+    apiBaseUrl: env.VITE_API_BASE_URL ?? '',
     useHttp,
     authRepositoryType: useHttp ? 'http' : 'memory',
     featureFlags: {},

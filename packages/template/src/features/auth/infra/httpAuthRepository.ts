@@ -6,6 +6,29 @@ import { AppErrorFactory } from '@shared/kernel/AppError'
 import { Result } from '@shared/kernel/Result'
 import type { HttpClient } from '@shared/network/HttpClient'
 import { RetryPolicy } from '@shared/network/RetryPolicy'
+import { z } from 'zod'
+
+const authSessionDtoSchema = z.object({
+  user: z.object({
+    id: z.string().min(1),
+    email: z.string().email(),
+    name: z.string().min(1),
+  }),
+  token: z.string().min(1),
+})
+
+const nullableAuthSessionDtoSchema = authSessionDtoSchema.nullable()
+
+type AuthSessionDto = z.infer<typeof authSessionDtoSchema>
+
+const mapSessionDtoToDomain = (dto: AuthSessionDto): Session => ({
+  user: {
+    id: dto.user.id,
+    email: dto.user.email,
+    name: dto.user.name,
+  },
+  token: dto.token,
+})
 
 /**
  * HTTP-based Auth Repository with automatic retry logic
@@ -63,10 +86,11 @@ export class HttpAuthRepository implements AuthRepository {
 
       // Use retry policy to handle transient failures
       const result = await this.retryPolicy.execute(() =>
-        this.httpClient.request<Session>({
+        this.httpClient.request<AuthSessionDto>({
           method: 'POST',
           url: `${this.options.baseUrl}/auth/login`,
           body: credentials,
+          responseSchema: authSessionDtoSchema,
         }),
       )
 
@@ -75,7 +99,7 @@ export class HttpAuthRepository implements AuthRepository {
         return Result.err(result.error)
       }
 
-      const session = result.value.data
+      const session = mapSessionDtoToDomain(result.value.data)
       this.sessionCache = session
       this.telemetry.track('auth.login.success', {
         userId: session.user.id,
@@ -98,9 +122,10 @@ export class HttpAuthRepository implements AuthRepository {
 
       // Fetch from server with retry policy
       const result = await this.retryPolicy.execute(() =>
-        this.httpClient.request<Session | null>({
+        this.httpClient.request<AuthSessionDto | null>({
           method: 'GET',
           url: `${this.options.baseUrl}/auth/session`,
+          responseSchema: nullableAuthSessionDtoSchema,
         }),
       )
 
@@ -109,7 +134,7 @@ export class HttpAuthRepository implements AuthRepository {
         return Result.err(result.error)
       }
 
-      const session = result.value.data
+      const session = result.value.data ? mapSessionDtoToDomain(result.value.data) : null
       this.sessionCache = session
       return Result.ok(session)
     } catch (error) {
@@ -125,7 +150,7 @@ export class HttpAuthRepository implements AuthRepository {
 
       // Logout with retry policy
       const result = await this.retryPolicy.execute(() =>
-        this.httpClient.request<void>({
+        this.httpClient.request({
           method: 'POST',
           url: `${this.options.baseUrl}/auth/logout`,
           body: {},

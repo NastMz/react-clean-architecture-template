@@ -11,6 +11,11 @@ import { createFetchHttpClient } from '@shared/network/HttpClient'
 import { ConsoleTelemetry } from '@shared/observability/ConsoleTelemetry'
 import { OpenTelemetryAdapter } from '@shared/observability/OpenTelemetryAdapter'
 import { QueryClient } from '@tanstack/react-query'
+import { z } from 'zod'
+
+const refreshTokenResponseSchema = z.object({
+  accessToken: z.string().min(1),
+})
 
 /**
  * Application Dependency Injection container
@@ -94,6 +99,7 @@ export const createContainer = (telemetry?: TelemetryPort & LoggerPort): AppCont
           method: 'POST',
           url: '/auth/refresh',
           skipInterceptors: true,
+          responseSchema: refreshTokenResponseSchema,
         })
         return result.match({
           ok: ({ data }) => {

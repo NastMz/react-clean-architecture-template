@@ -1,105 +1,95 @@
 # Feature Playbook
 
-Step-by-step guide to adding a new feature to this Clean Architecture template.
+This is the current, code-aligned way to add a feature to `packages/template`.
 
----
+It is based on what the repo actually does today, not on a fantasy architecture diagram.
 
-## Before You Start: Choose Your Repository Type
+## First principle: features expose two public surfaces
 
-### Option 1: In-Memory Repository (Prototyping)
+For a feature named `products`, the target shape is:
 
-**Use when:**
-
-- Building UI mockups without a backend
-- Running integration tests
-- Demonstrating features to stakeholders
-
-**Benefits:**
-
-- Zero latency, instant responses
-- No HTTP setup needed
-- Easy to test
-
-**Example:** See [inMemoryAuthRepository.ts](../src/features/auth/infra/inMemoryAuthRepository.ts)
-
-### Option 2: HTTP Repository (Production)
-
-**Use when:**
-
-- Connecting to a real API
-- Need automatic retries for transient failures
-- Want circuit breaker protection
-
-**Benefits:**
-
-- ✅ **RetryPolicy**: 3 automatic retries with exponential backoff (100ms → 5s)
-- ✅ Retries network errors and 5xx status codes
-- ✅ Circuit breaker ready (optional)
-- ✅ Telemetry tracking for all operations
-
-**Example:** See [httpAuthRepository.ts](../src/features/auth/infra/httpAuthRepository.ts)
-
-**How to add resilience patterns to your HTTP repository:**
-
-```typescript
-import { RetryPolicy } from '@shared/network/RetryPolicy'
-import { HttpClient } from '@shared/network/HttpClient'
-
-export class HttpProductRepository implements ProductRepository {
-  private readonly retryPolicy: RetryPolicy
-
-  constructor(
-    private httpClient: HttpClient,
-    private telemetry: TelemetryPort,
-    private options: { baseUrl: string },
-  ) {
-    // Configure retry: 3 attempts, exponential backoff
-    this.retryPolicy = new RetryPolicy(3, {
-      baseDelay: 100,
-      maxDelay: 5000,
-      backoffMultiplier: 2,
-    })
-  }
-
-  async list(): Promise<Result<Product[], AppError>> {
-    try {
-      // Wrap HTTP call with retry policy
-      const result = await this.retryPolicy.execute(() =>
-        this.httpClient.request<Product[]>({
-          method: 'GET',
-          url: `${this.options.baseUrl}/products`,
-        }),
-      )
-
-      if (result.isErr) {
-        return Result.err(result.error)
-      }
-
-      return Result.ok(result.value.data)
-    } catch (error) {
-      return Result.err(AppErrorFactory.fromUnknown(error))
-    }
-  }
-}
+```text
+src/features/products/
+  api/
+    index.ts          # UI-facing public API
+    composition.ts    # wiring/composition public API
+  adapters/
+  application/
+  composition/        # optional provider/context/hooks for feature wiring
+  domain/
+  infra/
+  ui/
 ```
 
-**Need circuit breaker?** See [CircuitBreaker.ts](../src/shared/network/CircuitBreaker.ts) - wrap your `httpClient.request()` call.
+Use the public surfaces like this:
 
----
+- `@features/products/api`
+  - for screens, app-level hooks, router consumption, and other external UI-facing usage
+- `@features/products/api/composition`
+  - for `src/app/composition/*`, providers, and tests
 
-## Example: Adding a "Products" Feature
+That is not optional busywork. It is how the current `auth` feature avoids mixing UI consumption with DI wiring.
 
-### Step 1: Create Folder Structure
+## Current architectural constraints you must respect
 
-```bash
-mkdir -p src/features/products/{domain,application/ports,adapters,infra,ui}
+### From `app`
+
+- import features only through `@features/*/api` or `@features/*/api/composition`
+
+### From `shared`
+
+- never import from `@app/*`
+- never import from `@features/*`
+
+### Inside a feature
+
+- `domain` stays pure
+- `application` depends on `domain` and ports, not UI or infra
+- `adapters` translate use cases into React Query query/mutation options
+- `ui` consumes adapters/hooks, not infra or application directly
+- `composition` holds provider/context glue when the feature needs React wiring
+
+### One more honest caveat
+
+The repo proves these rules with `auth`, but not every top-level ESLint rule is generalized for future features yet. If you add a new feature, verify `eslint.config.js` instead of assuming the guardrails will magically cover it.
+
+## The current `shared` foundation
+
+When you need common code, use the existing capability buckets:
+
+- `@shared/contracts/*` for shared ports
+- `@shared/kernel/*` for `Result` and `AppError`
+- `@shared/network/*` for `HttpClient`, `RetryPolicy`, `CircuitBreaker`
+- `@shared/observability/*` for telemetry adapters
+- `@shared/ui/*` for shared layout and presentational components
+
+Do not create a fake `shared/application` or `shared/infra` subtree just because an old doc said so.
+
+## Recommended implementation order
+
+### 1. Create the feature skeleton
+
+Create these directories first:
+
+```text
+src/features/products/
+  api/
+  adapters/
+  application/
+  composition/
+  domain/
+  infra/
+  ui/
 ```
 
-### Step 2: Define Domain Model
+If the feature does not need a provider/context yet, `composition/` can start empty.
 
-**`src/features/products/domain/Product.ts`**
+### 2. Define domain types
+
+Example:
 
 ```ts
+// src/features/products/domain/Product.ts
 export type Product = {
   id: string
   name: string
@@ -112,14 +102,18 @@ export type CreateProductInput = {
 }
 ```
 
-### Step 3: Define Repository Port
+Keep domain boring and framework-free.
 
-**`src/features/products/application/ports/ProductRepository.ts`**
+### 3. Define application ports and use cases
+
+Example repository port:
 
 ```ts
-import { AppError } from '@shared/kernel/AppError'
-import { Result } from '@shared/kernel/Result'
-import { CreateProductInput, Product } from '../../domain/Product'
+// src/features/products/application/ports/ProductRepository.ts
+import type { AppError } from '@shared/kernel/AppError'
+import type { Result } from '@shared/kernel/Result'
+
+import type { CreateProductInput, Product } from '../../domain/Product'
 
 export interface ProductRepository {
   list(): Promise<Result<Product[], AppError>>
@@ -127,18 +121,18 @@ export interface ProductRepository {
 }
 ```
 
-### Step 4: Implement Use Cases
-
-**`src/features/products/application/productUseCases.ts`**
+Example use cases:
 
 ```ts
-import { AppError } from '@shared/kernel/AppError'
+// src/features/products/application/productUseCases.ts
+import type { AppError } from '@shared/kernel/AppError'
+import type { TelemetryPort, LoggerPort } from '@shared/contracts/TelemetryPort'
 import { Result } from '@shared/kernel/Result'
-import { LoggerPort, TelemetryPort } from '@shared/contracts/TelemetryPort'
-import { ProductRepository } from './ports/ProductRepository'
-import { CreateProductInput, Product } from '../domain/Product'
 
-export type ProductUseCases = {
+import type { CreateProductInput, Product } from '../domain/Product'
+import type { ProductRepository } from './ports/ProductRepository'
+
+export interface ProductUseCases {
   listProducts(): Promise<Result<Product[], AppError>>
   createProduct(input: CreateProductInput): Promise<Result<Product, AppError>>
 }
@@ -146,54 +140,36 @@ export type ProductUseCases = {
 export const createProductUseCases = (
   repository: ProductRepository,
   telemetry: TelemetryPort & LoggerPort,
-): ProductUseCases => ({
+) => ({
   async listProducts() {
-    telemetry.track('product.list')
+    telemetry.track('products.list.attempt')
     return repository.list()
   },
-  async createProduct(input) {
-    telemetry.track('product.create', { name: input.name })
+  async createProduct(input: CreateProductInput) {
+    telemetry.track('products.create.attempt', { name: input.name })
     return repository.create(input)
   },
 })
 ```
 
-### Step 5: Create Storybook Stories (Optional)
+The example above is intentionally simple. Match the actual `Result<AppError>` pattern used by `auth` in real code.
 
-**`src/features/products/ui/stories/ProductsPage.stories.tsx`**
+### 4. Start with an in-memory repository
 
-```tsx
-import type { Meta, StoryObj } from '@storybook/react'
-import { ProductsPage } from '../ProductsPage'
+This repo already proves that in-memory first is useful for UI work and tests.
 
-const meta = {
-  title: 'Features/Products',
-  component: ProductsPage,
-  parameters: {
-    layout: 'fullscreen',
-  },
-} satisfies Meta<typeof ProductsPage>
-
-export default meta
-type Story = StoryObj<typeof meta>
-
-export const Default: Story = {
-  render: () => <ProductsPage />,
-}
-```
-
-### Step 6: Implement Repository (Infra)
-
-**`src/features/products/infra/inMemoryProductRepository.ts`**
+Example:
 
 ```ts
-import { z } from 'zod'
+// src/features/products/infra/inMemoryProductRepository.ts
+import type { ProductRepository } from '../application/ports/ProductRepository'
+import type { CreateProductInput, Product } from '../domain/Product'
+
 import { AppErrorFactory } from '@shared/kernel/AppError'
 import { Result } from '@shared/kernel/Result'
-import { ProductRepository } from '../application/ports/ProductRepository'
-import { CreateProductInput, Product } from '../domain/Product'
+import { z } from 'zod'
 
-const createProductInputSchema = z.object({
+const createProductSchema = z.object({
   name: z.string().min(1),
   price: z.number().positive(),
 })
@@ -203,43 +179,41 @@ export const createInMemoryProductRepository = (): ProductRepository => {
 
   return {
     async list() {
-      return Result.ok([...products])
+      return Result.ok(products)
     },
     async create(input: CreateProductInput) {
-      const parsed = createProductInputSchema.safeParse(input)
+      const parsed = createProductSchema.safeParse(input)
       if (!parsed.success) {
-        return Result.err(AppErrorFactory.validation('Invalid product data'))
+        return Result.err(AppErrorFactory.validation('Invalid product payload'))
       }
 
-      const newProduct: Product = {
-        id: `${Date.now()}`,
+      const product: Product = {
+        id: crypto.randomUUID(),
         name: parsed.data.name,
         price: parsed.data.price,
       }
 
-      products = [...products, newProduct]
-      return Result.ok(newProduct)
+      products = [...products, product]
+      return Result.ok(product)
     },
   }
 }
 ```
 
-### Step 6: Create Adapters (TanStack Query)
+### 5. Add adapters for React Query
 
-**`src/features/products/adapters/productAdapters.ts`**
+The current template uses an adapter factory plus UI-facing hooks.
+
+Example:
 
 ```ts
-import {
-  mutationOptions,
-  queryOptions,
-  useMutation,
-  useQuery,
-  QueryClient,
-} from '@tanstack/react-query'
-import { useContainer } from '@app/composition/useContainer'
-import { AppError } from '@shared/kernel/AppError'
-import { ProductUseCases } from '../application/productUseCases'
-import { CreateProductInput, Product } from '../domain/Product'
+// src/features/products/adapters/productAdapters.ts
+import type { AppError } from '@shared/kernel/AppError'
+import type { QueryClient } from '@tanstack/react-query'
+import { mutationOptions, queryOptions } from '@tanstack/react-query'
+
+import type { ProductUseCases } from '../application/productUseCases'
+import type { CreateProductInput, Product } from '../domain/Product'
 
 export const productQueryKeys = {
   all: ['products'] as const,
@@ -251,223 +225,151 @@ export const createProductAdapters = ({
 }: {
   useCases: ProductUseCases
   queryClient: QueryClient
-}) => {
-  return {
-    queries: {
-      list: () =>
-        queryOptions<Product[], AppError>({
-          queryKey: productQueryKeys.all,
-          queryFn: async () => (await useCases.listProducts()).unwrapOrThrow(),
-        }),
-    },
-    mutations: {
-      create: () =>
-        mutationOptions<Product, AppError, CreateProductInput>({
-          mutationFn: async (input) => (await useCases.createProduct(input)).unwrapOrThrow(),
-          onSuccess: () => queryClient.invalidateQueries({ queryKey: productQueryKeys.all }),
-        }),
-    },
-  }
-}
+}) => ({
+  queries: {
+    list: () =>
+      queryOptions<Product[]>({
+        queryKey: productQueryKeys.all,
+        queryFn: async () => (await useCases.listProducts()).unwrapOrThrow(),
+      }),
+  },
+  mutations: {
+    create: () =>
+      mutationOptions<Product, AppError, CreateProductInput>({
+        mutationFn: async (input) => (await useCases.createProduct(input)).unwrapOrThrow(),
+        onSuccess: () => {
+          void queryClient.invalidateQueries({ queryKey: productQueryKeys.all })
+        },
+      }),
+  },
+})
 
 export type ProductAdapters = ReturnType<typeof createProductAdapters>
-
-/**
- * Hooks to use in components - import these directly!
- * No need to access the DI container in your UI code.
- */
-
-export const useProducts = () => {
-  const { adapters } = useContainer()
-  return useQuery(adapters.products.queries.list())
-}
-
-export const useCreateProduct = () => {
-  const { adapters } = useContainer()
-  return useMutation(adapters.products.mutations.create())
-}
 ```
 
-**Pro tip:** Export hooks from adapters so components never touch the DI container directly!
+If the feature needs React hooks, expose them through UI-facing files or the feature public API. Do not make app code pull from adapter internals directly.
 
-### Step 7: Wire in Container
+### 6. Add composition glue only if the feature needs it
 
-**`src/app/composition/container.ts`**
+`auth` needs a provider/context because `useLogin`, `useLogout`, and `useSession` read adapters from feature-local composition state.
+
+If your feature needs the same pattern, create:
+
+- `composition/<Feature>AdaptersContext.ts`
+- `composition/<Feature>AdaptersProvider.tsx`
+- `composition/use<Feature>Adapters.ts`
+
+If not, do not invent composition files for sport.
+
+### 7. Expose the feature through `api/index.ts`
+
+UI-facing example:
 
 ```ts
-// ... existing imports
-import { createProductUseCases } from '@features/products/application/productUseCases'
-import { createInMemoryProductRepository } from '@features/products/infra/inMemoryProductRepository'
-import { createProductAdapters, ProductAdapters } from '@features/products/adapters/productAdapters'
+// src/features/products/api/index.ts
+export { ProductsPage } from '../ui/ProductsPage'
+export { useCreateProduct, useProducts } from '../ui/productHooks'
+```
 
-export type AppContainer = {
+The goal is simple: app code should not need to know your internal folders.
+
+### 8. Expose the wiring surface through `api/composition.ts`
+
+Composition-facing example:
+
+```ts
+// src/features/products/api/composition.ts
+export type { ProductAdapters } from '../adapters/productAdapters'
+export { createProductAdapters } from '../adapters/productAdapters'
+export { createProductUseCases } from '../application/productUseCases'
+export { createInMemoryProductRepository } from '../infra/inMemoryProductRepository'
+export { createHttpProductRepository } from '../infra/httpProductRepository'
+```
+
+Only export what composition root and tests actually need.
+
+### 9. Wire the feature in `src/app/composition/container.ts`
+
+Current app composition imports from `@features/auth/api/composition`. New features should follow the same rule.
+
+Example:
+
+```ts
+import type { ProductAdapters } from '@features/products/api/composition'
+import {
+  createInMemoryProductRepository,
+  createProductAdapters,
+  createProductUseCases,
+} from '@features/products/api/composition'
+
+export interface AppContainer {
   queryClient: QueryClient
   adapters: {
     auth: AuthAdapters
-    products: ProductAdapters // <-- add
+    products: ProductAdapters
   }
 }
 
-export const createContainer = (): AppContainer => {
-  // ... existing setup
-
-  const productRepository = createInMemoryProductRepository()
-  const productUseCases = createProductUseCases(productRepository, telemetry)
-  const productAdapters = createProductAdapters({ useCases: productUseCases, queryClient })
-
-  return {
-    queryClient,
-    adapters: {
-      auth: authAdapters,
-      products: productAdapters, // <-- add
-    },
-  }
-}
+const productRepository = createInMemoryProductRepository()
+const productUseCases = createProductUseCases(productRepository, selectedTelemetry)
+const productAdapters = createProductAdapters({ useCases: productUseCases, queryClient })
 ```
 
-### Step 8: Build UI
+### 10. Add UI and routes through the public API
 
-**`src/features/products/ui/ProductsPage.tsx`**
+Router example:
 
 ```tsx
-import { useProducts, useCreateProduct } from '@features/products/adapters/productAdapters'
-import { formatAppError } from '@shared/kernel/AppError'
+import { ProductsPage } from '@features/products/api'
 
-export const ProductsPage = () => {
-  // Import hooks directly from adapters - clean and simple!
-  const productsQuery = useProducts()
-  const createMutation = useCreateProduct()
-
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const formData = new FormData(event.currentTarget)
-    createMutation.mutate({
-      name: formData.get('name') as string,
-      price: Number(formData.get('price')),
-    })
-  }
-
-  return (
-    <section className="panel">
-      <h2>Products</h2>
-      {productsQuery.error && <div className="alert">{formatAppError(productsQuery.error)}</div>}
-      <form onSubmit={onSubmit}>
-        <input name="name" placeholder="Product name" required />
-        <input name="price" type="number" placeholder="Price" required />
-        <button type="submit">Add</button>
-      </form>
-      <ul>
-        {productsQuery.data?.map((product) => (
-          <li key={product.id}>
-            {product.name} - ${product.price}
-          </li>
-        ))}
-      </ul>
-    </section>
-  )
-}
+{ path: '/products', element: <ProductsPage /> }
 ```
 
-### Step 9: Add Route
+Do not import `@features/products/ui/ProductsPage` from app code. That is exactly the kind of boundary leak this template is trying to avoid.
 
-**`src/app/router/routes.tsx`**
+### 11. Add tests early
 
-```tsx
-import { ProductsPage } from '@features/products/ui/ProductsPage'
+At minimum:
 
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <RootLayout />,
-    children: [
-      { index: true, element: <Navigate to="/auth" replace /> },
-      { path: '/auth', element: <AuthPage /> },
-      { path: '/todos', element: <TodoPage /> },
-      { path: '/products', element: <ProductsPage /> }, // <-- add
-    ],
-  },
-])
-```
+- unit test the in-memory repository
+- unit test the HTTP repository if you add one
+- integration test the main feature screen
+- add E2E only when the flow is stable enough to justify it
 
-### Step 10: Write Tests
+Today the template proves these patterns with auth, env/config, shared network utilities, and route protection. Extend that style instead of inventing a second testing philosophy.
 
-**`tests/unit/features/products/inMemoryProductRepository.test.ts`**
+## HTTP repository guidance
 
-```ts
-import { describe, expect, it } from 'vitest'
-import { createInMemoryProductRepository } from '@features/products/infra/inMemoryProductRepository'
+If you add an HTTP repository, use the existing shared primitives honestly:
 
-describe('InMemoryProductRepository', () => {
-  it('should create a product', async () => {
-    const repo = createInMemoryProductRepository()
-    const result = await repo.create({ name: 'Widget', price: 9.99 })
-    expect(result.isOk).toBe(true)
-    expect(result.value.name).toBe('Widget')
-  })
+- `@shared/network/HttpClient`
+- `@shared/network/RetryPolicy`
+- `@shared/network/CircuitBreaker`
 
-  it('should list products', async () => {
-    const repo = createInMemoryProductRepository()
-    await repo.create({ name: 'Widget', price: 9.99 })
-    const result = await repo.list()
-    expect(result.value).toHaveLength(1)
-  })
-})
-```
+Important reality check:
 
----
+- `RetryPolicy` is already used by `auth`
+- `CircuitBreaker` exists but is not currently wired into `auth`
 
-## Checklist
+So if you add circuit breaker support to a new feature, document it as your feature's decision, not as an existing template-wide default.
 
-- [ ] Domain models defined
-- [ ] Repository port defined
-- [ ] Use cases implemented
-- [ ] Infra repository implemented
-- [ ] Adapters created (TanStack Query)
-- [ ] Wired in container
-- [ ] UI page built
-- [ ] Route added
-- [ ] Tests written
-- [ ] ESLint passes (no boundary violations)
+## Feature checklist
 
----
+- [ ] created `domain`, `application`, `adapters`, `infra`, `ui`, and `api`
+- [ ] added `composition` only if the feature actually needs React wiring helpers
+- [ ] kept app imports on `@features/<feature>/api` or `@features/<feature>/api/composition`
+- [ ] kept `shared` independent from app/features
+- [ ] started with an in-memory repository where possible
+- [ ] added adapter factory and query keys
+- [ ] exposed a UI-facing public API
+- [ ] exposed a composition-facing public API
+- [ ] wired the feature in `src/app/composition/container.ts`
+- [ ] added route(s) through the feature public API
+- [ ] added tests before calling the pattern "done"
+- [ ] checked whether `eslint.config.js` needs to be extended for the new feature
 
-**Next**: [Testing Strategy](testing-strategy.md)
+## Final warning
 
----
+The template is small enough that one sloppy feature can ruin the architecture fast.
 
-## Forms & Validation (RHF + Zod)
-
-- Recommended combo: **React Hook Form** + **Zod** for typed validation
-- Ensure inputs forward refs (our `Input` atom already does)
-- Keep validation in UI, business rules in use cases
-
-### Minimal Pattern
-
-```tsx
-import { Input } from '@shared/ui/atoms/Input'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-
-const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
-})
-type FormValues = z.infer<typeof schema>
-
-const form = useForm<FormValues>({ resolver: zodResolver(schema) })
-
-return (
-  <form onSubmit={form.handleSubmit((data) => login(data))}>
-    <Input type="email" {...form.register('email')} />
-    {form.formState.errors.email && <small>{form.formState.errors.email.message}</small>}
-    <Input type="password" {...form.register('password')} />
-    {form.formState.errors.password && <small>{form.formState.errors.password.message}</small>}
-  </form>
-)
-```
-
-### Where to Put It
-
-- Feature UI page (e.g., `features/products/ui/ProductsPage.tsx`)
-- Keep adapters/use cases pure (no RHF/Zod imports outside UI)
+If your new feature starts importing app internals, bypasses the public API split, or dumps framework code into `application`, you are not extending the template. You are punching holes in it.

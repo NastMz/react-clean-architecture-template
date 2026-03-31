@@ -1,6 +1,17 @@
 # Decision Log
 
-This directory contains Architectural Decision Records (ADRs) documenting key design choices.
+This directory is reserved for ADRs.
+
+Important reality check: there are no actual ADR files here today. So this folder is a convention placeholder, not an active decision record set.
+
+## When to add an ADR
+
+Add one when a decision is architectural, non-obvious, and likely to be revisited, for example:
+
+- why a feature exposes `api` and `api/composition`
+- why a transport or auth strategy was chosen
+- why a boundary rule exists in ESLint
+- why a shared primitive belongs in `shared/network` or `shared/kernel`
 
 ## Template
 
@@ -12,26 +23,21 @@ This directory contains Architectural Decision Records (ADRs) documenting key de
 
 ## Context
 
-What is the issue we're facing?
+What problem or pressure are we responding to?
 
 ## Decision
 
-What did we decide?
+What are we choosing and what is in scope?
 
 ## Consequences
 
-What are the trade-offs?
+What trade-offs, limitations, or follow-up work does this introduce?
 
 ## Alternatives Considered
 
-What else did we think about?
+What did we reject, and why?
 ```
 
-## Example ADRs
+## Recommendation
 
-- `001-use-result-monad.md` – Why we use `Result<T, E>` instead of throwing exceptions
-- `002-manual-di-composition.md` – Why we don't use DI frameworks
-- `003-tanstack-query-for-server-state.md` – Why TanStack Query over Redux
-- `004-eslint-boundary-enforcement.md` – How we prevent layer violations
-
-_Feel free to add new ADRs as the project evolves._
+If the team starts making template-level decisions repeatedly, write the ADR instead of letting the rationale rot in chat history or commit messages.
