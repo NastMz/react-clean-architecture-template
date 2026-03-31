@@ -30,22 +30,22 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run TypeScript check
-        run: pnpm -C packages/template typecheck
+        run: pnpm typecheck
 
       - name: Run linter
-        run: pnpm -C packages/template lint
+        run: pnpm lint
 
       - name: Run format check
-        run: pnpm -C packages/template format
+        run: pnpm format
 
       - name: Run unit tests
-        run: pnpm -C packages/template test
+        run: pnpm test
 
       - name: Install Playwright browsers
-        run: pnpm -C packages/template exec playwright install chromium --with-deps
+        run: pnpm exec playwright install chromium --with-deps
 
       - name: Run E2E tests
-        run: pnpm -C packages/template test:e2e
+        run: pnpm test:e2e
 
       - name: Build application
-        run: pnpm -C packages/template build
+        run: pnpm build
