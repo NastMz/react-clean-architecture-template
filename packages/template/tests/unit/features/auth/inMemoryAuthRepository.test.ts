@@ -1,5 +1,5 @@
 import { createInMemoryAuthRepository } from '@features/auth/infra/inMemoryAuthRepository'
-import { ConsoleTelemetry } from '@shared/infra/telemetry/ConsoleTelemetry'
+import { ConsoleTelemetry } from '@shared/observability/ConsoleTelemetry'
 import { describe, expect, it } from 'vitest'
 
 describe('InMemoryAuthRepository', () => {

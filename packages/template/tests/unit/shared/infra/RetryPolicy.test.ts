@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
-import { RetryPolicy } from '@shared/infra/resilience/RetryPolicy'
+import { RetryPolicy } from '@shared/network/RetryPolicy'
 
 describe('RetryPolicy', () => {
   let mockFn: ReturnType<typeof vi.fn>

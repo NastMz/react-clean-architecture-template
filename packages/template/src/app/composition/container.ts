@@ -6,10 +6,10 @@ import {
   createHttpAuthRepository,
   createInMemoryAuthRepository,
 } from '@features/auth/api/composition'
-import type { LoggerPort, TelemetryPort } from '@shared/application/ports/TelemetryPort'
-import { createFetchHttpClient } from '@shared/infra/http/HttpClient'
-import { ConsoleTelemetry } from '@shared/infra/telemetry/ConsoleTelemetry'
-import { OpenTelemetryAdapter } from '@shared/infra/telemetry/OpenTelemetryAdapter'
+import type { LoggerPort, TelemetryPort } from '@shared/contracts/TelemetryPort'
+import { createFetchHttpClient } from '@shared/network/HttpClient'
+import { ConsoleTelemetry } from '@shared/observability/ConsoleTelemetry'
+import { OpenTelemetryAdapter } from '@shared/observability/OpenTelemetryAdapter'
 import { QueryClient } from '@tanstack/react-query'
 
 /**

@@ -1,5 +1,5 @@
-import type { AppError } from '@shared/domain/errors/AppError'
-import { AppErrorFactory } from '@shared/domain/errors/AppError'
+import type { AppError } from '@shared/kernel/AppError'
+import { AppErrorFactory } from '@shared/kernel/AppError'
 
 /**
  * Result<T, E> - Monad for Railway-oriented Programming

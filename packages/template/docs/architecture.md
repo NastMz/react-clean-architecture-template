@@ -54,7 +54,7 @@ This guide explains the **Clean Architecture** layers and how they interact in t
 - React components
 - Imports **hooks** from `adapters` (e.g., `useLogin`, `useSession`)
 - Never imports `useContainer` or accesses DI directly
-- Can import from `shared/presentation` (Layout, atoms, molecules)
+- Can import from `shared/ui` (RootLayout, atoms, molecules)
 - Example: `AuthPage.tsx` uses `useLogin()`, `useLogout()`, `useSession()`
 
 ---
@@ -88,18 +88,18 @@ login({ email: '...', password: '...' })
 
 ## Shared Folder
 
-- `shared/domain`: `Result`, `AppError`, `AppErrorFactory`, universal value objects
-- `shared/application`: `TelemetryPort`, `LoggerPort` (framework-agnostic interfaces)
-- `shared/infra`:
-  - `http/`: `HttpClient` (fetch wrapper returning `Result<T, E>`)
-  - `resilience/`: `RetryPolicy`, `CircuitBreaker` (fault tolerance patterns)
-  - `telemetry/`: `ConsoleTelemetry`, `OpenTelemetryAdapter`
-- `shared/presentation`:
-  - `components/`: Atomic design (atoms, molecules, organisms)
-  - `hooks/`: Reusable UI hooks (useToggle, useDebounce, etc.)
-  - `Layout.tsx`: App shell
+- `shared/kernel`: `Result`, `AppError`, `AppErrorFactory`, truly universal primitives
+- `shared/contracts`: `TelemetryPort`, `LoggerPort` and other cross-feature interfaces
+- `shared/network`:
+  - `HttpClient`: fetch wrapper returning `Result<T, E>`
+  - `RetryPolicy`, `CircuitBreaker`: transport-level resilience patterns
+- `shared/observability`: `ConsoleTelemetry`, `OpenTelemetryAdapter`
+- `shared/ui`:
+  - `atoms/`, `molecules/`: reusable UI building blocks
+  - `hooks/`: reusable UI hooks (useToggle, useDebounce, etc.)
+  - `RootLayout.tsx`: app shell
 
-Shared is **horizontal reuse** across features. No feature-specific logic here.
+Shared is **transversal infrastructure and reuse**, not a fake horizontal clean architecture. Feature-level clean architecture lives inside each feature.
 
 ---
 

@@ -1,4 +1,4 @@
-import { Card, CardHeader } from '@shared/presentation/components/atoms/Card'
+import { Card, CardHeader } from '@shared/ui/atoms/Card'
 import type { Meta, StoryObj } from '@storybook/react'
 
 const meta = {

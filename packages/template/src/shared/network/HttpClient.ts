@@ -1,6 +1,6 @@
-import type { AppError } from '@shared/domain/errors/AppError'
-import { AppErrorFactory } from '@shared/domain/errors/AppError'
-import { Result } from '@shared/domain/result/Result'
+import type { AppError } from '@shared/kernel/AppError'
+import { AppErrorFactory } from '@shared/kernel/AppError'
+import { Result } from '@shared/kernel/Result'
 
 /**
  * HTTP method types supported by the client

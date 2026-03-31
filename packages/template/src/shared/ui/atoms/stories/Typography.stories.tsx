@@ -1,4 +1,4 @@
-import { Alert, Eyebrow, Muted, Title } from '@shared/presentation/components/atoms/Typography'
+import { Alert, Eyebrow, Muted, Title } from '@shared/ui/atoms/Typography'
 import type { Meta, StoryObj } from '@storybook/react'
 
 const meta = {

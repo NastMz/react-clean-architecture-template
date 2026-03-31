@@ -1,7 +1,7 @@
-import type { LoggerPort, TelemetryPort } from '@shared/application/ports/TelemetryPort'
-import type { AppError } from '@shared/domain/errors/AppError'
-import { AppErrorFactory } from '@shared/domain/errors/AppError'
-import { Result } from '@shared/domain/result/Result'
+import type { LoggerPort, TelemetryPort } from '@shared/contracts/TelemetryPort'
+import type { AppError } from '@shared/kernel/AppError'
+import { AppErrorFactory } from '@shared/kernel/AppError'
+import { Result } from '@shared/kernel/Result'
 
 import type { Credentials, Session } from '../domain/User'
 import type { AuthRepository } from './ports/AuthRepository'

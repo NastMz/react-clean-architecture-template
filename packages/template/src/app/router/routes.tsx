@@ -1,5 +1,5 @@
 import { AuthPage } from '@features/auth/api'
-import { RootLayout } from '@shared/presentation/components/Layout'
+import { RootLayout } from '@shared/ui/RootLayout'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 
 /**

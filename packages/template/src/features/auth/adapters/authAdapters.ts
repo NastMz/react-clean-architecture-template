@@ -1,6 +1,6 @@
 import type { AuthUseCases } from '@features/auth/application/authUseCases'
 import type { Credentials, Session } from '@features/auth/domain/User'
-import type { AppError } from '@shared/domain/errors/AppError'
+import type { AppError } from '@shared/kernel/AppError'
 import type { QueryClient } from '@tanstack/react-query'
 import { mutationOptions, queryOptions } from '@tanstack/react-query'
 

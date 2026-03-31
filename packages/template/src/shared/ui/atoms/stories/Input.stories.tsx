@@ -1,4 +1,4 @@
-import { Input } from '@shared/presentation/components/atoms/Input'
+import { Input } from '@shared/ui/atoms/Input'
 import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
 

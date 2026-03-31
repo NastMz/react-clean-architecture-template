@@ -105,7 +105,7 @@ Navigate to `/auth` – Login as `demo@example.com` / any password
 - Minimal pattern used in `AuthPage`:
 
 ```tsx
-import { Input } from '@shared/presentation/components/atoms/Input'
+import { Input } from '@shared/ui/atoms/Input'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -169,7 +169,7 @@ tests/
 | -------------------- | ------------------------------ | ------------------------------------------- | ------------------------------------------------- |
 | **Adapter hooks**    | `features/<feature>/adapters/` | `useLogin`, `useLogout`, `useSession`       | Export from adapters, use DI container internally |
 | **Feature UI hooks** | `features/<feature>/ui/hooks/` | `useAuthForm`, `useProductFilters`          | Feature-specific UI logic                         |
-| **Shared UI hooks**  | `shared/presentation/hooks/`   | `useToggle`, `useDebounce`, `useMediaQuery` | Reusable across features                          |
+| **Shared UI hooks**  | `shared/ui/hooks/`             | `useToggle`, `useDebounce`, `useMediaQuery` | Reusable across features                          |
 
 **Rule:** Hooks are **presentation layer only**. Never in `domain/`, `application/`, or `infra/` (those are framework-agnostic).
 
@@ -297,7 +297,7 @@ A: Instant prototyping without backend. Switch to HTTP repositories when you hav
 **Q: Where do I put custom hooks?**  
 A: **Depends on what the hook does:**
 
-- **UI-only hooks** (useToggle, useDebounce, useMediaQuery): `src/shared/presentation/hooks/`
+- **UI-only hooks** (useToggle, useDebounce, useMediaQuery): `src/shared/ui/hooks/`
 - **Feature-specific UI hooks** (useAuthForm, useProductFilters): `src/features/<feature>/ui/hooks/`
 - **Adapter hooks** (bridge to use cases): Already exported from `<feature>/adapters/`
   - Example: `useLogin`, `useLogout`, `useSession` (see `authAdapters.ts`)

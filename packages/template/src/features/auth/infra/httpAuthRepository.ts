@@ -1,11 +1,11 @@
 import type { AuthRepository } from '@features/auth/application/ports/AuthRepository'
 import type { Credentials, Session } from '@features/auth/domain/User'
-import type { TelemetryPort } from '@shared/application/ports/TelemetryPort'
-import type { AppError } from '@shared/domain/errors/AppError'
-import { AppErrorFactory } from '@shared/domain/errors/AppError'
-import { Result } from '@shared/domain/result/Result'
-import type { HttpClient } from '@shared/infra/http/HttpClient'
-import { RetryPolicy } from '@shared/infra/resilience/RetryPolicy'
+import type { TelemetryPort } from '@shared/contracts/TelemetryPort'
+import type { AppError } from '@shared/kernel/AppError'
+import { AppErrorFactory } from '@shared/kernel/AppError'
+import { Result } from '@shared/kernel/Result'
+import type { HttpClient } from '@shared/network/HttpClient'
+import { RetryPolicy } from '@shared/network/RetryPolicy'
 
 /**
  * HTTP-based Auth Repository with automatic retry logic

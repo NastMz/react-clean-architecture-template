@@ -1,5 +1,5 @@
 import { trace } from '@opentelemetry/api'
-import type { LoggerPort, TelemetryPort } from '@shared/application/ports/TelemetryPort'
+import type { LoggerPort, TelemetryPort } from '@shared/contracts/TelemetryPort'
 
 /**
  * OpenTelemetry implementation of Telemetry and Logger ports

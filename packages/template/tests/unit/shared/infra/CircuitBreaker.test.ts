@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
-import { CircuitBreaker, CircuitBreakerError } from '@shared/infra/resilience/CircuitBreaker'
+import { CircuitBreaker, CircuitBreakerError } from '@shared/network/CircuitBreaker'
 
 describe('CircuitBreaker', () => {
   let mockFn: ReturnType<typeof vi.fn>

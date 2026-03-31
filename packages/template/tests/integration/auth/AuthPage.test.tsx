@@ -7,7 +7,7 @@ import {
   createAuthUseCases,
   createInMemoryAuthRepository,
 } from '@features/auth/api/composition'
-import { ConsoleTelemetry } from '@shared/infra/telemetry/ConsoleTelemetry'
+import { ConsoleTelemetry } from '@shared/observability/ConsoleTelemetry'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'

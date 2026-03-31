@@ -17,7 +17,7 @@ The container automatically selects the best telemetry implementation:
 - **Tests/SSR (Node.js)**: `ConsoleTelemetry` - Visible logging for debugging
 - **Custom**: Pass your own `TelemetryPort` implementation to `createContainer()`
 
-**Location**: `src/shared/infra/telemetry/OpenTelemetryAdapter.ts` and `ConsoleTelemetry.ts`
+**Location**: `src/shared/observability/OpenTelemetryAdapter.ts` and `ConsoleTelemetry.ts`
 
 **DI Container**: `src/app/composition/container.ts` automatically selects based on environment.
 
@@ -95,7 +95,7 @@ This is **production-safe**: no console noise, no performance impact unless you 
 In tests, `ConsoleTelemetry` is automatically used so you can see logs:
 
 ```typescript
-import { ConsoleTelemetry } from '@shared/infra/telemetry/ConsoleTelemetry'
+import { ConsoleTelemetry } from '@shared/observability/ConsoleTelemetry'
 import { createContainer } from '@app/composition/container'
 
 const container = createContainer()
@@ -191,7 +191,7 @@ The container defaults are smart, but you can override:
 
 ```typescript
 import { createContainer } from '@app/composition/container'
-import { ConsoleTelemetry } from '@shared/infra/telemetry/ConsoleTelemetry'
+import { ConsoleTelemetry } from '@shared/observability/ConsoleTelemetry'
 
 const container = createContainer(new ConsoleTelemetry())
 ```

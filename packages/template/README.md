@@ -160,7 +160,7 @@ const httpClient = createFetchHttpClient({
 - Example pattern inside feature UI:
 
 ```tsx
-import { Input } from '@shared/presentation/components/atoms/Input'
+import { Input } from '@shared/ui/atoms/Input'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'

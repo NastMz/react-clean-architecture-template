@@ -45,8 +45,8 @@ export const useToggle = (initialValue = false): [boolean, () => void] => {
 
 ```typescript
 // ✅ Correct
-import { useToggle } from '@shared/presentation/hooks/useToggle'
+import { useToggle } from '@shared/ui/hooks/useToggle'
 
 // ❌ Wrong (no default exports)
-import useToggle from '@shared/presentation/hooks/useToggle'
+import useToggle from '@shared/ui/hooks/useToggle'
 ```

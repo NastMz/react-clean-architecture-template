@@ -26,7 +26,7 @@ How to test each layer of the Clean Architecture stack.
 
 ```ts
 import { describe, expect, it } from 'vitest'
-import { Result } from '@shared/domain/result/Result'
+import { Result } from '@shared/kernel/Result'
 
 describe('Result', () => {
   it('should map Ok values', () => {
@@ -53,7 +53,7 @@ describe('Result', () => {
 ```ts
 import { describe, expect, it, vi } from 'vitest'
 import { createAuthUseCases } from '@features/auth/application/authUseCases'
-import { Result } from '@shared/domain/result/Result'
+import { Result } from '@shared/kernel/Result'
 
 describe('authUseCases', () => {
   it('should call telemetry on login success', async () => {
@@ -122,7 +122,7 @@ describe('InMemoryAuthRepository', () => {
 import { describe, expect, it, vi } from 'vitest'
 import { QueryClient } from '@tanstack/react-query'
 import { createAuthAdapters } from '@features/auth/adapters/authAdapters'
-import { Result } from '@shared/domain/result/Result'
+import { Result } from '@shared/kernel/Result'
 
 describe('authAdapters', () => {
   it('should invalidate cache on logout', async () => {

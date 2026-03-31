@@ -13,7 +13,7 @@ import { ProtectedRoute } from '@app/router/ProtectedRoute'
 import type { AppContainer } from '@app/composition/container'
 import { AuthAdaptersProvider } from '@features/auth/api/composition'
 import type { Session, Credentials } from '@features/auth/domain/User'
-import type { AppError } from '@shared/domain/errors/AppError'
+import type { AppError } from '@shared/kernel/AppError'
 
 describe('ProtectedRoute', () => {
   const mockSession = {

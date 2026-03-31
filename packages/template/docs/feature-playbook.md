@@ -42,8 +42,8 @@ Step-by-step guide to adding a new feature to this Clean Architecture template.
 **How to add resilience patterns to your HTTP repository:**
 
 ```typescript
-import { RetryPolicy } from '@shared/infra/resilience/RetryPolicy'
-import { HttpClient } from '@shared/infra/http/HttpClient'
+import { RetryPolicy } from '@shared/network/RetryPolicy'
+import { HttpClient } from '@shared/network/HttpClient'
 
 export class HttpProductRepository implements ProductRepository {
   private readonly retryPolicy: RetryPolicy
@@ -83,7 +83,7 @@ export class HttpProductRepository implements ProductRepository {
 }
 ```
 
-**Need circuit breaker?** See [CircuitBreaker.ts](../src/shared/infra/resilience/CircuitBreaker.ts) - wrap your `httpClient.request()` call.
+**Need circuit breaker?** See [CircuitBreaker.ts](../src/shared/network/CircuitBreaker.ts) - wrap your `httpClient.request()` call.
 
 ---
 
@@ -117,8 +117,8 @@ export type CreateProductInput = {
 **`src/features/products/application/ports/ProductRepository.ts`**
 
 ```ts
-import { AppError } from '@shared/domain/errors/AppError'
-import { Result } from '@shared/domain/result/Result'
+import { AppError } from '@shared/kernel/AppError'
+import { Result } from '@shared/kernel/Result'
 import { CreateProductInput, Product } from '../../domain/Product'
 
 export interface ProductRepository {
@@ -132,9 +132,9 @@ export interface ProductRepository {
 **`src/features/products/application/productUseCases.ts`**
 
 ```ts
-import { AppError } from '@shared/domain/errors/AppError'
-import { Result } from '@shared/domain/result/Result'
-import { LoggerPort, TelemetryPort } from '@shared/application/ports/TelemetryPort'
+import { AppError } from '@shared/kernel/AppError'
+import { Result } from '@shared/kernel/Result'
+import { LoggerPort, TelemetryPort } from '@shared/contracts/TelemetryPort'
 import { ProductRepository } from './ports/ProductRepository'
 import { CreateProductInput, Product } from '../domain/Product'
 
@@ -188,8 +188,8 @@ export const Default: Story = {
 
 ```ts
 import { z } from 'zod'
-import { AppErrorFactory } from '@shared/domain/errors/AppError'
-import { Result } from '@shared/domain/result/Result'
+import { AppErrorFactory } from '@shared/kernel/AppError'
+import { Result } from '@shared/kernel/Result'
 import { ProductRepository } from '../application/ports/ProductRepository'
 import { CreateProductInput, Product } from '../domain/Product'
 
@@ -237,7 +237,7 @@ import {
   QueryClient,
 } from '@tanstack/react-query'
 import { useContainer } from '@app/composition/useContainer'
-import { AppError } from '@shared/domain/errors/AppError'
+import { AppError } from '@shared/kernel/AppError'
 import { ProductUseCases } from '../application/productUseCases'
 import { CreateProductInput, Product } from '../domain/Product'
 
@@ -331,7 +331,7 @@ export const createContainer = (): AppContainer => {
 
 ```tsx
 import { useProducts, useCreateProduct } from '@features/products/adapters/productAdapters'
-import { formatAppError } from '@shared/domain/errors/AppError'
+import { formatAppError } from '@shared/kernel/AppError'
 
 export const ProductsPage = () => {
   // Import hooks directly from adapters - clean and simple!
@@ -444,7 +444,7 @@ describe('InMemoryProductRepository', () => {
 ### Minimal Pattern
 
 ```tsx
-import { Input } from '@shared/presentation/components/atoms/Input'
+import { Input } from '@shared/ui/atoms/Input'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'

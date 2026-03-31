@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { HttpAuthRepository } from '@features/auth/infra/httpAuthRepository'
-import type { TelemetryPort } from '@shared/application/ports/TelemetryPort'
-import type { HttpClient } from '@shared/infra/http/HttpClient'
-import { Result } from '@shared/domain/result/Result'
+import type { TelemetryPort } from '@shared/contracts/TelemetryPort'
+import type { HttpClient } from '@shared/network/HttpClient'
+import { Result } from '@shared/kernel/Result'
 import type { Session } from '@features/auth/domain/User'
 
 describe('HttpAuthRepository', () => {

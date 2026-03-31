@@ -1,8 +1,8 @@
 import type { AuthRepository } from '@features/auth/application/ports/AuthRepository'
 import type { Credentials, Session, User } from '@features/auth/domain/User'
-import type { LoggerPort, TelemetryPort } from '@shared/application/ports/TelemetryPort'
-import { AppErrorFactory } from '@shared/domain/errors/AppError'
-import { Result } from '@shared/domain/result/Result'
+import type { LoggerPort, TelemetryPort } from '@shared/contracts/TelemetryPort'
+import { AppErrorFactory } from '@shared/kernel/AppError'
+import { Result } from '@shared/kernel/Result'
 import { z } from 'zod'
 
 /**

@@ -1,5 +1,5 @@
-import { AppErrorFactory } from '@shared/domain/errors/AppError'
-import { Result } from '@shared/domain/result/Result'
+import { AppErrorFactory } from '@shared/kernel/AppError'
+import { Result } from '@shared/kernel/Result'
 import { describe, expect, it } from 'vitest'
 
 describe('Result', () => {

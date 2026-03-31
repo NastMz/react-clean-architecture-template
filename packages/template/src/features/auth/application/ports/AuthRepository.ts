@@ -1,5 +1,5 @@
-import type { AppError } from '@shared/domain/errors/AppError'
-import { Result } from '@shared/domain/result/Result'
+import type { AppError } from '@shared/kernel/AppError'
+import { Result } from '@shared/kernel/Result'
 
 import type { Credentials, Session } from '../../domain/User'
 
