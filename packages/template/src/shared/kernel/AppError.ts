@@ -2,7 +2,13 @@
  * Error kind categories for typed error handling
  * Helps determine appropriate error handling strategies
  */
-export type AppErrorKind = 'Validation' | 'Unauthorized' | 'Network' | 'Conflict' | 'Unknown'
+export type AppErrorKind =
+  | 'Validation'
+  | 'Unauthorized'
+  | 'Network'
+  | 'Conflict'
+  | 'ServiceUnavailable'
+  | 'Unknown'
 
 /**
  * Structured application error object
@@ -36,6 +42,7 @@ export const AppErrorFactory = {
   unauthorized: createError('Unauthorized'),
   network: createError('Network'),
   conflict: createError('Conflict'),
+  serviceUnavailable: createError('ServiceUnavailable'),
   unknown: createError('Unknown'),
 
   /**

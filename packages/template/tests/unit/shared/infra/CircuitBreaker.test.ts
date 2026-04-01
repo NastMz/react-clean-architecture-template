@@ -84,4 +84,21 @@ describe('CircuitBreaker', () => {
     expect(result).toBe('success')
     expect(breaker.getState()).toBe('CLOSED')
   })
+
+  it('supports executing ad-hoc operations while preserving state', async () => {
+    const reusableBreaker = new CircuitBreaker<string>({
+      failureThreshold: 2,
+      resetTimeout: 100,
+    })
+
+    await expect(reusableBreaker.execute(async () => 'success')).resolves.toBe('success')
+    await expect(reusableBreaker.execute(async () => Promise.reject(new Error('fail')))).rejects.toThrow(
+      'fail',
+    )
+    await expect(reusableBreaker.execute(async () => Promise.reject(new Error('fail')))).rejects.toThrow(
+      'fail',
+    )
+
+    expect(reusableBreaker.getState()).toBe('OPEN')
+  })
 })

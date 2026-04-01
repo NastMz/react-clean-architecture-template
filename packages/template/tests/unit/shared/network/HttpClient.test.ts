@@ -49,4 +49,48 @@ describe('HttpClient runtime contract', () => {
       expect(result.error.message).toContain('Invalid response payload')
     }
   })
+
+  it('maps 503 responses to ServiceUnavailable with status metadata', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ message: 'temporarily unavailable' }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+
+    const client = createFetchHttpClient({ baseUrl: 'https://api.example.com' })
+    const result = await client.request({
+      method: 'GET',
+      url: '/auth/session',
+    })
+
+    expect(result.isErr).toBe(true)
+    if (result.isErr) {
+      expect(result.error.kind).toBe('ServiceUnavailable')
+      expect(result.error.message).toBe('Service unavailable')
+      expect(result.error.cause).toEqual({ statusCode: 503 })
+    }
+  })
+
+  it('keeps mapping 409 responses to Conflict', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ message: 'conflict' }), {
+        status: 409,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+
+    const client = createFetchHttpClient({ baseUrl: 'https://api.example.com' })
+    const result = await client.request({
+      method: 'POST',
+      url: '/auth/login',
+      body: { email: 'test@example.com' },
+    })
+
+    expect(result.isErr).toBe(true)
+    if (result.isErr) {
+      expect(result.error.kind).toBe('Conflict')
+      expect(result.error.cause).toEqual({ statusCode: 409 })
+    }
+  })
 })

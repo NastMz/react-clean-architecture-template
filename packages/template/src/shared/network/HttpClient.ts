@@ -73,6 +73,24 @@ export interface HttpClientOptions {
 export const createFetchHttpClient = (options: HttpClientOptions = {}): HttpClient => {
   const baseUrl = options.baseUrl?.replace(/\/$/, '') ?? ''
 
+  const toHttpStatusError = (status: number, mapUnauthorized = false): AppError => {
+    if (mapUnauthorized && status === 401) {
+      return AppErrorFactory.unauthorized('Unauthorized', { statusCode: status })
+    }
+
+    if (status === 409) {
+      return AppErrorFactory.conflict('Conflict', { statusCode: status })
+    }
+
+    if (status === 503) {
+      return AppErrorFactory.serviceUnavailable('Service unavailable', { statusCode: status })
+    }
+
+    return AppErrorFactory.unknown(`Request failed with status ${status}`, {
+      statusCode: status,
+    })
+  }
+
   const validateResponse = <T>(
     request: HttpRequest | ValidatedHttpRequest<T>,
     data: unknown,
@@ -170,15 +188,7 @@ export const createFetchHttpClient = (options: HttpClientOptions = {}): HttpClie
                 return Result.err(AppErrorFactory.network('Network error', error))
               }
               if (!retry.response.ok) {
-                if (retry.response.status === 401) {
-                  return Result.err(AppErrorFactory.unauthorized('Unauthorized'))
-                }
-                if (retry.response.status === 409) {
-                  return Result.err(AppErrorFactory.conflict('Conflict'))
-                }
-                return Result.err(
-                  AppErrorFactory.unknown(`Request failed with status ${retry.response.status}`),
-                )
+                return Result.err(toHttpStatusError(retry.response.status, true))
               }
               const validatedRetry = validateResponse(request, retry.parsed)
               if (validatedRetry.isErr) {
@@ -190,14 +200,10 @@ export const createFetchHttpClient = (options: HttpClientOptions = {}): HttpClie
           } catch {
             // fall-through to unauthorized error mapping
           }
-          return Result.err(AppErrorFactory.unauthorized('Unauthorized'))
+          return Result.err(AppErrorFactory.unauthorized('Unauthorized', { statusCode: 401 }))
         }
 
-        if (response.status === 409) {
-          return Result.err(AppErrorFactory.conflict('Conflict'))
-        }
-
-        return Result.err(AppErrorFactory.unknown(`Request failed with status ${response.status}`))
+        return Result.err(toHttpStatusError(response.status))
       }
 
       const validated = validateResponse(request, parsed)

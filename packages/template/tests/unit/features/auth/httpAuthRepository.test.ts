@@ -21,6 +21,7 @@ describe('HttpAuthRepository', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.useRealTimers()
   })
 
   describe('login', () => {
@@ -89,6 +90,7 @@ describe('HttpAuthRepository', () => {
       expect(mockTelemetry.track).toHaveBeenCalledWith('auth.login.error', {
         kind: 'Validation',
       })
+      expect(mockHttpClient.request).toHaveBeenCalledTimes(1)
     })
 
     it('should handle unexpected errors during login', async () => {
@@ -109,6 +111,162 @@ describe('HttpAuthRepository', () => {
       if (result.isErr) {
         expect(result.error.kind).toBe('Unknown')
       }
+    })
+
+    it('should retry transient network failures before succeeding', async () => {
+      const mockHttpClient: HttpClient = {
+        request: vi
+          .fn()
+          .mockResolvedValueOnce(
+            Result.err({
+              kind: 'Network',
+              message: 'Network error',
+            }),
+          )
+          .mockResolvedValueOnce(
+            Result.err({
+              kind: 'Network',
+              message: 'Network error',
+            }),
+          )
+          .mockResolvedValue(
+            Result.ok({
+              status: 200,
+              data: mockSession,
+            }),
+          ),
+      }
+
+      const repository = new HttpAuthRepository(mockHttpClient, mockTelemetry, {
+        baseUrl: 'https://api.example.com',
+        retry: { maxAttempts: 3, baseDelay: 0, maxDelay: 0 },
+      })
+
+      const result = await repository.login({
+        email: 'demo@example.com',
+        password: 'password123',
+      })
+
+      expect(result.isOk).toBe(true)
+      expect(mockHttpClient.request).toHaveBeenCalledTimes(3)
+    })
+
+    it('should return the last retryable error after exhausting retries', async () => {
+      const mockHttpClient: HttpClient = {
+        request: vi.fn().mockResolvedValue(
+          Result.err({
+            kind: 'Network',
+            message: 'Network error',
+          }),
+        ),
+      }
+
+      const repository = new HttpAuthRepository(mockHttpClient, mockTelemetry, {
+        baseUrl: 'https://api.example.com',
+        retry: { maxAttempts: 2, baseDelay: 0, maxDelay: 0 },
+      })
+
+      const result = await repository.login({
+        email: 'demo@example.com',
+        password: 'password123',
+      })
+
+      expect(result.isErr).toBe(true)
+      if (result.isErr) {
+        expect(result.error.kind).toBe('Network')
+      }
+      expect(mockHttpClient.request).toHaveBeenCalledTimes(2)
+    })
+
+    it('should open the auth circuit after repeated transient failures', async () => {
+      const mockHttpClient: HttpClient = {
+        request: vi.fn().mockResolvedValue(
+          Result.err({
+            kind: 'Network',
+            message: 'Network error',
+          }),
+        ),
+      }
+
+      const repository = new HttpAuthRepository(mockHttpClient, mockTelemetry, {
+        baseUrl: 'https://api.example.com',
+        retry: { maxAttempts: 1, baseDelay: 0, maxDelay: 0 },
+        circuitBreaker: { failureThreshold: 2, resetTimeout: 1000 },
+      })
+
+      await repository.login({
+        email: 'demo@example.com',
+        password: 'password123',
+      })
+      await repository.login({
+        email: 'demo@example.com',
+        password: 'password123',
+      })
+
+      const result = await repository.login({
+        email: 'demo@example.com',
+        password: 'password123',
+      })
+
+      expect(result.isErr).toBe(true)
+      if (result.isErr) {
+        expect(result.error.kind).toBe('ServiceUnavailable')
+        expect(result.error.message).toBe('Authentication service temporarily unavailable')
+      }
+      expect(mockHttpClient.request).toHaveBeenCalledTimes(2)
+    })
+
+    it('should allow recovery after the auth circuit reset timeout', async () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-04-01T00:00:00.000Z'))
+
+      const mockHttpClient: HttpClient = {
+        request: vi
+          .fn()
+          .mockResolvedValueOnce(
+            Result.err({
+              kind: 'Network',
+              message: 'Network error',
+            }),
+          )
+          .mockResolvedValueOnce(
+            Result.ok({
+              status: 200,
+              data: mockSession,
+            }),
+          ),
+      }
+
+      const repository = new HttpAuthRepository(mockHttpClient, mockTelemetry, {
+        baseUrl: 'https://api.example.com',
+        retry: { maxAttempts: 1, baseDelay: 0, maxDelay: 0 },
+        circuitBreaker: { failureThreshold: 1, resetTimeout: 1000 },
+      })
+
+      await repository.login({
+        email: 'demo@example.com',
+        password: 'password123',
+      })
+
+      const blockedAttempt = await repository.login({
+        email: 'demo@example.com',
+        password: 'password123',
+      })
+
+      expect(blockedAttempt.isErr).toBe(true)
+      expect(mockHttpClient.request).toHaveBeenCalledTimes(1)
+
+      vi.setSystemTime(new Date('2026-04-01T00:00:01.001Z'))
+
+      const recoveredAttempt = await repository.login({
+        email: 'demo@example.com',
+        password: 'password123',
+      })
+
+      expect(recoveredAttempt.isOk).toBe(true)
+      expect(mockHttpClient.request).toHaveBeenCalledTimes(2)
+
+      vi.useRealTimers()
     })
   })
 
@@ -171,6 +329,36 @@ describe('HttpAuthRepository', () => {
         url: 'https://api.example.com/auth/session',
         responseSchema: expect.any(Object),
       })
+    })
+
+    it('should retry retryable server errors before succeeding', async () => {
+      const mockHttpClient: HttpClient = {
+        request: vi
+          .fn()
+          .mockResolvedValueOnce(
+            Result.err({
+              kind: 'Unknown',
+              message: 'Request failed with status 503',
+              cause: { statusCode: 503 },
+            }),
+          )
+          .mockResolvedValue(
+            Result.ok({
+              status: 200,
+              data: mockSession,
+            }),
+          ),
+      }
+
+      const repository = new HttpAuthRepository(mockHttpClient, mockTelemetry, {
+        baseUrl: 'https://api.example.com',
+        retry: { maxAttempts: 2, baseDelay: 0, maxDelay: 0 },
+      })
+
+      const result = await repository.currentSession()
+
+      expect(result.isOk).toBe(true)
+      expect(mockHttpClient.request).toHaveBeenCalledTimes(2)
     })
   })
 

@@ -69,6 +69,15 @@ export class RetryPolicy {
   }
 
   private isRetryable(error: unknown): boolean {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'retryable' in error &&
+      (error as Record<string, unknown>).retryable === true
+    ) {
+      return true
+    }
+
     if (error instanceof TypeError) {
       // Network errors are retryable (fetch throws TypeError on network failure)
       return true

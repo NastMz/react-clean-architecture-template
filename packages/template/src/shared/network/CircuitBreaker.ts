@@ -34,12 +34,19 @@ export class CircuitBreaker<T> {
   private lastFailureTime?: number
   private readonly failureThreshold: number
   private readonly resetTimeout: number
-  private readonly fn: () => Promise<T>
+  private readonly defaultFn?: () => Promise<T>
 
-  constructor(fn: () => Promise<T>, options?: CircuitBreakerOptions) {
-    this.fn = fn
-    this.failureThreshold = options?.failureThreshold ?? 5
-    this.resetTimeout = options?.resetTimeout ?? 30000
+  constructor(options?: CircuitBreakerOptions)
+  constructor(fn: () => Promise<T>, options?: CircuitBreakerOptions)
+  constructor(
+    fnOrOptions?: (() => Promise<T>) | CircuitBreakerOptions,
+    options?: CircuitBreakerOptions,
+  ) {
+    this.defaultFn = typeof fnOrOptions === 'function' ? fnOrOptions : undefined
+    const resolvedOptions = typeof fnOrOptions === 'function' ? options : fnOrOptions
+
+    this.failureThreshold = resolvedOptions?.failureThreshold ?? 5
+    this.resetTimeout = resolvedOptions?.resetTimeout ?? 30000
   }
 
   getState(): CircuitBreakerState {
@@ -54,15 +61,22 @@ export class CircuitBreaker<T> {
     return this.state
   }
 
-  async execute(): Promise<T> {
+  async execute(): Promise<T>
+  async execute(fn: () => Promise<T>): Promise<T>
+  async execute(fn?: () => Promise<T>): Promise<T> {
     const state = this.getState()
+    const operation = fn ?? this.defaultFn
 
     if (state === 'OPEN') {
       throw new CircuitBreakerError('OPEN')
     }
 
+    if (!operation) {
+      throw new Error('Circuit breaker operation is required')
+    }
+
     try {
-      const result = await this.fn()
+      const result = await operation()
 
       if (state === 'HALF_OPEN') {
         this.reset()
