@@ -46,7 +46,7 @@ At app level:
 - `src/app/*` can consume a feature only through `@features/*/api` or `@features/*/api/composition`
 - `src/shared/*` must stay independent from `@app/*` and `@features/*`
 
-Those rules are partially enforced in `packages/template/eslint.config.js`.
+Those rules are enforced in `packages/template/eslint.config.js` for the current `src/features/*` folder convention.
 
 ## Public API split
 

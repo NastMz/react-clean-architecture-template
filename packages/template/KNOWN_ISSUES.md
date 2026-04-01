@@ -20,14 +20,14 @@ The template is usable, but several areas are still partial, uneven, or only dem
 - This is the intended pattern going forward.
 - There is no generator or guardrail that scaffolds this split for new features yet.
 
-### ESLint boundaries are strong, but not fully generalized at feature-root level
+### ESLint boundaries are generic now, but they still assume the current feature shape
 
 - App-level imports are restricted to feature public APIs.
 - Shared independence is enforced.
-- Layer rules for `domain`, `application`, `adapters`, and `ui` are generic.
-- But the top-level feature rule that blocks imports from `@app/*` and cross-feature internals is currently scoped explicitly to `src/features/auth/**/*` in `eslint.config.js`.
+- Feature-root and layer rules are generated from the directories under `src/features/*`.
+- That means new features inherit the same `@app/*` and cross-feature boundary checks automatically.
 
-Translation: the architecture direction is right, but adding a new feature still requires touching lint config if you want the exact same top-level protections.
+Translation: the architecture direction is now encoded in lint config for the current folder convention. If you invent a different feature layout, you need to update the rules on purpose instead of expecting magic.
 
 ### `shared` is reorganized, but parts of it are still only placeholders
 
@@ -126,7 +126,7 @@ Other docs may still contain stale claims and should be verified against code be
 
 Before adding serious surface area, plan to do at least these follow-up tasks:
 
-1. Generalize the lint rule currently scoped to `auth`.
-2. Create the public API split for every new feature from day one.
-3. Decide whether HTTP auth should use circuit breaker, refresh, cookies, or something else for real.
-4. Expand tests beyond the auth slice before claiming the template pattern is proven.
+1. Create the public API split for every new feature from day one.
+2. Decide whether HTTP auth should use circuit breaker, refresh, cookies, or something else for real.
+3. Expand tests beyond the auth slice before claiming the template pattern is proven.
+4. Keep the feature folder convention stable unless you intentionally update the lint rules with it.

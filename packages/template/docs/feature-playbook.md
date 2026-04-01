@@ -51,7 +51,7 @@ That is not optional busywork. It is how the current `auth` feature avoids mixin
 
 ### One more honest caveat
 
-The repo proves these rules with `auth`, but not every top-level ESLint rule is generalized for future features yet. If you add a new feature, verify `eslint.config.js` instead of assuming the guardrails will magically cover it.
+The repo still proves these rules with only one real feature: `auth`. The top-level boundary rules are now generated for every directory under `src/features/*`, so a new feature inherits the same guardrails as long as it follows the standard folder shape.
 
 ## The current `shared` foundation
 
