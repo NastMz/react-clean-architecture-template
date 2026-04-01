@@ -288,34 +288,47 @@ export { createHttpProductRepository } from '../infra/httpProductRepository'
 
 Only export what composition root and tests actually need.
 
-### 9. Wire the feature in `src/app/composition/container.ts`
+### 9. Register the feature in `src/app/extensions/registry.tsx`
 
-Current app composition imports from `@features/auth/api/composition`. New features should follow the same rule.
+Current app composition reads from a single registry instead of wiring each feature in three separate files.
+
+Create a feature extension file in `src/app/extensions/<feature>.tsx` and register it in `src/app/extensions/registry.tsx`.
 
 Example:
 
 ```ts
-import type { ProductAdapters } from '@features/products/api/composition'
+// src/app/extensions/products.tsx
+import { ProductsPage } from '@features/products/api'
 import {
+  ProductsAdaptersProvider,
   createInMemoryProductRepository,
   createProductAdapters,
   createProductUseCases,
 } from '@features/products/api/composition'
 
-export interface AppContainer {
-  queryClient: QueryClient
-  adapters: {
-    auth: AuthAdapters
-    products: ProductAdapters
-  }
+export const productsFeature = {
+  createAdapters: ({ queryClient, telemetry }) => {
+    const repository = createInMemoryProductRepository()
+    const useCases = createProductUseCases(repository, telemetry)
+
+    return createProductAdapters({ useCases, queryClient })
+  },
+  renderProvider: ({ adapters, children }) => (
+    <ProductsAdaptersProvider adapters={adapters}>{children}</ProductsAdaptersProvider>
+  ),
+  routes: [{ path: '/products', element: <ProductsPage /> }],
 }
 
-const productRepository = createInMemoryProductRepository()
-const productUseCases = createProductUseCases(productRepository, selectedTelemetry)
-const productAdapters = createProductAdapters({ useCases: productUseCases, queryClient })
+// src/app/extensions/registry.tsx
+export const appFeatureRegistry = {
+  auth: authFeature,
+  products: productsFeature,
+} as const
 ```
 
-### 10. Add UI and routes through the public API
+`container.ts`, `providers.tsx`, and `routes.tsx` pick up the feature from that registry automatically.
+
+### 10. Keep UI and routes on the public API
 
 Router example:
 
@@ -363,8 +376,8 @@ So if you add circuit breaker support to a new feature, document it as your feat
 - [ ] added adapter factory and query keys
 - [ ] exposed a UI-facing public API
 - [ ] exposed a composition-facing public API
-- [ ] wired the feature in `src/app/composition/container.ts`
-- [ ] added route(s) through the feature public API
+- [ ] registered the feature in `src/app/extensions/registry.tsx`
+- [ ] kept route(s) on the feature public API
 - [ ] added tests before calling the pattern "done"
 - [ ] checked whether `eslint.config.js` needs to be extended for the new feature
 

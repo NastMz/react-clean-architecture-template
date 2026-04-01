@@ -84,10 +84,13 @@ export const createFetchHttpClient = (options: HttpClientOptions = {}): HttpClie
     const parsed = request.responseSchema.safeParse(data)
     if (!parsed.success) {
       return Result.err(
-        AppErrorFactory.validation(`Invalid response payload for ${request.method} ${request.url}`, {
-          issues: parsed.error.issues,
-          data,
-        }),
+        AppErrorFactory.validation(
+          `Invalid response payload for ${request.method} ${request.url}`,
+          {
+            issues: parsed.error.issues,
+            data,
+          },
+        ),
       )
     }
 

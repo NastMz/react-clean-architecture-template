@@ -2,13 +2,13 @@
 
 This package is the current SPA template inside `react-clean-architecture-template`.
 
-It is useful, but it is not a finished framework. Right now it gives you one real vertical slice (`auth`), a manual composition root, boundary linting, and a small shared foundation. Everything else is still on you.
+It is useful, but it is not a finished framework. Right now it gives you one real vertical slice (`auth`), app-level wiring through the extensions registry, boundary linting, and a small shared foundation. Everything else is still on you.
 
 ## What is actually in here
 
 - React 19 + TypeScript + Vite
 - One feature implemented end to end: `auth`
-- Manual DI/composition root in `src/app/composition`
+- Manual app wiring split between `src/app/extensions` and `src/app/composition`
 - Shared building blocks organized by capability, not by abstract layers
 - Runtime validation with Zod in env parsing, forms, HTTP responses, and demo auth inputs
 - TanStack Query for feature adapters
@@ -55,6 +55,16 @@ packages/template/
 
 The important bit: `shared` is currently organized by capabilities (`kernel`, `network`, `observability`, `ui`, `contracts`). Older docs that talk about `shared/domain`, `shared/application`, or `shared/infra` are outdated.
 
+## App extension contract
+
+App wiring now has one explicit registration point: `src/app/extensions/registry.tsx`.
+
+- each feature exposes its own app-facing extension manifest from `src/app/extensions/<feature>.tsx`
+- `src/app/extensions/auth.tsx` owns the auth feature wiring, and `container.ts`, `providers.tsx`, and `routes.tsx` consume it through the registry
+- adding a new feature means registering it once in the registry, not patching three different app files by hand
+
+That keeps the current template simple while giving future tooling a stable file and object shape to extend.
+
 ## Public API rule for features
 
 This template now separates feature consumption from feature wiring.
@@ -63,7 +73,7 @@ This template now separates feature consumption from feature wiring.
   - Use this from app/router/app-level hooks and from other features that only need the feature's public UI-facing surface.
   - `auth` currently exports `AuthPage`, `useLogin`, `useLogout`, and `useSession` from here.
 - `@features/<feature>/api/composition`
-  - Use this only from the composition root, tests, or other wiring code.
+  - Use this only from extension manifests, composition/root wiring, tests, or other app assembly code.
   - `auth` currently exports `createAuthAdapters`, `createAuthUseCases`, `createInMemoryAuthRepository`, `createHttpAuthRepository`, `AuthAdaptersProvider`, and `AuthAdapters` from here.
 
 Concrete example from the current code:
@@ -108,14 +118,14 @@ Current expected endpoints:
 - `POST /auth/login` -> `{ user, token }`
 - `GET /auth/session` -> `{ user, token } | null`
 - `POST /auth/logout` -> empty success response is fine
-- `POST /auth/refresh` -> `{ accessToken }` for the refresh callback configured in `src/app/composition/container.ts`
+- `POST /auth/refresh` -> `{ accessToken }` for the refresh callback configured in `src/app/extensions/auth.tsx`
 
 What is NOT included:
 
 - no backend server
 - no MSW mock layer
 - no generated API client
-- no finished refresh-token strategy beyond the composition-root example
+- no finished refresh-token strategy beyond the current auth extension example
 - no circuit breaker wired into the auth HTTP repository yet
 
 So yes, HTTP mode exists in code. No, it is not plug-and-play production auth by itself.

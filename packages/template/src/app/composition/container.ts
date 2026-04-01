@@ -1,21 +1,9 @@
 import { getConfig } from '@app/bootstrap/config'
-import type { AuthAdapters } from '@features/auth/api/composition'
-import {
-  createAuthAdapters,
-  createAuthUseCases,
-  createHttpAuthRepository,
-  createInMemoryAuthRepository,
-} from '@features/auth/api/composition'
+import { createAppFeatureAdapters } from '@app/extensions/registry'
 import type { LoggerPort, TelemetryPort } from '@shared/contracts/TelemetryPort'
-import { createFetchHttpClient } from '@shared/network/HttpClient'
 import { ConsoleTelemetry } from '@shared/observability/ConsoleTelemetry'
 import { OpenTelemetryAdapter } from '@shared/observability/OpenTelemetryAdapter'
 import { QueryClient } from '@tanstack/react-query'
-import { z } from 'zod'
-
-const refreshTokenResponseSchema = z.object({
-  accessToken: z.string().min(1),
-})
 
 /**
  * Application Dependency Injection container
@@ -28,9 +16,7 @@ const refreshTokenResponseSchema = z.object({
  */
 export interface AppContainer {
   queryClient: QueryClient
-  adapters: {
-    auth: AuthAdapters
-  }
+  adapters: ReturnType<typeof createAppFeatureAdapters>
 }
 
 /**
@@ -59,69 +45,14 @@ export const createContainer = (telemetry?: TelemetryPort & LoggerPort): AppCont
     telemetry ??
     (typeof window !== 'undefined' ? new OpenTelemetryAdapter() : new ConsoleTelemetry())
 
-  // ============================================================================
-  // Auth Repository Setup
-  // ============================================================================
-  // DEMO MODE (default): In-memory repository with mock data
-  // PRODUCTION MODE: HTTP repository with resilience patterns and interceptors
-  // Config (env access centralized via getConfig -> getEnv)
   const config = getConfig()
-
-  const authRepository = (() => {
-    if (config.authRepositoryType === 'memory') {
-      return createInMemoryAuthRepository(selectedTelemetry)
-    }
-
-    // Interceptor-enabled HTTP client
-    const baseUrl = config.apiBaseUrl
-
-    // Separate client for refresh (no interceptors to avoid recursion)
-    const refreshClient = createFetchHttpClient({ baseUrl })
-
-    const httpClient = createFetchHttpClient({
-      baseUrl,
-      getAuthToken: () =>
-        typeof window !== 'undefined' ? sessionStorage.getItem('access_token') : null,
-      onRequest: (req) => ({
-        ...req,
-        headers: { ...req.headers, 'X-App': 'clean-template' },
-      }),
-      onResponse: ({ request, status, durationMs }) => {
-        if (typeof window !== 'undefined') {
-          // Lightweight console logging; swap for telemetry if preferred
-          console.info(
-            `[http] ${request.method} ${request.url} -> ${status} in ${durationMs.toFixed(0)}ms`,
-          )
-        }
-      },
-      refreshToken: async () => {
-        const result = await refreshClient.request<{ accessToken: string }>({
-          method: 'POST',
-          url: '/auth/refresh',
-          skipInterceptors: true,
-          responseSchema: refreshTokenResponseSchema,
-        })
-        return result.match({
-          ok: ({ data }) => {
-            if (typeof window !== 'undefined') {
-              sessionStorage.setItem('access_token', data.accessToken)
-            }
-            return data.accessToken
-          },
-          err: () => null,
-        })
-      },
-    })
-
-    return createHttpAuthRepository(httpClient, selectedTelemetry, { baseUrl })
-  })()
-  const authUseCases = createAuthUseCases(authRepository, selectedTelemetry)
-  const authAdapters = createAuthAdapters({ useCases: authUseCases, queryClient })
 
   return {
     queryClient,
-    adapters: {
-      auth: authAdapters,
-    },
+    adapters: createAppFeatureAdapters({
+      config,
+      queryClient,
+      telemetry: selectedTelemetry,
+    }),
   }
 }

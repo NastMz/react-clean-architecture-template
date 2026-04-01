@@ -1,4 +1,4 @@
-import { AuthAdaptersProvider } from '@features/auth/api/composition'
+import { renderAppFeatureProviders } from '@app/extensions/registry'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import type { ReactNode } from 'react'
@@ -18,10 +18,13 @@ export const AppProviders = ({ children }: { children: ReactNode }) => {
   return (
     <ContainerContext.Provider value={container}>
       <QueryClientProvider client={container.queryClient}>
-        <AuthAdaptersProvider adapters={container.adapters.auth}>
-          {children}
-          <ReactQueryDevtools initialIsOpen={false} />
-        </AuthAdaptersProvider>
+        {renderAppFeatureProviders(
+          container.adapters,
+          <>
+            {children}
+            <ReactQueryDevtools initialIsOpen={false} />
+          </>,
+        )}
       </QueryClientProvider>
     </ContainerContext.Provider>
   )

@@ -2,7 +2,7 @@
 
 This document explains the architecture that `packages/template` actually ships today.
 
-The short version: there is one real vertical slice (`auth`), one manual composition root, and a small shared foundation. Anything beyond that is a pattern to extend, not a finished platform.
+The short version: there is one real vertical slice (`auth`), one explicit extensions registry for app wiring, and a small shared foundation. Anything beyond that is a pattern to extend, not a finished platform.
 
 ## Current structure
 
@@ -78,19 +78,18 @@ Current exports:
 
 This matters because the adapter factory does not export React hooks by itself. The hooks live in `packages/template/src/features/auth/ui/authHooks.tsx` and are re-exported through `packages/template/src/features/auth/api/index.ts`.
 
-## Composition root
+## App wiring
 
-`packages/template/src/app/composition/container.ts` is the composition root.
+The app now has an explicit registration center in `packages/template/src/app/extensions/registry.tsx`.
 
 What it wires today:
 
-- one `QueryClient`
-- one telemetry implementation
-- one auth repository, chosen from runtime config
-- auth use cases
-- auth adapters
+- `packages/template/src/app/extensions/auth.tsx` defines the auth feature manifest
+- the auth manifest selects the repository from runtime config
+- the auth manifest creates auth use cases and auth adapters
+- `packages/template/src/app/composition/container.ts` still owns shared app services like `QueryClient` and telemetry
 
-Repository selection is driven by `getConfig()`:
+Repository selection is currently implemented inside `packages/template/src/app/extensions/auth.tsx`:
 
 - default: `memory`
 - when `VITE_USE_HTTP=true`: `http`
@@ -133,7 +132,7 @@ Optional mode, backed by `packages/template/src/features/auth/infra/httpAuthRepo
 - requires `VITE_API_BASE_URL`
 - uses `HttpClient`
 - uses `RetryPolicy`
-- supports token refresh callback wiring from the composition root
+- supports token refresh callback wiring from `packages/template/src/app/extensions/auth.tsx`
 
 Important correction: `CircuitBreaker` exists as a shared primitive, but auth HTTP requests are not currently wrapped with it.
 

@@ -54,7 +54,7 @@ Also:
 
 - `createHttpAuthRepository` exists and is tested.
 - `HttpClient` supports request/response hooks, auth token injection, schema validation, and refresh callback wiring.
-- The composition root configures a refresh flow against `POST /auth/refresh`.
+- The auth extension manifest in `src/app/extensions/auth.tsx` configures a refresh flow against `POST /auth/refresh`.
 
 What is missing:
 
@@ -109,6 +109,7 @@ The files below were rewritten to match the current code:
 - `README.md`
 - `QUICKSTART.md`
 - `KNOWN_ISSUES.md`
+- `docs/architecture.md`
 - `docs/feature-playbook.md`
 
 Other docs may still contain stale claims and should be verified against code before being trusted blindly.
