@@ -1,6 +1,7 @@
 import type { AppConfig } from '@app/bootstrap/config'
 import {
   createFeatureAdapters,
+  getFeatureNavigation,
   getFeatureRoutes,
   renderFeatureProviders,
 } from '@app/extensions/registry'
@@ -125,6 +126,27 @@ describe('app feature registry helpers', () => {
       '/auth',
       '/products',
       '/products/:id',
+    ])
+  })
+
+  it('collects navigation entries from registered features in registry order', () => {
+    const registry = {
+      auth: {
+        createAdapters: () => ({ label: 'auth-adapter' }),
+        navigation: { label: 'Auth', to: '/auth' },
+      },
+      products: {
+        createAdapters: () => ({ label: 'products-adapter' }),
+        navigation: { label: 'Products', to: '/products' },
+      },
+      analytics: {
+        createAdapters: () => ({ label: 'analytics-adapter' }),
+      },
+    }
+
+    expect(getFeatureNavigation(registry)).toEqual([
+      { label: 'Auth', to: '/auth' },
+      { label: 'Products', to: '/products' },
     ])
   })
 })

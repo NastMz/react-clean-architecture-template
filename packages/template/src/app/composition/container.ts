@@ -9,9 +9,9 @@ import { QueryClient } from '@tanstack/react-query'
  * Application Dependency Injection container
  * Holds all services, adapters, and the React Query client
  *
- * Minimal scope: just Auth feature
+ * Current scope: auth and products demo features
  * - Domain logic validated in tests
- * - UI patterns taught via AuthPage example
+ * - UI patterns taught via feature pages and adapters
  * - Teams extend this for their own features
  */
 export interface AppContainer {

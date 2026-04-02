@@ -2,12 +2,12 @@
 
 This package is the current SPA template inside `react-clean-architecture-template`.
 
-It is useful, but it is not a finished framework. Right now it gives you one real vertical slice (`auth`), app-level wiring through the extensions registry, boundary linting, and a small shared foundation. Everything else is still on you.
+It is useful, but it is not a finished framework. Right now it gives you two real vertical slices (`auth` and `products`), app-level wiring through the extensions registry, boundary linting, and a small shared foundation. Everything else is still on you.
 
 ## What is actually in here
 
 - React 19 + TypeScript + Vite
-- One feature implemented end to end: `auth`
+- Two features implemented end to end: `auth`, `products`
 - Manual app wiring split between `src/app/extensions` and `src/app/composition`
 - Shared building blocks organized by capability, not by abstract layers
 - Runtime validation with Zod in env parsing, forms, HTTP responses, and demo auth inputs
@@ -60,8 +60,8 @@ The important bit: `shared` is currently organized by capabilities (`kernel`, `n
 App wiring now has one explicit registration point: `src/app/extensions/registry.tsx`.
 
 - each feature exposes its own app-facing extension manifest from `src/app/extensions/<feature>.tsx`
-- `src/app/extensions/auth.tsx` owns the auth feature wiring, and `container.ts`, `providers.tsx`, and `routes.tsx` consume it through the registry
-- adding a new feature means registering it once in the registry, not patching three different app files by hand
+- `src/app/extensions/auth.tsx` owns the auth feature wiring, and `container.ts`, `providers.tsx`, plus `routes.tsx` consume it through the registry
+- adding a new feature means registering it once in the registry instead of patching app-level providers, routes, and shell navigation by hand
 
 That keeps the current template simple while giving future tooling a stable file and object shape to extend.
 
@@ -94,7 +94,7 @@ Do not import feature internals from `src/app/*`. The ESLint config is explicitl
 
 Default runtime mode is in-memory auth.
 
-- Route available: `/auth`
+- Routes available: `/auth`, `/products`
 - `/` redirects to `/auth`
 - Demo credentials: `demo@example.com` / `demo123`
 - Session persistence: `localStorage` key `demo_session`
@@ -127,6 +127,7 @@ What is NOT included:
 - no generated API client
 - no finished refresh-token strategy beyond the current auth extension example
 - no circuit breaker wired into the auth HTTP repository yet
+- no HTTP repository example for `products` yet
 
 So yes, HTTP mode exists in code. No, it is not plug-and-play production auth by itself.
 
@@ -172,7 +173,7 @@ Current test inventory is small but real.
 
 What that does NOT mean:
 
-- no broad feature coverage beyond auth
+- no broad feature coverage beyond auth and products
 - no multi-browser matrix in Playwright config
 - no hard coverage threshold enforcement
 - no exhaustive Storybook interaction tests

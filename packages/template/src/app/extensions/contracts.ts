@@ -4,6 +4,11 @@ import type { QueryClient } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import type { RouteObject } from 'react-router-dom'
 
+export interface AppFeatureNavigationItem {
+  label: string
+  to: string
+}
+
 export interface AppFeatureContext {
   config: AppConfig
   queryClient: QueryClient
@@ -14,4 +19,5 @@ export interface AppFeatureDefinition<TAdapters> {
   createAdapters: (context: AppFeatureContext) => TAdapters
   renderProvider?: (params: { adapters: TAdapters; children: ReactNode }) => ReactNode
   routes?: readonly RouteObject[]
+  navigation?: AppFeatureNavigationItem
 }

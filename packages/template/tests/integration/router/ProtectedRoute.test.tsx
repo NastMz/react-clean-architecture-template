@@ -12,8 +12,14 @@ import { ContainerContext } from '@app/composition/ContainerContext'
 import { ProtectedRoute } from '@app/router/ProtectedRoute'
 import type { AppContainer } from '@app/composition/container'
 import { AuthAdaptersProvider } from '@features/auth/api/composition'
+import {
+  createInMemoryProductRepository,
+  createProductAdapters,
+  createProductUseCases,
+} from '@features/products/api/composition'
 import type { Session, Credentials } from '@features/auth/domain/User'
 import type { AppError } from '@shared/kernel/AppError'
+import { ConsoleTelemetry } from '@shared/observability/ConsoleTelemetry'
 
 describe('ProtectedRoute', () => {
   const mockSession = {
@@ -34,6 +40,10 @@ describe('ProtectedRoute', () => {
 
     // Pre-populate the session query cache
     queryClient.setQueryData(['auth', 'session'], sessionData)
+    const telemetry = new ConsoleTelemetry()
+    const productRepository = createInMemoryProductRepository([])
+    const productUseCases = createProductUseCases(productRepository, telemetry)
+    const productAdapters = createProductAdapters({ useCases: productUseCases, queryClient })
 
     return {
       queryClient,
@@ -59,6 +69,7 @@ describe('ProtectedRoute', () => {
               }),
           },
         },
+        products: productAdapters,
       },
     }
   }

@@ -2,13 +2,19 @@ import type { ReactNode } from 'react'
 import type { RouteObject } from 'react-router-dom'
 
 import { authFeature } from './auth'
-import type { AppFeatureContext, AppFeatureDefinition } from './contracts'
+import type {
+  AppFeatureContext,
+  AppFeatureDefinition,
+  AppFeatureNavigationItem,
+} from './contracts'
+import { productsFeature } from './products'
 
 // Stable extension contract: register each app-facing feature once here.
 // Future tooling should append entries to this registry instead of patching
 // container/providers/routes independently.
 export const appFeatureRegistry = {
   auth: authFeature,
+  products: productsFeature,
 } as const
 
 type AppFeatureRegistry = typeof appFeatureRegistry
@@ -72,3 +78,13 @@ export const getFeatureRoutes = <TRegistry extends FeatureRegistry>(
   getFeatureEntries(registry).flatMap(([, feature]) => [...(feature.routes ?? [])])
 
 export const getAppFeatureRoutes = (): RouteObject[] => getFeatureRoutes(appFeatureRegistry)
+
+export const getFeatureNavigation = <TRegistry extends FeatureRegistry>(
+  registry: TRegistry & Record<string, { navigation?: AppFeatureNavigationItem | undefined }>,
+): AppFeatureNavigationItem[] =>
+  getFeatureEntries(registry).flatMap(([, feature]) =>
+    feature.navigation ? [feature.navigation] : [],
+  )
+
+export const getAppFeatureNavigation = (): AppFeatureNavigationItem[] =>
+  getFeatureNavigation(appFeatureRegistry)

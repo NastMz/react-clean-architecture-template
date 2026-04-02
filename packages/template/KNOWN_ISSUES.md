@@ -8,17 +8,17 @@ The template is usable, but several areas are still partial, uneven, or only dem
 
 ### Scope is still narrow
 
-- Only one full vertical slice exists: `auth`.
-- The router currently exposes only `/auth`.
-- There is no second feature proving cross-feature collaboration, list/detail flows, optimistic updates, pagination, or more complex state orchestration.
+- Two full vertical slices exist: `auth` and `products`.
+- The router currently exposes `/auth` and `/products`.
+- Cross-feature collaboration is only lightly proven through auth-protected access to products; list/detail flows, optimistic updates, pagination, and richer orchestration are still not covered.
 
 ### Feature public API pattern exists, but only one feature proves it
 
-- `auth` now has a split public API:
+- `auth` and `products` now have a split public API:
   - `@features/auth/api` for UI-facing consumption
   - `@features/auth/api/composition` for wiring and tests
 - This is the intended pattern going forward.
-- There is no generator or guardrail that scaffolds this split for new features yet.
+- There is still no generator or guardrail that scaffolds this split for new features yet.
 
 ### ESLint boundaries are generic now, but they still assume the current feature shape
 
@@ -82,7 +82,7 @@ Currently present:
 
 Not present yet:
 
-- multi-feature test coverage
+- deeper multi-feature test coverage
 - coverage threshold enforcement
 - broad browser matrix in Playwright
 - story-driven interaction testing as a standard workflow

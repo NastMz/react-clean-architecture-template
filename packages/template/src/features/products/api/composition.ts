@@ -1,0 +1,5 @@
+export type { ProductAdapters } from '../adapters/productAdapters'
+export { createProductAdapters } from '../adapters/productAdapters'
+export { createProductUseCases } from '../application/productUseCases'
+export { ProductAdaptersProvider } from '../composition/ProductAdaptersProvider'
+export { createInMemoryProductRepository } from '../infra/inMemoryProductRepository'
