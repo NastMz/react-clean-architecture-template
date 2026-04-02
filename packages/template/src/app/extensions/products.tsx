@@ -20,5 +20,6 @@ export const productsFeature = {
     <ProductAdaptersProvider adapters={adapters}>{children}</ProductAdaptersProvider>
   ),
   routes: [{ path: '/products', element: <ProtectedRoute element={<ProductsPage />} /> }],
+  entryRoute: { to: '/products' },
   navigation: { label: 'Products', to: '/products' },
 } satisfies AppFeatureDefinition<ReturnType<typeof createProductAdapters>>

@@ -95,7 +95,7 @@ Do not import feature internals from `src/app/*`. The ESLint config is explicitl
 Default runtime mode is in-memory auth.
 
 - Routes available: `/auth`, `/products`
-- `/` redirects to `/auth`
+- `/` redirects to the feature marked with `entryRoute.isDefault` in `src/app/extensions/*`
 - Demo credentials: `demo@example.com` / `demo123`
 - Session persistence: `localStorage` key `demo_session`
 - HTTP auth token refresh example stores `access_token` in `sessionStorage`

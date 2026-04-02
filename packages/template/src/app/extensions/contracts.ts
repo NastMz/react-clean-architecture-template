@@ -9,6 +9,11 @@ export interface AppFeatureNavigationItem {
   to: string
 }
 
+export interface AppFeatureEntryRoute {
+  to: string
+  isDefault?: boolean
+}
+
 export interface AppFeatureContext {
   config: AppConfig
   queryClient: QueryClient
@@ -19,5 +24,6 @@ export interface AppFeatureDefinition<TAdapters> {
   createAdapters: (context: AppFeatureContext) => TAdapters
   renderProvider?: (params: { adapters: TAdapters; children: ReactNode }) => ReactNode
   routes?: readonly RouteObject[]
+  entryRoute?: AppFeatureEntryRoute
   navigation?: AppFeatureNavigationItem
 }

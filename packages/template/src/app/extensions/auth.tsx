@@ -71,5 +71,6 @@ export const authFeature = {
     <AuthAdaptersProvider adapters={adapters}>{children}</AuthAdaptersProvider>
   ),
   routes: [{ path: '/auth', element: <AuthPage /> }],
+  entryRoute: { to: '/auth', isDefault: true },
   navigation: { label: 'Auth', to: '/auth' },
 } satisfies AppFeatureDefinition<ReturnType<typeof createAuthAdapters>>

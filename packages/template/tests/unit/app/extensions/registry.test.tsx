@@ -1,6 +1,8 @@
 import type { AppConfig } from '@app/bootstrap/config'
 import {
   createFeatureAdapters,
+  getDefaultFeatureRoute,
+  getFeatureEntryRoutes,
   getFeatureNavigation,
   getFeatureRoutes,
   renderFeatureProviders,
@@ -148,5 +150,108 @@ describe('app feature registry helpers', () => {
       { label: 'Auth', to: '/auth' },
       { label: 'Products', to: '/products' },
     ])
+  })
+
+  it('collects entry routes separately from visible navigation', () => {
+    const registry = {
+      auth: {
+        createAdapters: () => ({ label: 'auth-adapter' }),
+        entryRoute: { to: '/auth', isDefault: true },
+        navigation: { label: 'Auth', to: '/auth' },
+      },
+      invite: {
+        createAdapters: () => ({ label: 'invite-adapter' }),
+        entryRoute: { to: '/invite' },
+      },
+    }
+
+    expect(getFeatureNavigation(registry)).toEqual([{ label: 'Auth', to: '/auth' }])
+    expect(getFeatureEntryRoutes(registry)).toEqual([
+      { to: '/auth', isDefault: true },
+      { to: '/invite' },
+    ])
+  })
+
+  it('prefers the feature marked as default for the app landing route', () => {
+    const registry = {
+      auth: {
+        createAdapters: () => ({ label: 'auth-adapter' }),
+        entryRoute: { to: '/auth' },
+        navigation: { label: 'Auth', to: '/auth' },
+      },
+      products: {
+        createAdapters: () => ({ label: 'products-adapter' }),
+        entryRoute: { to: '/products', isDefault: true },
+        navigation: { label: 'Products', to: '/products' },
+      },
+    }
+
+    expect(getDefaultFeatureRoute(registry)).toBe('/products')
+  })
+
+  it('falls back to the first entry route when no default route is declared', () => {
+    const registry = {
+      auth: {
+        createAdapters: () => ({ label: 'auth-adapter' }),
+        entryRoute: { to: '/auth' },
+        navigation: { label: 'Auth', to: '/auth' },
+      },
+      products: {
+        createAdapters: () => ({ label: 'products-adapter' }),
+        entryRoute: { to: '/products' },
+        navigation: { label: 'Products', to: '/products' },
+      },
+    }
+
+    expect(getDefaultFeatureRoute(registry)).toBe('/auth')
+  })
+
+  it('throws when multiple features are marked as default', () => {
+    const registry = {
+      auth: {
+        createAdapters: () => ({ label: 'auth-adapter' }),
+        entryRoute: { to: '/auth', isDefault: true },
+        navigation: { label: 'Auth', to: '/auth' },
+      },
+      products: {
+        createAdapters: () => ({ label: 'products-adapter' }),
+        entryRoute: { to: '/products', isDefault: true },
+        navigation: { label: 'Products', to: '/products' },
+      },
+    }
+
+    expect(() => getDefaultFeatureRoute(registry)).toThrowError(
+      'Multiple app features are marked as default: /auth, /products',
+    )
+  })
+
+  it('ignores visible navigation when resolving entry routes', () => {
+    const registry = {
+      auth: {
+        createAdapters: () => ({ label: 'auth-adapter' }),
+        navigation: { label: 'Auth', to: '/auth' },
+      },
+      products: {
+        createAdapters: () => ({ label: 'products-adapter' }),
+        navigation: { label: 'Products', to: '/products' },
+      },
+    }
+
+    expect(getFeatureNavigation(registry)).toEqual([
+      { label: 'Auth', to: '/auth' },
+      { label: 'Products', to: '/products' },
+    ])
+    expect(getFeatureEntryRoutes(registry)).toEqual([])
+    expect(getDefaultFeatureRoute(registry)).toBeNull()
+  })
+
+  it('returns null when the registry has no entry routes', () => {
+    const registry = {
+      analytics: {
+        createAdapters: () => ({ label: 'analytics-adapter' }),
+      },
+    }
+
+    expect(getDefaultFeatureRoute(registry)).toBeNull()
   })
 })

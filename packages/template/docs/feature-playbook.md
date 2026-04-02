@@ -294,6 +294,12 @@ Current app composition reads from a single registry instead of wiring each feat
 
 Create a feature extension file in `src/app/extensions/<feature>.tsx` and register it in `src/app/extensions/registry.tsx`.
 
+Use `entryRoute` for the feature route that can represent `/`.
+
+- `entryRoute` controls the landing/default redirect for the app shell.
+- `navigation` controls visible menu items in `RootLayout`.
+- Keep at most one `entryRoute.isDefault: true` across the whole registry or the app will fail fast during registry resolution.
+
 Example:
 
 ```ts
@@ -317,6 +323,8 @@ export const productsFeature = {
     <ProductsAdaptersProvider adapters={adapters}>{children}</ProductsAdaptersProvider>
   ),
   routes: [{ path: '/products', element: <ProductsPage /> }],
+  entryRoute: { to: '/products' },
+  navigation: { label: 'Products', to: '/products' },
 }
 
 // src/app/extensions/registry.tsx
@@ -326,7 +334,7 @@ export const appFeatureRegistry = {
 } as const
 ```
 
-`container.ts`, `providers.tsx`, and `routes.tsx` pick up the feature from that registry automatically.
+`container.ts`, `providers.tsx`, and `routes.tsx` pick up the feature from that registry automatically. If a route should be the landing page but should not appear in shell navigation, define `entryRoute` without `navigation`.
 
 ### 10. Keep UI and routes on the public API
 
@@ -377,6 +385,7 @@ So if you add circuit breaker support to a new feature, document it as your feat
 - [ ] exposed a UI-facing public API
 - [ ] exposed a composition-facing public API
 - [ ] registered the feature in `src/app/extensions/registry.tsx`
+- [ ] declared `entryRoute` for any route that can be used as the app landing redirect
 - [ ] kept route(s) on the feature public API
 - [ ] added tests before calling the pattern "done"
 - [ ] checked whether `eslint.config.js` needs to be extended for the new feature

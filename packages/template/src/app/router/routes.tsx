@@ -1,4 +1,8 @@
-import { getAppFeatureNavigation, getAppFeatureRoutes } from '@app/extensions/registry'
+import {
+  getAppDefaultRoute,
+  getAppFeatureNavigation,
+  getAppFeatureRoutes,
+} from '@app/extensions/registry'
 import { RootLayout } from '@shared/ui/RootLayout'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 
@@ -15,7 +19,7 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout navigationItems={getAppFeatureNavigation()} />,
-    children: [{ index: true, element: <Navigate to="/auth" replace /> }, ...getAppFeatureRoutes()],
+    children: [{ index: true, element: <Navigate to={getAppDefaultRoute()} replace /> }, ...getAppFeatureRoutes()],
   },
 ])
 

@@ -5,6 +5,7 @@ import { authFeature } from './auth'
 import type {
   AppFeatureContext,
   AppFeatureDefinition,
+  AppFeatureEntryRoute,
   AppFeatureNavigationItem,
 } from './contracts'
 import { productsFeature } from './products'
@@ -88,3 +89,30 @@ export const getFeatureNavigation = <TRegistry extends FeatureRegistry>(
 
 export const getAppFeatureNavigation = (): AppFeatureNavigationItem[] =>
   getFeatureNavigation(appFeatureRegistry)
+
+export const getFeatureEntryRoutes = <TRegistry extends FeatureRegistry>(
+  registry: TRegistry & Record<string, { entryRoute?: AppFeatureEntryRoute | undefined }>,
+): AppFeatureEntryRoute[] =>
+  getFeatureEntries(registry).flatMap(([, feature]) => (feature.entryRoute ? [feature.entryRoute] : []))
+
+const getDefaultEntryRoute = (entryRoutes: AppFeatureEntryRoute[]): AppFeatureEntryRoute | null => {
+  const defaultItems = entryRoutes.filter((item) => item.isDefault)
+
+  if (defaultItems.length > 1) {
+    throw new Error(
+      `Multiple app features are marked as default: ${defaultItems.map((item) => item.to).join(', ')}`,
+    )
+  }
+
+  return defaultItems[0] ?? null
+}
+
+export const getDefaultFeatureRoute = <TRegistry extends FeatureRegistry>(
+  registry: TRegistry & Record<string, { entryRoute?: AppFeatureEntryRoute | undefined }>,
+): string | null => {
+  const entryRoutes = getFeatureEntryRoutes(registry)
+
+  return getDefaultEntryRoute(entryRoutes)?.to ?? entryRoutes[0]?.to ?? null
+}
+
+export const getAppDefaultRoute = (): string => getDefaultFeatureRoute(appFeatureRegistry) ?? '/'
