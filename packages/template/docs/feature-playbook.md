@@ -4,6 +4,18 @@ This is the current, code-aligned way to add a feature to `packages/template`.
 
 It is based on what the repo actually does today, not on a fantasy architecture diagram.
 
+## Canonical feature scaffold contract
+
+Every app feature in this template is expected to follow one canonical scaffold before any CLI or generator exists.
+
+The required top-level folders are `api/`, `adapters/`, `application/`, `domain/`, `infra/`, and `ui/`.
+
+`composition/` is optional. In plain English: composition/ is optional. Keep it only when the feature needs provider/context/hook wiring.
+
+`api/composition.ts` exists only when app composition or tests need wiring exports. In plain English: api/composition.ts exists only when app composition or tests need wiring exports.
+
+Future automation must target THIS contract. Do not invent a generator-first folder shape and hope the template catches up later.
+
 ## First principle: features expose two public surfaces
 
 For a feature named `products`, the target shape is:
@@ -26,7 +38,7 @@ Use the public surfaces like this:
 - `@features/products/api`
   - for screens, app-level hooks, router consumption, and other external UI-facing usage
 - `@features/products/api/composition`
-  - for `src/app/composition/*`, providers, and tests
+  - for `src/app/composition/*`, `src/app/extensions/<feature>.tsx`, providers, and tests
 
 That is not optional busywork. It is how the current `auth` feature avoids mixing UI consumption with DI wiring.
 
@@ -82,7 +94,7 @@ src/features/products/
   ui/
 ```
 
-If the feature does not need a provider/context yet, `composition/` can start empty.
+If the feature does not need a provider/context yet, `composition/` may be omitted entirely.
 
 ### 2. Define domain types
 
@@ -286,13 +298,15 @@ export { createInMemoryProductRepository } from '../infra/inMemoryProductReposit
 export { createHttpProductRepository } from '../infra/httpProductRepository'
 ```
 
-Only export what composition root and tests actually need.
+Only export what composition root and tests actually need. If app composition, extension manifests, or tests do not need any external wiring exports, omit `api/composition.ts` and keep the feature on the UI-facing `api/index.ts` surface only.
 
 ### 9. Register the feature in `src/app/extensions/registry.tsx`
 
-Current app composition reads from a single registry instead of wiring each feature in three separate files.
+`src/app/extensions/<feature>.tsx` plus `src/app/extensions/registry.tsx` are the single app integration seam for every app-facing feature.
 
-Create a feature extension file in `src/app/extensions/<feature>.tsx` and register it in `src/app/extensions/registry.tsx`.
+Current app composition reads from that single registry instead of wiring each feature in three separate files.
+
+Create a feature extension file in `src/app/extensions/<feature>.tsx` with `defineAppFeature(...)`, then register it in `src/app/extensions/registry.tsx`.
 
 Use `entryRoute` for the feature route that can represent `/`.
 
@@ -311,8 +325,9 @@ import {
   createProductAdapters,
   createProductUseCases,
 } from '@features/products/api/composition'
+import { defineAppFeature } from '@app/extensions/contracts'
 
-export const productsFeature = {
+export const productsFeature = defineAppFeature({
   createAdapters: ({ queryClient, telemetry }) => {
     const repository = createInMemoryProductRepository()
     const useCases = createProductUseCases(repository, telemetry)
@@ -325,7 +340,7 @@ export const productsFeature = {
   routes: [{ path: '/products', element: <ProductsPage /> }],
   entryRoute: { to: '/products' },
   navigation: { label: 'Products', to: '/products' },
-}
+})
 
 // src/app/extensions/registry.tsx
 export const appFeatureRegistry = {
@@ -334,7 +349,7 @@ export const appFeatureRegistry = {
 } as const
 ```
 
-`container.ts`, `providers.tsx`, and `routes.tsx` pick up the feature from that registry automatically. If a route should be the landing page but should not appear in shell navigation, define `entryRoute` without `navigation`.
+`defineAppFeature(...)` fails fast if `entryRoute.to` or `navigation.to` does not match one of the feature's declared routes. `container.ts`, `providers.tsx`, and `routes.tsx` pick up the feature from that registry automatically. If a route should be the landing page but should not appear in shell navigation, define `entryRoute` without `navigation`.
 
 ### 10. Keep UI and routes on the public API
 
@@ -385,6 +400,7 @@ So if you add circuit breaker support to a new feature, document it as your feat
 - [ ] exposed a UI-facing public API
 - [ ] exposed a composition-facing public API
 - [ ] registered the feature in `src/app/extensions/registry.tsx`
+- [ ] wrapped the extension manifest with `defineAppFeature(...)`
 - [ ] declared `entryRoute` for any route that can be used as the app landing redirect
 - [ ] kept route(s) on the feature public API
 - [ ] added tests before calling the pattern "done"

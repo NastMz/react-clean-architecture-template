@@ -16,7 +16,7 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 const featurePublicApiMessage =
-  'App can consume features only through their public API: @features/*/api or @features/*/api/composition.'
+  'App can consume every feature folder only through its public API: @features/*/api or @features/*/api/composition.'
 const featureToAppMessage = 'Features cannot depend on @app/*.'
 const featureCrossImportMessage =
   'Features cannot import other features internals. Cross-feature usage must go through @features/*/api.'
@@ -236,6 +236,9 @@ export default defineConfig([
   {
     files: ['src/app/**/*.{ts,tsx}'],
     rules: {
+      // App code stays on the canonical feature contract: either the UI-facing
+      // `@features/*/api` barrel or the wiring-facing `@features/*/api/composition`
+      // seam. No direct imports from feature internals.
       'no-restricted-imports': restrictedImportPatterns(
         {
           regex: '^@features/[^/]+$',

@@ -80,14 +80,20 @@ This matters because the adapter factory does not export React hooks by itself. 
 
 ## App wiring
 
+`src/app/extensions/<feature>.tsx` plus `src/app/extensions/registry.tsx` are the single app integration seam for feature registration.
+
+That seam is where adapters, providers, routes, navigation items, and the default landing route enter the app. If you find yourself editing parallel app wiring files by hand for a new feature, you are bypassing the contract.
+
 The app now has an explicit registration center in `packages/template/src/app/extensions/registry.tsx`.
 
 What it wires today:
 
 - `packages/template/src/app/extensions/auth.tsx` defines the auth feature manifest
+- `packages/template/src/app/extensions/products.tsx` defines the products feature manifest
 - the auth manifest selects the repository from runtime config
 - the auth manifest creates auth use cases and auth adapters
 - `packages/template/src/app/composition/container.ts` still owns shared app services like `QueryClient` and telemetry
+- registry consumers derive providers, routes, navigation, and the default route from the registered manifests
 
 Repository selection is currently implemented inside `packages/template/src/app/extensions/auth.tsx`:
 

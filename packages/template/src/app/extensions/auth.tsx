@@ -9,13 +9,13 @@ import {
 import { createFetchHttpClient } from '@shared/network/HttpClient'
 import { z } from 'zod'
 
-import type { AppFeatureDefinition } from './contracts'
+import { defineAppFeature } from './contracts'
 
 const refreshTokenResponseSchema = z.object({
   accessToken: z.string().min(1),
 })
 
-export const authFeature = {
+export const authFeature = defineAppFeature({
   createAdapters: ({ config, queryClient, telemetry }) => {
     const authRepository = (() => {
       if (config.authRepositoryType === 'memory') {
@@ -73,4 +73,4 @@ export const authFeature = {
   routes: [{ path: '/auth', element: <AuthPage /> }],
   entryRoute: { to: '/auth', isDefault: true },
   navigation: { label: 'Auth', to: '/auth' },
-} satisfies AppFeatureDefinition<ReturnType<typeof createAuthAdapters>>
+})

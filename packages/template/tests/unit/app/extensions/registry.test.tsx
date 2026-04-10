@@ -1,5 +1,7 @@
 import type { AppConfig } from '@app/bootstrap/config'
+import { defineAppFeature } from '@app/extensions/contracts'
 import {
+  appFeatureRegistry,
   createFeatureAdapters,
   getDefaultFeatureRoute,
   getFeatureEntryRoutes,
@@ -11,7 +13,15 @@ import type { AppFeatureContext } from '@app/extensions/contracts'
 import { QueryClient } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import type { ReactNode } from 'react'
+import type { RouteObject } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
+
+const collectRoutePaths = (routes: readonly RouteObject[]): string[] =>
+  routes.flatMap((route) => {
+    const childPaths = collectRoutePaths(route.children ?? [])
+
+    return typeof route.path === 'string' ? [route.path, ...childPaths] : childPaths
+  })
 
 const config: AppConfig = {
   apiBaseUrl: 'https://api.example.com',
@@ -172,6 +182,23 @@ describe('app feature registry helpers', () => {
     ])
   })
 
+  it('uses an entry route without navigation as a valid landing route candidate', () => {
+    const registry = {
+      invite: {
+        createAdapters: () => ({ label: 'invite-adapter' }),
+        entryRoute: { to: '/invite', isDefault: true },
+      },
+      auth: {
+        createAdapters: () => ({ label: 'auth-adapter' }),
+        navigation: { label: 'Auth', to: '/auth' },
+        routes: [{ path: '/auth', element: <div>auth</div> }],
+      },
+    }
+
+    expect(getFeatureNavigation(registry)).toEqual([{ label: 'Auth', to: '/auth' }])
+    expect(getDefaultFeatureRoute(registry)).toBe('/invite')
+  })
+
   it('prefers the feature marked as default for the app landing route', () => {
     const registry = {
       auth: {
@@ -253,5 +280,60 @@ describe('app feature registry helpers', () => {
     }
 
     expect(getDefaultFeatureRoute(registry)).toBeNull()
+  })
+
+  it('keeps each registered feature manifest aligned with its own declared routes', () => {
+    for (const [featureKey, feature] of Object.entries(appFeatureRegistry)) {
+      const routePaths = collectRoutePaths(feature.routes ?? [])
+
+      if (feature.entryRoute) {
+        expect(routePaths, `${featureKey} entryRoute must target a declared route`).toContain(
+          feature.entryRoute.to,
+        )
+      }
+
+      if (feature.navigation) {
+        expect(routePaths, `${featureKey} navigation must target a declared route`).toContain(
+          feature.navigation.to,
+        )
+      }
+    }
+  })
+
+  it('throws when an entry route does not match any declared feature route', () => {
+    expect(() =>
+      defineAppFeature({
+        createAdapters: () => ({ label: 'invite-adapter' }),
+        routes: [{ path: '/invite', element: <div>invite</div> }],
+        entryRoute: { to: '/landing' },
+      }),
+    ).toThrowError(
+      'App feature entryRoute target "/landing" must match one of its declared routes: /invite',
+    )
+  })
+
+  it('throws when navigation does not match any declared feature route', () => {
+    expect(() =>
+      defineAppFeature({
+        createAdapters: () => ({ label: 'invite-adapter' }),
+        routes: [{ path: '/invite', element: <div>invite</div> }],
+        navigation: { label: 'Invite', to: '/home' },
+      }),
+    ).toThrowError(
+      'App feature navigation target "/home" must match one of its declared routes: /invite',
+    )
+  })
+
+  it('throws when a feature tries to target another feature route from its own manifest', () => {
+    expect(() =>
+      defineAppFeature({
+        createAdapters: () => ({ label: 'invite-adapter' }),
+        routes: [{ path: '/invite', element: <div>invite</div> }],
+        entryRoute: { to: '/auth' },
+        navigation: { label: 'Invite', to: '/auth' },
+      }),
+    ).toThrowError(
+      'App feature entryRoute target "/auth" must match one of its declared routes: /invite',
+    )
   })
 })

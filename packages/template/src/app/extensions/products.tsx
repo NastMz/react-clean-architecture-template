@@ -7,9 +7,9 @@ import {
   ProductAdaptersProvider,
 } from '@features/products/api/composition'
 
-import type { AppFeatureDefinition } from './contracts'
+import { defineAppFeature } from './contracts'
 
-export const productsFeature = {
+export const productsFeature = defineAppFeature({
   createAdapters: ({ queryClient, telemetry }) => {
     const repository = createInMemoryProductRepository()
     const useCases = createProductUseCases(repository, telemetry)
@@ -22,4 +22,4 @@ export const productsFeature = {
   routes: [{ path: '/products', element: <ProtectedRoute element={<ProductsPage />} /> }],
   entryRoute: { to: '/products' },
   navigation: { label: 'Products', to: '/products' },
-} satisfies AppFeatureDefinition<ReturnType<typeof createProductAdapters>>
+})

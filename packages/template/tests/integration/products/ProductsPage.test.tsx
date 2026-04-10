@@ -18,7 +18,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 
-const createTestContainer = (): AppContainer => {
+const createContainerFromFeaturePublicApis = (): AppContainer => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const telemetry = new ConsoleTelemetry()
   const authRepository = createInMemoryAuthRepository(telemetry)
@@ -38,7 +38,7 @@ const createTestContainer = (): AppContainer => {
 }
 
 const renderWithProviders = (ui: React.ReactElement) => {
-  const container = createTestContainer()
+  const container = createContainerFromFeaturePublicApis()
 
   return render(
     <ContainerContext.Provider value={container}>
@@ -50,6 +50,13 @@ const renderWithProviders = (ui: React.ReactElement) => {
 }
 
 describe('ProductsPage integration', () => {
+  it('can be composed in tests through feature public APIs only', async () => {
+    renderWithProviders(<ProductsPage />)
+
+    expect(screen.getByRole('heading', { name: /catalog demo/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /add product/i })).toBeEnabled()
+  })
+
   it('lists products created from the screen', async () => {
     const user = userEvent.setup()
     renderWithProviders(<ProductsPage />)

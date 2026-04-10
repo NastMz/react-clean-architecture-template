@@ -10,9 +10,9 @@ import type {
 } from './contracts'
 import { productsFeature } from './products'
 
-// Stable extension contract: register each app-facing feature once here.
-// Future tooling should append entries to this registry instead of patching
-// container/providers/routes independently.
+// Canonical app integration seam: register each app-facing feature once here.
+// Future tooling should append manifests here instead of patching adapters,
+// providers, routes, navigation, or the landing route independently.
 export const appFeatureRegistry = {
   auth: authFeature,
   products: productsFeature,
@@ -39,6 +39,7 @@ export type AppFeatureAdapters = {
   [K in keyof AppFeatureRegistry]: ReturnType<AppFeatureRegistry[K]['createAdapters']>
 }
 
+// Registry consumers derive adapters from one registration point.
 export const createFeatureAdapters = <TRegistry extends FeatureRegistry>(
   registry: TRegistry,
   context: AppFeatureContext,
@@ -50,6 +51,7 @@ export const createFeatureAdapters = <TRegistry extends FeatureRegistry>(
 export const createAppFeatureAdapters = (context: AppFeatureContext): AppFeatureAdapters =>
   createFeatureAdapters(appFeatureRegistry, context)
 
+// Providers are nested from the registered manifests only.
 export const renderFeatureProviders = <TRegistry extends FeatureRegistry>(
   registry: TRegistry & Record<string, { renderProvider?: unknown }>,
   adapters: FeatureAdapters<TRegistry>,
@@ -73,6 +75,7 @@ export const renderFeatureProviders = <TRegistry extends FeatureRegistry>(
 export const renderAppFeatureProviders = (adapters: AppFeatureAdapters, children: ReactNode): ReactNode =>
   renderFeatureProviders(appFeatureRegistry, adapters, children)
 
+// Routes are derived from the registry so app routing stays aligned with manifests.
 export const getFeatureRoutes = <TRegistry extends FeatureRegistry>(
   registry: TRegistry & Record<string, { routes?: readonly RouteObject[] | undefined }>,
 ): RouteObject[] =>
@@ -80,6 +83,7 @@ export const getFeatureRoutes = <TRegistry extends FeatureRegistry>(
 
 export const getAppFeatureRoutes = (): RouteObject[] => getFeatureRoutes(appFeatureRegistry)
 
+// Navigation is optional per feature and still resolved from the same registry.
 export const getFeatureNavigation = <TRegistry extends FeatureRegistry>(
   registry: TRegistry & Record<string, { navigation?: AppFeatureNavigationItem | undefined }>,
 ): AppFeatureNavigationItem[] =>
@@ -90,6 +94,7 @@ export const getFeatureNavigation = <TRegistry extends FeatureRegistry>(
 export const getAppFeatureNavigation = (): AppFeatureNavigationItem[] =>
   getFeatureNavigation(appFeatureRegistry)
 
+// Entry routes are resolved separately from shell navigation.
 export const getFeatureEntryRoutes = <TRegistry extends FeatureRegistry>(
   registry: TRegistry & Record<string, { entryRoute?: AppFeatureEntryRoute | undefined }>,
 ): AppFeatureEntryRoute[] =>

@@ -23,6 +23,18 @@ This repository also contains work related to Foundry, but this package is the t
 - Package path: `packages/template`
 - Package scripts can be run either from repo root with `pnpm -C packages/template <script>` or from `packages/template` directly with `pnpm <script>`
 
+## Canonical feature scaffold contract
+
+Before any CLI/generator work happens, this template closes one canonical feature scaffold contract:
+
+- required feature folders: `api`, `adapters`, `application`, `domain`, `infra`, `ui`
+- optional folder: `composition`
+- UI-facing imports stay on `@features/<feature>/api`
+- wiring-facing imports stay on `@features/<feature>/api/composition` only when app composition or tests need them
+- app integration happens through `src/app/extensions/<feature>.tsx` plus `src/app/extensions/registry.tsx`
+
+CLI/generator work stays out of scope until this contract is closed in docs, executable seams, examples, and validation.
+
 ## Current source layout
 
 ```text
@@ -57,7 +69,7 @@ The important bit: `shared` is currently organized by capabilities (`kernel`, `n
 
 ## App extension contract
 
-App wiring now has one explicit registration point: `src/app/extensions/registry.tsx`.
+App wiring now has one explicit registration seam: `src/app/extensions/<feature>.tsx` plus `src/app/extensions/registry.tsx`.
 
 - each feature exposes its own app-facing extension manifest from `src/app/extensions/<feature>.tsx`
 - `src/app/extensions/auth.tsx` owns the auth feature wiring, and `container.ts`, `providers.tsx`, plus `routes.tsx` consume it through the registry
