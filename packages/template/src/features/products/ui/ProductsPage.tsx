@@ -49,7 +49,9 @@ export const ProductsPage = () => {
         <div>
           <Eyebrow>Products feature</Eyebrow>
           <h2>Catalog demo</h2>
-          <Muted>Second vertical slice with its own repository, use cases, adapters, and route.</Muted>
+          <Muted>
+            Second vertical slice with its own repository, use cases, adapters, and route.
+          </Muted>
         </div>
       </CardHeader>
 
@@ -64,12 +66,16 @@ export const ProductsPage = () => {
           <label>
             <span>Name</span>
             <Input type="text" {...form.register('name')} required />
-            {form.formState.errors.name ? <Muted>{form.formState.errors.name.message}</Muted> : null}
+            {form.formState.errors.name ? (
+              <Muted>{form.formState.errors.name.message}</Muted>
+            ) : null}
           </label>
           <label>
             <span>Price</span>
             <Input type="number" min="1" step="1" {...form.register('price')} required />
-            {form.formState.errors.price ? <Muted>{form.formState.errors.price.message}</Muted> : null}
+            {form.formState.errors.price ? (
+              <Muted>{form.formState.errors.price.message}</Muted>
+            ) : null}
           </label>
           <Row>
             <Button type="submit" disabled={createProductMutation.isPending}>

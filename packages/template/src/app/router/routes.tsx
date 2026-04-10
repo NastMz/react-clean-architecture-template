@@ -19,7 +19,10 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout navigationItems={getAppFeatureNavigation()} />,
-    children: [{ index: true, element: <Navigate to={getAppDefaultRoute()} replace /> }, ...getAppFeatureRoutes()],
+    children: [
+      { index: true, element: <Navigate to={getAppDefaultRoute()} replace /> },
+      ...getAppFeatureRoutes(),
+    ],
   },
 ])
 

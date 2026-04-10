@@ -45,7 +45,10 @@ export const createFeatureAdapters = <TRegistry extends FeatureRegistry>(
   context: AppFeatureContext,
 ): FeatureAdapters<TRegistry> =>
   Object.fromEntries(
-    getFeatureEntries(registry).map(([featureKey, feature]) => [featureKey, feature.createAdapters(context)]),
+    getFeatureEntries(registry).map(([featureKey, feature]) => [
+      featureKey,
+      feature.createAdapters(context),
+    ]),
   ) as FeatureAdapters<TRegistry>
 
 export const createAppFeatureAdapters = (context: AppFeatureContext): AppFeatureAdapters =>
@@ -59,7 +62,10 @@ export const renderFeatureProviders = <TRegistry extends FeatureRegistry>(
 ): ReactNode =>
   getFeatureEntries(registry).reduceRight<ReactNode>((tree, [featureKey, feature]) => {
     const renderProvider = feature.renderProvider as
-      | ((params: { adapters: FeatureAdapters<TRegistry>[keyof TRegistry]; children: ReactNode }) => ReactNode)
+      | ((params: {
+          adapters: FeatureAdapters<TRegistry>[keyof TRegistry]
+          children: ReactNode
+        }) => ReactNode)
       | undefined
 
     if (!renderProvider) {
@@ -72,8 +78,10 @@ export const renderFeatureProviders = <TRegistry extends FeatureRegistry>(
     } as never)
   }, children)
 
-export const renderAppFeatureProviders = (adapters: AppFeatureAdapters, children: ReactNode): ReactNode =>
-  renderFeatureProviders(appFeatureRegistry, adapters, children)
+export const renderAppFeatureProviders = (
+  adapters: AppFeatureAdapters,
+  children: ReactNode,
+): ReactNode => renderFeatureProviders(appFeatureRegistry, adapters, children)
 
 // Routes are derived from the registry so app routing stays aligned with manifests.
 export const getFeatureRoutes = <TRegistry extends FeatureRegistry>(
@@ -98,7 +106,9 @@ export const getAppFeatureNavigation = (): AppFeatureNavigationItem[] =>
 export const getFeatureEntryRoutes = <TRegistry extends FeatureRegistry>(
   registry: TRegistry & Record<string, { entryRoute?: AppFeatureEntryRoute | undefined }>,
 ): AppFeatureEntryRoute[] =>
-  getFeatureEntries(registry).flatMap(([, feature]) => (feature.entryRoute ? [feature.entryRoute] : []))
+  getFeatureEntries(registry).flatMap(([, feature]) =>
+    feature.entryRoute ? [feature.entryRoute] : [],
+  )
 
 const getDefaultEntryRoute = (entryRoutes: AppFeatureEntryRoute[]): AppFeatureEntryRoute | null => {
   const defaultItems = entryRoutes.filter((item) => item.isDefault)

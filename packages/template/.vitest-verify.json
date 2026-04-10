@@ -1,0 +1,922 @@
+{
+  "numTotalTestSuites": 38,
+  "numPassedTestSuites": 38,
+  "numFailedTestSuites": 0,
+  "numPendingTestSuites": 0,
+  "numTotalTests": 82,
+  "numPassedTests": 82,
+  "numFailedTests": 0,
+  "numPendingTests": 0,
+  "numTodoTests": 0,
+  "snapshot": {
+    "added": 0,
+    "failure": false,
+    "filesAdded": 0,
+    "filesRemoved": 0,
+    "filesRemovedList": [],
+    "filesUnmatched": 0,
+    "filesUpdated": 0,
+    "matched": 0,
+    "total": 0,
+    "unchecked": 0,
+    "uncheckedKeysByFile": [],
+    "unmatched": 0,
+    "updated": 0,
+    "didUpdate": false
+  },
+  "startTime": 1775841462390,
+  "success": true,
+  "testResults": [
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["RootLayout"],
+          "fullName": "RootLayout renders navigation links from the app feature registry",
+          "status": "passed",
+          "title": "renders navigation links from the app feature registry",
+          "duration": 63.67919999999958,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841478107,
+      "endTime": 1775841478170.6792,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/integration/app/RootLayout.test.tsx"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["AuthPage integration"],
+          "fullName": "AuthPage integration should log in successfully with valid credentials",
+          "status": "passed",
+          "title": "should log in successfully with valid credentials",
+          "duration": 908.9346000000005,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["AuthPage integration"],
+          "fullName": "AuthPage integration should show error on invalid credentials",
+          "status": "passed",
+          "title": "should show error on invalid credentials",
+          "duration": 698.5072999999993,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["AuthPage integration"],
+          "fullName": "AuthPage integration can be composed in tests through feature public APIs only",
+          "status": "passed",
+          "title": "can be composed in tests through feature public APIs only",
+          "duration": 24.227500000000873,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841473631,
+      "endTime": 1775841475263.2275,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/integration/auth/AuthPage.test.tsx"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["ProtectedRoute"],
+          "fullName": "ProtectedRoute renders protected content when user is authenticated",
+          "status": "passed",
+          "title": "renders protected content when user is authenticated",
+          "duration": 46.77349999999933,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["ProtectedRoute"],
+          "fullName": "ProtectedRoute redirects to login when user is not authenticated",
+          "status": "passed",
+          "title": "redirects to login when user is not authenticated",
+          "duration": 10.734599999999773,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["ProtectedRoute"],
+          "fullName": "ProtectedRoute shows loading element while authentication is being verified",
+          "status": "passed",
+          "title": "shows loading element while authentication is being verified",
+          "duration": 28.103800000000774,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841471772,
+      "endTime": 1775841471857.1038,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/integration/router/ProtectedRoute.test.tsx"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["ProductsPage integration"],
+          "fullName": "ProductsPage integration can be composed in tests through feature public APIs only",
+          "status": "passed",
+          "title": "can be composed in tests through feature public APIs only",
+          "duration": 137.60980000000018,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["ProductsPage integration"],
+          "fullName": "ProductsPage integration lists products created from the screen",
+          "status": "passed",
+          "title": "lists products created from the screen",
+          "duration": 806.7026000000005,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["ProductsPage integration"],
+          "fullName": "ProductsPage integration shows repository conflicts back to the user",
+          "status": "passed",
+          "title": "shows repository conflicts back to the user",
+          "duration": 1180.924000000001,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841473521,
+      "endTime": 1775841475646.924,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/integration/products/ProductsPage.test.tsx"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["feature scaffold contract docs"],
+          "fullName": "feature scaffold contract docs declares the canonical required and optional feature folders in the playbook",
+          "status": "passed",
+          "title": "declares the canonical required and optional feature folders in the playbook",
+          "duration": 1.586699999999837,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["feature scaffold contract docs"],
+          "fullName": "feature scaffold contract docs explains when api/composition.ts exists",
+          "status": "passed",
+          "title": "explains when api/composition.ts exists",
+          "duration": 0.5419000000001688,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["feature scaffold contract docs"],
+          "fullName": "feature scaffold contract docs names src/app/extensions/<feature>.tsx plus registry.tsx as the single app integration seam",
+          "status": "passed",
+          "title": "names src/app/extensions/<feature>.tsx plus registry.tsx as the single app integration seam",
+          "duration": 0.5839999999998327,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["feature scaffold contract docs"],
+          "fullName": "feature scaffold contract docs summarizes the contract in the README and warns that CLI work stays out of scope",
+          "status": "passed",
+          "title": "summarizes the contract in the README and warns that CLI work stays out of scope",
+          "duration": 0.5553999999992811,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["feature scaffold public APIs"],
+          "fullName": "feature scaffold public APIs keeps auth UI exports on api and wiring exports on api/composition",
+          "status": "passed",
+          "title": "keeps auth UI exports on api and wiring exports on api/composition",
+          "duration": 1250.528699999999,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["feature scaffold public APIs"],
+          "fullName": "feature scaffold public APIs keeps products UI exports on api and wiring exports on api/composition",
+          "status": "passed",
+          "title": "keeps products UI exports on api and wiring exports on api/composition",
+          "duration": 172.26950000000033,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841470302,
+      "endTime": 1775841471728.2695,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/unit/contract/featureScaffoldContract.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["Result"],
+          "fullName": "Result should create Ok result",
+          "status": "passed",
+          "title": "should create Ok result",
+          "duration": 1.2400000000006912,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["Result"],
+          "fullName": "Result should create Err result",
+          "status": "passed",
+          "title": "should create Err result",
+          "duration": 0.706000000000131,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["Result"],
+          "fullName": "Result should map Ok values",
+          "status": "passed",
+          "title": "should map Ok values",
+          "duration": 0.181999999999789,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["Result"],
+          "fullName": "Result should not map Err values",
+          "status": "passed",
+          "title": "should not map Err values",
+          "duration": 0.2973999999994703,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["Result"],
+          "fullName": "Result should match on Ok and Err",
+          "status": "passed",
+          "title": "should match on Ok and Err",
+          "duration": 0.23390000000017608,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841477019,
+      "endTime": 1775841477022.234,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/unit/shared/Result.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["env runtime contract"],
+          "fullName": "env runtime contract requires api base url when http mode is enabled",
+          "status": "passed",
+          "title": "requires api base url when http mode is enabled",
+          "duration": 2.6895999999997002,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["env runtime contract"],
+          "fullName": "env runtime contract rejects invalid api base url in http mode",
+          "status": "passed",
+          "title": "rejects invalid api base url in http mode",
+          "duration": 1.0128999999997177,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["env runtime contract"],
+          "fullName": "env runtime contract does not invent a fake api base url outside http mode",
+          "status": "passed",
+          "title": "does not invent a fake api base url outside http mode",
+          "duration": 0.36089999999967404,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841477079,
+      "endTime": 1775841477083.3608,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/unit/app/bootstrap/env.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["app feature registry helpers"],
+          "fullName": "app feature registry helpers creates adapters for every registered feature with the same app context",
+          "status": "passed",
+          "title": "creates adapters for every registered feature with the same app context",
+          "duration": 2.9976000000006024,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["app feature registry helpers"],
+          "fullName": "app feature registry helpers nests feature providers in registry order and skips features without providers",
+          "status": "passed",
+          "title": "nests feature providers in registry order and skips features without providers",
+          "duration": 20.55199999999968,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["app feature registry helpers"],
+          "fullName": "app feature registry helpers flattens routes from multiple registered features in registry order",
+          "status": "passed",
+          "title": "flattens routes from multiple registered features in registry order",
+          "duration": 0.4422000000013213,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["app feature registry helpers"],
+          "fullName": "app feature registry helpers collects navigation entries from registered features in registry order",
+          "status": "passed",
+          "title": "collects navigation entries from registered features in registry order",
+          "duration": 0.2713999999996304,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["app feature registry helpers"],
+          "fullName": "app feature registry helpers collects entry routes separately from visible navigation",
+          "status": "passed",
+          "title": "collects entry routes separately from visible navigation",
+          "duration": 0.30129999999917345,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["app feature registry helpers"],
+          "fullName": "app feature registry helpers uses an entry route without navigation as a valid landing route candidate",
+          "status": "passed",
+          "title": "uses an entry route without navigation as a valid landing route candidate",
+          "duration": 0.44689999999900465,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["app feature registry helpers"],
+          "fullName": "app feature registry helpers prefers the feature marked as default for the app landing route",
+          "status": "passed",
+          "title": "prefers the feature marked as default for the app landing route",
+          "duration": 0.18029999999998836,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["app feature registry helpers"],
+          "fullName": "app feature registry helpers falls back to the first entry route when no default route is declared",
+          "status": "passed",
+          "title": "falls back to the first entry route when no default route is declared",
+          "duration": 0.15679999999883876,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["app feature registry helpers"],
+          "fullName": "app feature registry helpers throws when multiple features are marked as default",
+          "status": "passed",
+          "title": "throws when multiple features are marked as default",
+          "duration": 0.8490000000001601,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["app feature registry helpers"],
+          "fullName": "app feature registry helpers ignores visible navigation when resolving entry routes",
+          "status": "passed",
+          "title": "ignores visible navigation when resolving entry routes",
+          "duration": 0.3161000000000058,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["app feature registry helpers"],
+          "fullName": "app feature registry helpers returns null when the registry has no entry routes",
+          "status": "passed",
+          "title": "returns null when the registry has no entry routes",
+          "duration": 0.1540000000004511,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["app feature registry helpers"],
+          "fullName": "app feature registry helpers keeps each registered feature manifest aligned with its own declared routes",
+          "status": "passed",
+          "title": "keeps each registered feature manifest aligned with its own declared routes",
+          "duration": 0.9668000000001484,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["app feature registry helpers"],
+          "fullName": "app feature registry helpers throws when an entry route does not match any declared feature route",
+          "status": "passed",
+          "title": "throws when an entry route does not match any declared feature route",
+          "duration": 0.282999999999447,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["app feature registry helpers"],
+          "fullName": "app feature registry helpers throws when navigation does not match any declared feature route",
+          "status": "passed",
+          "title": "throws when navigation does not match any declared feature route",
+          "duration": 0.38510000000133005,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["app feature registry helpers"],
+          "fullName": "app feature registry helpers throws when a feature tries to target another feature route from its own manifest",
+          "status": "passed",
+          "title": "throws when a feature tries to target another feature route from its own manifest",
+          "duration": 0.2679000000007363,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841472993,
+      "endTime": 1775841473022.385,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/unit/app/extensions/registry.test.tsx"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["AppRouter route configuration"],
+          "fullName": "AppRouter route configuration points the index redirect to the registry entry route instead of visible navigation",
+          "status": "passed",
+          "title": "points the index redirect to the registry entry route instead of visible navigation",
+          "duration": 150.0544,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841477014,
+      "endTime": 1775841477164.0544,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/unit/app/router/routes.test.tsx"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["CircuitBreaker"],
+          "fullName": "CircuitBreaker executes function successfully when healthy",
+          "status": "passed",
+          "title": "executes function successfully when healthy",
+          "duration": 2.061399999999594,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["CircuitBreaker"],
+          "fullName": "CircuitBreaker opens circuit after threshold failures",
+          "status": "passed",
+          "title": "opens circuit after threshold failures",
+          "duration": 1.0617000000002008,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["CircuitBreaker"],
+          "fullName": "CircuitBreaker transitions to HALF_OPEN after reset timeout",
+          "status": "passed",
+          "title": "transitions to HALF_OPEN after reset timeout",
+          "duration": 152.47019999999975,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["CircuitBreaker"],
+          "fullName": "CircuitBreaker resets to CLOSED on successful recovery",
+          "status": "passed",
+          "title": "resets to CLOSED on successful recovery",
+          "duration": 151.8161999999993,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["CircuitBreaker"],
+          "fullName": "CircuitBreaker supports executing ad-hoc operations while preserving state",
+          "status": "passed",
+          "title": "supports executing ad-hoc operations while preserving state",
+          "duration": 1.3263999999999214,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841470608,
+      "endTime": 1775841470917.3264,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/unit/shared/infra/CircuitBreaker.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["RetryPolicy"],
+          "fullName": "RetryPolicy executes function successfully on first try",
+          "status": "passed",
+          "title": "executes function successfully on first try",
+          "duration": 1.8616999999994732,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["RetryPolicy"],
+          "fullName": "RetryPolicy retries on network errors",
+          "status": "passed",
+          "title": "retries on network errors",
+          "duration": 14.594500000000153,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["RetryPolicy"],
+          "fullName": "RetryPolicy retries on retryable status codes",
+          "status": "passed",
+          "title": "retries on retryable status codes",
+          "duration": 15.194999999999709,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["RetryPolicy"],
+          "fullName": "RetryPolicy fails on non-retryable errors",
+          "status": "passed",
+          "title": "fails on non-retryable errors",
+          "duration": 1.5060999999996056,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["RetryPolicy"],
+          "fullName": "RetryPolicy exhausts retries and throws last error",
+          "status": "passed",
+          "title": "exhausts retries and throws last error",
+          "duration": 45.11879999999928,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["RetryPolicy"],
+          "fullName": "RetryPolicy uses exponential backoff delays",
+          "status": "passed",
+          "title": "uses exponential backoff delays",
+          "duration": 1.85320000000047,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841475056,
+      "endTime": 1775841475136.8533,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/unit/shared/infra/RetryPolicy.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["createAuthUseCases"],
+          "fullName": "createAuthUseCases tracks login attempt and success while returning the repository session",
+          "status": "passed",
+          "title": "tracks login attempt and success while returning the repository session",
+          "duration": 2.958099999999831,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["createAuthUseCases"],
+          "fullName": "createAuthUseCases tracks login errors with the error kind and returns the same failure",
+          "status": "passed",
+          "title": "tracks login errors with the error kind and returns the same failure",
+          "duration": 0.4931000000005952,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["createAuthUseCases"],
+          "fullName": "createAuthUseCases tracks logout success and logout errors",
+          "status": "passed",
+          "title": "tracks logout success and logout errors",
+          "duration": 0.42069999999966967,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["createAuthUseCases"],
+          "fullName": "createAuthUseCases normalizes missing current sessions to null",
+          "status": "passed",
+          "title": "normalizes missing current sessions to null",
+          "duration": 0.2780000000002474,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["createAuthUseCases"],
+          "fullName": "createAuthUseCases maps unexpected current session errors to unknown app errors",
+          "status": "passed",
+          "title": "maps unexpected current session errors to unknown app errors",
+          "duration": 0.3022000000000844,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841470608,
+      "endTime": 1775841470613.3022,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/unit/features/auth/authUseCases.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["HttpAuthRepository", "login"],
+          "fullName": "HttpAuthRepository login should login successfully with valid credentials",
+          "status": "passed",
+          "title": "should login successfully with valid credentials",
+          "duration": 4.367699999999786,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["HttpAuthRepository", "login"],
+          "fullName": "HttpAuthRepository login should handle login errors from HTTP client",
+          "status": "passed",
+          "title": "should handle login errors from HTTP client",
+          "duration": 0.5954000000001543,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["HttpAuthRepository", "login"],
+          "fullName": "HttpAuthRepository login should handle unexpected errors during login",
+          "status": "passed",
+          "title": "should handle unexpected errors during login",
+          "duration": 0.5538000000005923,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["HttpAuthRepository", "login"],
+          "fullName": "HttpAuthRepository login should retry transient network failures before succeeding",
+          "status": "passed",
+          "title": "should retry transient network failures before succeeding",
+          "duration": 18.902399999999943,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["HttpAuthRepository", "login"],
+          "fullName": "HttpAuthRepository login should return the last retryable error after exhausting retries",
+          "status": "passed",
+          "title": "should return the last retryable error after exhausting retries",
+          "duration": 15.280399999999645,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["HttpAuthRepository", "login"],
+          "fullName": "HttpAuthRepository login should open the auth circuit after repeated transient failures",
+          "status": "passed",
+          "title": "should open the auth circuit after repeated transient failures",
+          "duration": 0.6123999999999796,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["HttpAuthRepository", "login"],
+          "fullName": "HttpAuthRepository login should allow recovery after the auth circuit reset timeout",
+          "status": "passed",
+          "title": "should allow recovery after the auth circuit reset timeout",
+          "duration": 1.5877000000000407,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["HttpAuthRepository", "currentSession"],
+          "fullName": "HttpAuthRepository currentSession should return cached session when available",
+          "status": "passed",
+          "title": "should return cached session when available",
+          "duration": 0.5455000000001746,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["HttpAuthRepository", "currentSession"],
+          "fullName": "HttpAuthRepository currentSession should fetch session from server when not cached",
+          "status": "passed",
+          "title": "should fetch session from server when not cached",
+          "duration": 0.49290000000019063,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["HttpAuthRepository", "currentSession"],
+          "fullName": "HttpAuthRepository currentSession should retry retryable server errors before succeeding",
+          "status": "passed",
+          "title": "should retry retryable server errors before succeeding",
+          "duration": 12.403999999999542,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["HttpAuthRepository", "logout"],
+          "fullName": "HttpAuthRepository logout should logout successfully and clear session cache",
+          "status": "passed",
+          "title": "should logout successfully and clear session cache",
+          "duration": 0.7671000000000276,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841468984,
+      "endTime": 1775841469040.767,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/unit/features/auth/httpAuthRepository.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["InMemoryAuthRepository"],
+          "fullName": "InMemoryAuthRepository should login with valid credentials",
+          "status": "passed",
+          "title": "should login with valid credentials",
+          "duration": 2.6473000000005413,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["InMemoryAuthRepository"],
+          "fullName": "InMemoryAuthRepository should reject invalid credentials",
+          "status": "passed",
+          "title": "should reject invalid credentials",
+          "duration": 0.8221000000003187,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["InMemoryAuthRepository"],
+          "fullName": "InMemoryAuthRepository should logout and clear session",
+          "status": "passed",
+          "title": "should logout and clear session",
+          "duration": 0.44129999999950087,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["InMemoryAuthRepository"],
+          "fullName": "InMemoryAuthRepository should clear corrupted stored session during hydration",
+          "status": "passed",
+          "title": "should clear corrupted stored session during hydration",
+          "duration": 1.425000000000182,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["InMemoryAuthRepository"],
+          "fullName": "InMemoryAuthRepository should clear invalid stored session shape during hydration",
+          "status": "passed",
+          "title": "should clear invalid stored session shape during hydration",
+          "duration": 1.7583000000004176,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841470636,
+      "endTime": 1775841470642.7583,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/unit/features/auth/inMemoryAuthRepository.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["HttpClient runtime contract"],
+          "fullName": "HttpClient runtime contract returns validated json payloads when schema matches",
+          "status": "passed",
+          "title": "returns validated json payloads when schema matches",
+          "duration": 6.794800000000578,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["HttpClient runtime contract"],
+          "fullName": "HttpClient runtime contract rejects invalid json payloads instead of casting them blindly",
+          "status": "passed",
+          "title": "rejects invalid json payloads instead of casting them blindly",
+          "duration": 1.3283000000001266,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["HttpClient runtime contract"],
+          "fullName": "HttpClient runtime contract maps 503 responses to ServiceUnavailable with status metadata",
+          "status": "passed",
+          "title": "maps 503 responses to ServiceUnavailable with status metadata",
+          "duration": 0.5252000000000407,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["HttpClient runtime contract"],
+          "fullName": "HttpClient runtime contract keeps mapping 409 responses to Conflict",
+          "status": "passed",
+          "title": "keeps mapping 409 responses to Conflict",
+          "duration": 0.4511000000002241,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841470634,
+      "endTime": 1775841470643.5251,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/unit/shared/network/HttpClient.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["createInMemoryProductRepository"],
+          "fullName": "createInMemoryProductRepository lists seeded products by default",
+          "status": "passed",
+          "title": "lists seeded products by default",
+          "duration": 1.6427999999996246,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["createInMemoryProductRepository"],
+          "fullName": "createInMemoryProductRepository creates a new product when the payload is valid",
+          "status": "passed",
+          "title": "creates a new product when the payload is valid",
+          "duration": 1.3927999999996246,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["createInMemoryProductRepository"],
+          "fullName": "createInMemoryProductRepository rejects invalid payloads and duplicated names",
+          "status": "passed",
+          "title": "rejects invalid payloads and duplicated names",
+          "duration": 0.899199999999837,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841476422,
+      "endTime": 1775841476425.8992,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/unit/features/products/inMemoryProductRepository.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["createProductUseCases"],
+          "fullName": "createProductUseCases tracks list attempt and success",
+          "status": "passed",
+          "title": "tracks list attempt and success",
+          "duration": 1.9728000000004613,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["createProductUseCases"],
+          "fullName": "createProductUseCases tracks create errors returned by the repository",
+          "status": "passed",
+          "title": "tracks create errors returned by the repository",
+          "duration": 0.5623999999997977,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["createProductUseCases"],
+          "fullName": "createProductUseCases normalizes thrown create errors into unknown app errors",
+          "status": "passed",
+          "title": "normalizes thrown create errors into unknown app errors",
+          "duration": 0.37809999999990396,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1775841470608,
+      "endTime": 1775841470611.5625,
+      "status": "passed",
+      "message": "",
+      "name": "C:/Proyectos/react-clean-architecture-template/packages/template/tests/unit/features/products/productUseCases.test.ts"
+    }
+  ]
+}

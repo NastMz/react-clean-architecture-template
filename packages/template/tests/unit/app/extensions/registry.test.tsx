@@ -82,7 +82,13 @@ describe('app feature registry helpers', () => {
     const registry = {
       auth: {
         createAdapters: () => ({ label: 'auth-adapter' }),
-        renderProvider: ({ adapters, children }: { adapters: { label: string }; children: ReactNode }) => (
+        renderProvider: ({
+          adapters,
+          children,
+        }: {
+          adapters: { label: string }
+          children: ReactNode
+        }) => (
           <section data-testid="auth-provider" data-adapter={adapters.label}>
             {children}
           </section>
@@ -90,7 +96,13 @@ describe('app feature registry helpers', () => {
       },
       products: {
         createAdapters: () => ({ label: 'products-adapter' }),
-        renderProvider: ({ adapters, children }: { adapters: { label: string }; children: ReactNode }) => (
+        renderProvider: ({
+          adapters,
+          children,
+        }: {
+          adapters: { label: string }
+          children: ReactNode
+        }) => (
           <section data-testid="products-provider" data-adapter={adapters.label}>
             {children}
           </section>

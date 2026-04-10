@@ -92,12 +92,12 @@ describe('CircuitBreaker', () => {
     })
 
     await expect(reusableBreaker.execute(async () => 'success')).resolves.toBe('success')
-    await expect(reusableBreaker.execute(async () => Promise.reject(new Error('fail')))).rejects.toThrow(
-      'fail',
-    )
-    await expect(reusableBreaker.execute(async () => Promise.reject(new Error('fail')))).rejects.toThrow(
-      'fail',
-    )
+    await expect(
+      reusableBreaker.execute(async () => Promise.reject(new Error('fail'))),
+    ).rejects.toThrow('fail')
+    await expect(
+      reusableBreaker.execute(async () => Promise.reject(new Error('fail'))),
+    ).rejects.toThrow('fail')
 
     expect(reusableBreaker.getState()).toBe('OPEN')
   })

@@ -43,7 +43,9 @@ const renderWithProviders = (ui: React.ReactElement) => {
   return render(
     <ContainerContext.Provider value={container}>
       <QueryClientProvider client={container.queryClient}>
-        <ProductAdaptersProvider adapters={container.adapters.products}>{ui}</ProductAdaptersProvider>
+        <ProductAdaptersProvider adapters={container.adapters.products}>
+          {ui}
+        </ProductAdaptersProvider>
       </QueryClientProvider>
     </ContainerContext.Provider>,
   )
@@ -95,7 +97,9 @@ describe('ProductsPage integration', () => {
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(screen.getByText(/Conflict: A product with that name already exists/i)).toBeInTheDocument()
+      expect(
+        screen.getByText(/Conflict: A product with that name already exists/i),
+      ).toBeInTheDocument()
     })
   })
 })

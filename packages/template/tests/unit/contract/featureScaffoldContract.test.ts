@@ -27,7 +27,9 @@ describe('feature scaffold contract docs', () => {
   it('explains when api/composition.ts exists', () => {
     const playbook = readTemplateFile('docs/feature-playbook.md')
 
-    expect(playbook).toContain('api/composition.ts exists only when app composition or tests need wiring exports')
+    expect(playbook).toContain(
+      'api/composition.ts exists only when app composition or tests need wiring exports',
+    )
   })
 
   it('names src/app/extensions/<feature>.tsx plus registry.tsx as the single app integration seam', () => {
@@ -65,7 +67,11 @@ describe('feature scaffold public APIs', () => {
     const productsApi = await import('@features/products/api')
     const productsComposition = await import('@features/products/api/composition')
 
-    expect(Object.keys(productsApi).sort()).toEqual(['ProductsPage', 'useCreateProduct', 'useProducts'])
+    expect(Object.keys(productsApi).sort()).toEqual([
+      'ProductsPage',
+      'useCreateProduct',
+      'useProducts',
+    ])
     expect(Object.keys(productsComposition).sort()).toEqual([
       'ProductAdaptersProvider',
       'createInMemoryProductRepository',

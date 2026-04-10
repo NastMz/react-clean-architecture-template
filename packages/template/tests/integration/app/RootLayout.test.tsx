@@ -9,10 +9,7 @@ describe('RootLayout', () => {
     render(
       <MemoryRouter initialEntries={['/products']}>
         <Routes>
-          <Route
-            path="/"
-            element={<RootLayout navigationItems={getAppFeatureNavigation()} />}
-          >
+          <Route path="/" element={<RootLayout navigationItems={getAppFeatureNavigation()} />}>
             <Route index element={<div>home</div>} />
             <Route path="auth" element={<div>auth</div>} />
             <Route path="products" element={<div>products</div>} />
