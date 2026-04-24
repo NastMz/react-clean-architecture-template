@@ -29,8 +29,8 @@ Open `http://localhost:5173`.
 Current behavior:
 
 - `/` redirects to `/auth`
-- the only real feature route in the template is `/auth`
-- the app shell navigation currently exposes only `Auth`
+- canonical protected feature route is `/todo`
+- the app shell navigation exposes `Auth` and `Todo`
 
 ## 3. Log in with the real demo credentials
 
@@ -103,8 +103,10 @@ What these actually cover:
 
 - visit `/auth`
 - submit the prefilled demo form
+- open `/todo` and verify todo CRUD is accessible while authenticated
 - reload the page and verify the session is still there
 - click logout and verify the form comes back
+- revisit `/todo` and verify you are redirected back to `/auth`
 
 If those steps fail, the template is not in a healthy state.
 

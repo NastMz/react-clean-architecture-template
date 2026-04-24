@@ -7,12 +7,12 @@ import { QueryClient } from '@tanstack/react-query'
 
 /**
  * Application Dependency Injection container
- * Holds all services, adapters, and the React Query client
+ * Holds app-global services and registry-derived feature adapters.
  *
- * Current scope: auth and products demo features
- * - Domain logic validated in tests
- * - UI patterns taught via feature pages and adapters
- * - Teams extend this for their own features
+ * Scope rule:
+ * - this module owns global runtime setup (config, telemetry, query client)
+ * - feature-specific repositories/use cases stay in `src/app/extensions/<feature>.tsx`
+ * - adapters are composed from the extension registry only
  */
 export interface AppContainer {
   queryClient: QueryClient
@@ -21,7 +21,7 @@ export interface AppContainer {
 
 /**
  * Creates and configures the dependency injection container
- * Initializes repository, use cases, adapters, and React Query
+ * Initializes only app-global concerns and delegates feature assembly to registry manifests.
  *
  * @param telemetry - Optional custom telemetry implementation
  *                    Defaults to: OpenTelemetryAdapter in browser, ConsoleTelemetry in Node.js/SSR

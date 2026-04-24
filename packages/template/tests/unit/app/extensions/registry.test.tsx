@@ -53,9 +53,9 @@ describe('app feature registry helpers', () => {
           queryClient: context.queryClient,
         })),
       },
-      products: {
+      todo: {
         createAdapters: vi.fn((context: AppFeatureContext) => ({
-          feature: 'products',
+          feature: 'todo',
           telemetry: context.telemetry,
         })),
       },
@@ -66,14 +66,14 @@ describe('app feature registry helpers', () => {
     const adapters = createFeatureAdapters(registry, context)
 
     expect(registry.auth.createAdapters).toHaveBeenCalledWith(context)
-    expect(registry.products.createAdapters).toHaveBeenCalledWith(context)
+    expect(registry.todo.createAdapters).toHaveBeenCalledWith(context)
     expect(adapters.auth).toEqual({
       feature: 'auth',
       baseUrl: 'https://api.example.com',
       queryClient: context.queryClient,
     })
-    expect(adapters.products).toEqual({
-      feature: 'products',
+    expect(adapters.todo).toEqual({
+      feature: 'todo',
       telemetry: context.telemetry,
     })
   })
@@ -94,8 +94,8 @@ describe('app feature registry helpers', () => {
           </section>
         ),
       },
-      products: {
-        createAdapters: () => ({ label: 'products-adapter' }),
+      todo: {
+        createAdapters: () => ({ label: 'todo-adapter' }),
         renderProvider: ({
           adapters,
           children,
@@ -103,7 +103,7 @@ describe('app feature registry helpers', () => {
           adapters: { label: string }
           children: ReactNode
         }) => (
-          <section data-testid="products-provider" data-adapter={adapters.label}>
+          <section data-testid="todo-provider" data-adapter={adapters.label}>
             {children}
           </section>
         ),
@@ -122,13 +122,13 @@ describe('app feature registry helpers', () => {
     render(<>{tree}</>)
 
     const authProvider = screen.getByTestId('auth-provider')
-    const productsProvider = screen.getByTestId('products-provider')
+    const todoProvider = screen.getByTestId('todo-provider')
     const leaf = screen.getByTestId('leaf')
 
-    expect(authProvider).toContainElement(productsProvider)
-    expect(productsProvider).toContainElement(leaf)
+    expect(authProvider).toContainElement(todoProvider)
+    expect(todoProvider).toContainElement(leaf)
     expect(authProvider).toHaveAttribute('data-adapter', 'auth-adapter')
-    expect(productsProvider).toHaveAttribute('data-adapter', 'products-adapter')
+    expect(todoProvider).toHaveAttribute('data-adapter', 'todo-adapter')
   })
 
   it('flattens routes from multiple registered features in registry order', () => {
@@ -137,19 +137,19 @@ describe('app feature registry helpers', () => {
         createAdapters: () => ({ label: 'auth-adapter' }),
         routes: [{ path: '/auth', element: <div>auth</div> }],
       },
-      products: {
-        createAdapters: () => ({ label: 'products-adapter' }),
+      todo: {
+        createAdapters: () => ({ label: 'todo-adapter' }),
         routes: [
-          { path: '/products', element: <div>products</div> },
-          { path: '/products/:id', element: <div>detail</div> },
+          { path: '/todo', element: <div>todo</div> },
+          { path: '/todo/:id', element: <div>detail</div> },
         ],
       },
     }
 
     expect(getFeatureRoutes(registry).map((route) => route.path)).toEqual([
       '/auth',
-      '/products',
-      '/products/:id',
+      '/todo',
+      '/todo/:id',
     ])
   })
 
@@ -159,9 +159,9 @@ describe('app feature registry helpers', () => {
         createAdapters: () => ({ label: 'auth-adapter' }),
         navigation: { label: 'Auth', to: '/auth' },
       },
-      products: {
-        createAdapters: () => ({ label: 'products-adapter' }),
-        navigation: { label: 'Products', to: '/products' },
+      todo: {
+        createAdapters: () => ({ label: 'todo-adapter' }),
+        navigation: { label: 'Todo', to: '/todo' },
       },
       analytics: {
         createAdapters: () => ({ label: 'analytics-adapter' }),
@@ -170,7 +170,7 @@ describe('app feature registry helpers', () => {
 
     expect(getFeatureNavigation(registry)).toEqual([
       { label: 'Auth', to: '/auth' },
-      { label: 'Products', to: '/products' },
+      { label: 'Todo', to: '/todo' },
     ])
   })
 
@@ -218,14 +218,14 @@ describe('app feature registry helpers', () => {
         entryRoute: { to: '/auth' },
         navigation: { label: 'Auth', to: '/auth' },
       },
-      products: {
-        createAdapters: () => ({ label: 'products-adapter' }),
-        entryRoute: { to: '/products', isDefault: true },
-        navigation: { label: 'Products', to: '/products' },
+      todo: {
+        createAdapters: () => ({ label: 'todo-adapter' }),
+        entryRoute: { to: '/todo', isDefault: true },
+        navigation: { label: 'Todo', to: '/todo' },
       },
     }
 
-    expect(getDefaultFeatureRoute(registry)).toBe('/products')
+    expect(getDefaultFeatureRoute(registry)).toBe('/todo')
   })
 
   it('falls back to the first entry route when no default route is declared', () => {
@@ -235,10 +235,10 @@ describe('app feature registry helpers', () => {
         entryRoute: { to: '/auth' },
         navigation: { label: 'Auth', to: '/auth' },
       },
-      products: {
-        createAdapters: () => ({ label: 'products-adapter' }),
-        entryRoute: { to: '/products' },
-        navigation: { label: 'Products', to: '/products' },
+      todo: {
+        createAdapters: () => ({ label: 'todo-adapter' }),
+        entryRoute: { to: '/todo' },
+        navigation: { label: 'Todo', to: '/todo' },
       },
     }
 
@@ -252,15 +252,15 @@ describe('app feature registry helpers', () => {
         entryRoute: { to: '/auth', isDefault: true },
         navigation: { label: 'Auth', to: '/auth' },
       },
-      products: {
-        createAdapters: () => ({ label: 'products-adapter' }),
-        entryRoute: { to: '/products', isDefault: true },
-        navigation: { label: 'Products', to: '/products' },
+      todo: {
+        createAdapters: () => ({ label: 'todo-adapter' }),
+        entryRoute: { to: '/todo', isDefault: true },
+        navigation: { label: 'Todo', to: '/todo' },
       },
     }
 
     expect(() => getDefaultFeatureRoute(registry)).toThrowError(
-      'Multiple app features are marked as default: /auth, /products',
+      'Multiple app features are marked as default: /auth, /todo',
     )
   })
 
@@ -270,15 +270,15 @@ describe('app feature registry helpers', () => {
         createAdapters: () => ({ label: 'auth-adapter' }),
         navigation: { label: 'Auth', to: '/auth' },
       },
-      products: {
-        createAdapters: () => ({ label: 'products-adapter' }),
-        navigation: { label: 'Products', to: '/products' },
+      todo: {
+        createAdapters: () => ({ label: 'todo-adapter' }),
+        navigation: { label: 'Todo', to: '/todo' },
       },
     }
 
     expect(getFeatureNavigation(registry)).toEqual([
       { label: 'Auth', to: '/auth' },
-      { label: 'Products', to: '/products' },
+      { label: 'Todo', to: '/todo' },
     ])
     expect(getFeatureEntryRoutes(registry)).toEqual([])
     expect(getDefaultFeatureRoute(registry)).toBeNull()
@@ -310,6 +310,10 @@ describe('app feature registry helpers', () => {
         )
       }
     }
+  })
+
+  it('keeps auth and todo as the canonical registered feature keys', () => {
+    expect(Object.keys(appFeatureRegistry)).toEqual(['auth', 'todo'])
   })
 
   it('throws when an entry route does not match any declared feature route', () => {

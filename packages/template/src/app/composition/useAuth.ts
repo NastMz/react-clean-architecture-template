@@ -1,4 +1,7 @@
-import { useSession } from '@features/auth/api'
+import { useQuery } from '@tanstack/react-query'
+import { useContext } from 'react'
+
+import { ContainerContext } from './ContainerContext'
 
 /**
  * Hook to access authentication state throughout the application
@@ -19,8 +22,13 @@ import { useSession } from '@features/auth/api'
  * ```
  */
 export const useAuth = () => {
-  // Use the exported hook from adapters instead of accessing container directly
-  const sessionQuery = useSession()
+  const container = useContext(ContainerContext)
+
+  if (!container) {
+    throw new Error('useAuth must be used within AppProviders')
+  }
+
+  const sessionQuery = useQuery(container.adapters.auth.queries.session())
 
   return {
     session: sessionQuery.data ?? null,

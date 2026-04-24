@@ -2,7 +2,7 @@ import { renderAppFeatureProviders } from '@app/extensions/registry'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import type { ReactNode } from 'react'
-import { useMemo } from 'react'
+import { useState } from 'react'
 
 import { createContainer } from './container'
 import { ContainerContext } from './ContainerContext'
@@ -13,7 +13,7 @@ import { ContainerContext } from './ContainerContext'
  * @param children - React components to be wrapped by providers
  */
 export const AppProviders = ({ children }: { children: ReactNode }) => {
-  const container = useMemo(() => createContainer(), [])
+  const [container] = useState(createContainer)
 
   return (
     <ContainerContext.Provider value={container}>

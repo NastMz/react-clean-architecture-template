@@ -8,12 +8,12 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 
 /**
  * Application router configuration
- * Minimal clean architecture example:
- * - / : Root layout wrapper
- *   - /auth : Public login/logout page
+ * All feature routes/navigation/default route are consumed from
+ * `src/app/extensions/registry.tsx`.
  *
- * To add new features: create new routes and wrap with <ProtectedRoute> if needed
- * See docs/feature-playbook.md for pattern
+ * Integration rule:
+ * - add/modify feature wiring in `src/app/extensions/<feature>.tsx`
+ * - do not hardcode feature routes in this module
  */
 const router = createBrowserRouter([
   {

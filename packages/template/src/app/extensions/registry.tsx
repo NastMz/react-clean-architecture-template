@@ -8,14 +8,14 @@ import type {
   AppFeatureEntryRoute,
   AppFeatureNavigationItem,
 } from './contracts'
-import { productsFeature } from './products'
+import { todoFeature } from './todo'
 
 // Canonical app integration seam: register each app-facing feature once here.
 // Future tooling should append manifests here instead of patching adapters,
 // providers, routes, navigation, or the landing route independently.
 export const appFeatureRegistry = {
   auth: authFeature,
-  products: productsFeature,
+  todo: todoFeature,
 } as const
 
 type AppFeatureRegistry = typeof appFeatureRegistry

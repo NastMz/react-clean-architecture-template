@@ -4,7 +4,7 @@ import {
   queryOptions,
   mutationOptions,
 } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitForElementToBeRemoved } from '@testing-library/react'
 import { MemoryRouter, BrowserRouter, Routes, Route } from 'react-router-dom'
 import { describe, it, expect } from 'vitest'
 
@@ -13,10 +13,10 @@ import { ProtectedRoute } from '@app/router/ProtectedRoute'
 import type { AppContainer } from '@app/composition/container'
 import { AuthAdaptersProvider } from '@features/auth/api/composition'
 import {
-  createInMemoryProductRepository,
-  createProductAdapters,
-  createProductUseCases,
-} from '@features/products/api/composition'
+  createInMemoryTodoRepository,
+  createTodoAdapters,
+  createTodoUseCases,
+} from '@features/todo/api/composition'
 import type { Session, Credentials } from '@features/auth/domain/User'
 import type { AppError } from '@shared/kernel/AppError'
 import { ConsoleTelemetry } from '@shared/observability/ConsoleTelemetry'
@@ -41,9 +41,9 @@ describe('ProtectedRoute', () => {
     // Pre-populate the session query cache
     queryClient.setQueryData(['auth', 'session'], sessionData)
     const telemetry = new ConsoleTelemetry()
-    const productRepository = createInMemoryProductRepository([])
-    const productUseCases = createProductUseCases(productRepository, telemetry)
-    const productAdapters = createProductAdapters({ useCases: productUseCases, queryClient })
+    const todoRepository = createInMemoryTodoRepository([])
+    const todoUseCases = createTodoUseCases(todoRepository, telemetry)
+    const todoAdapters = createTodoAdapters({ useCases: todoUseCases, queryClient })
 
     return {
       queryClient,
@@ -69,7 +69,7 @@ describe('ProtectedRoute', () => {
               }),
           },
         },
-        products: productAdapters,
+        todo: todoAdapters,
       },
     }
   }
@@ -137,8 +137,7 @@ describe('ProtectedRoute', () => {
       </QueryClientProvider>,
     )
 
-    // Should show loading while session is being fetched
-    // (In this case, since cache is empty, it will fetch)
-    // The exact behavior depends on React Query's timing
+    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    return waitForElementToBeRemoved(() => screen.queryByText('Loading...'))
   })
 })

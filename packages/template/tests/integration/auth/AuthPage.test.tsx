@@ -8,10 +8,10 @@ import {
   createInMemoryAuthRepository,
 } from '@features/auth/api/composition'
 import {
-  createInMemoryProductRepository,
-  createProductAdapters,
-  createProductUseCases,
-} from '@features/products/api/composition'
+  createInMemoryTodoRepository,
+  createTodoAdapters,
+  createTodoUseCases,
+} from '@features/todo/api/composition'
 import { ConsoleTelemetry } from '@shared/observability/ConsoleTelemetry'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
@@ -24,15 +24,15 @@ const createContainerFromFeaturePublicApis = (): AppContainer => {
   const authRepository = createInMemoryAuthRepository(telemetry)
   const authUseCases = createAuthUseCases(authRepository, telemetry)
   const authAdapters = createAuthAdapters({ useCases: authUseCases, queryClient })
-  const productRepository = createInMemoryProductRepository([])
-  const productUseCases = createProductUseCases(productRepository, telemetry)
-  const productAdapters = createProductAdapters({ useCases: productUseCases, queryClient })
+  const todoRepository = createInMemoryTodoRepository([])
+  const todoUseCases = createTodoUseCases(todoRepository, telemetry)
+  const todoAdapters = createTodoAdapters({ useCases: todoUseCases, queryClient })
 
   return {
     queryClient,
     adapters: {
       auth: authAdapters,
-      products: productAdapters,
+      todo: todoAdapters,
     },
   }
 }

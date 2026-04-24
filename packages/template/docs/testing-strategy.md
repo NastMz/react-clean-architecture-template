@@ -2,7 +2,7 @@
 
 This is the testing strategy the template actually supports today.
 
-It is real, but still narrow. The repo proves the pattern through `auth`, `products`, bootstrap config/env, and shared network/kernel utilities.
+It is real, but still narrow. The repo proves the pattern through `auth`, `todo`, bootstrap config/env, and shared network/kernel utilities.
 
 ## Current toolchain
 
@@ -27,12 +27,12 @@ Relevant config files:
 - resilience primitives: `packages/template/tests/unit/shared/infra/RetryPolicy.test.ts`, `packages/template/tests/unit/shared/infra/CircuitBreaker.test.ts`
 - bootstrap env/config: `packages/template/tests/unit/app/bootstrap/env.test.ts`
 - auth repositories: `packages/template/tests/unit/features/auth/inMemoryAuthRepository.test.ts`, `packages/template/tests/unit/features/auth/httpAuthRepository.test.ts`
-- product repository and use cases: `packages/template/tests/unit/features/products/inMemoryProductRepository.test.ts`, `packages/template/tests/unit/features/products/productUseCases.test.ts`
+- todo repository and use cases: `packages/template/tests/unit/features/todo/inMemoryTodoRepository.test.ts`, `packages/template/tests/unit/features/todo/todoUseCases.test.ts`
 
 ### Integration tests
 
 - `packages/template/tests/integration/auth/AuthPage.test.tsx`
-- `packages/template/tests/integration/products/ProductsPage.test.tsx`
+- `packages/template/tests/integration/todo/TodoPage.test.tsx`
 - `packages/template/tests/integration/router/ProtectedRoute.test.tsx`
 
 These tests create a real-ish container shape and mount providers instead of mocking React Query away completely.
@@ -49,7 +49,7 @@ Playwright covers the auth happy path, logout, and invalid-credentials behavior 
 - no multi-browser Playwright matrix
 - no MSW-based API integration layer
 - no broad story-driven interaction testing workflow
-- no E2E coverage for `products` yet
+- no E2E coverage for `todo` yet
 
 So don't pretend this is a mature testing platform. It is a good baseline, not a finished testing story.
 

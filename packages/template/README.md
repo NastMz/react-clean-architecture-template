@@ -2,12 +2,12 @@
 
 This package is the current SPA template inside `react-clean-architecture-template`.
 
-It is useful, but it is not a finished framework. Right now it gives you two real vertical slices (`auth` and `products`), app-level wiring through the extensions registry, boundary linting, and a small shared foundation. Everything else is still on you.
+It is useful, but it is not a finished framework. Right now it gives you two real vertical slices (`auth` and `todo`), app-level wiring through the extensions registry, boundary linting, and a small shared foundation. Everything else is still on you.
 
 ## What is actually in here
 
 - React 19 + TypeScript + Vite
-- Two features implemented end to end: `auth`, `products`
+- Two features implemented end to end: `auth`, `todo`
 - Manual app wiring split between `src/app/extensions` and `src/app/composition`
 - Shared building blocks organized by capability, not by abstract layers
 - Runtime validation with Zod in env parsing, forms, HTTP responses, and demo auth inputs
@@ -106,7 +106,7 @@ Do not import feature internals from `src/app/*`. The ESLint config is explicitl
 
 Default runtime mode is in-memory auth.
 
-- Routes available: `/auth`, `/products`
+- Routes available: `/auth`, `/todo`
 - `/` redirects to the feature marked with `entryRoute.isDefault` in `src/app/extensions/*`
 - Demo credentials: `demo@example.com` / `demo123`
 - Session persistence: `localStorage` key `demo_session`
@@ -139,7 +139,7 @@ What is NOT included:
 - no generated API client
 - no finished refresh-token strategy beyond the current auth extension example
 - no circuit breaker wired into the auth HTTP repository yet
-- no HTTP repository example for `products` yet
+- no HTTP repository example for `todo` yet
 
 So yes, HTTP mode exists in code. No, it is not plug-and-play production auth by itself.
 
@@ -185,7 +185,7 @@ Current test inventory is small but real.
 
 What that does NOT mean:
 
-- no broad feature coverage beyond auth and products
+- no broad feature coverage beyond auth and todo
 - no multi-browser matrix in Playwright config
 - no hard coverage threshold enforcement
 - no exhaustive Storybook interaction tests

@@ -3,8 +3,8 @@ import { Navigate } from 'react-router-dom'
 
 /**
  * Guard component to protect routes based on authentication status
- * If user is not authenticated, redirects to login page
- * Otherwise renders the provided element
+ * Used by feature manifests (for example `todo`) to keep route protection
+ * as a cross-cutting concern owned by auth/session state.
  *
  * Shows a loading state while checking authentication status
  *
@@ -14,11 +14,8 @@ import { Navigate } from 'react-router-dom'
  *
  * @example
  * ```tsx
- * // In routes.tsx
- * {
- *   path: '/todos',
- *   element: <ProtectedRoute element={<TodoPage />} />
- * }
+ * // In src/app/extensions/todo.tsx
+ * routes: [{ path: '/todo', element: <ProtectedRoute element={<TodoPage />} /> }]
  * ```
  */
 export const ProtectedRoute = ({

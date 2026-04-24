@@ -46,6 +46,33 @@ describe('feature scaffold contract docs', () => {
     expect(readme).toContain('Canonical feature scaffold contract')
     expect(readme).toContain('CLI/generator work stays out of scope until this contract is closed')
   })
+
+  it('keeps canonical docs aligned to auth + todo and blocks stale products references', () => {
+    const canonicalDocs = [
+      'README.md',
+      'QUICKSTART.md',
+      'KNOWN_ISSUES.md',
+      'docs/architecture.md',
+      'docs/feature-playbook.md',
+      'docs/testing-strategy.md',
+    ] as const
+
+    for (const relativePath of canonicalDocs) {
+      const content = readTemplateFile(relativePath)
+
+      expect(content).not.toContain('`products`')
+      expect(content).not.toContain('/products')
+      expect(content).not.toContain('@features/products')
+    }
+  })
+
+  it('documents auth + todo as canonical quickstart runtime surface', () => {
+    const quickstart = readTemplateFile('QUICKSTART.md')
+
+    expect(quickstart).toContain('- `/` redirects to `/auth`')
+    expect(quickstart).toContain('- canonical protected feature route is `/todo`')
+    expect(quickstart).toContain('- the app shell navigation exposes `Auth` and `Todo`')
+  })
 })
 
 describe('feature scaffold public APIs', () => {
@@ -63,20 +90,16 @@ describe('feature scaffold public APIs', () => {
     ])
   })
 
-  it('keeps products UI exports on api and wiring exports on api/composition', async () => {
-    const productsApi = await import('@features/products/api')
-    const productsComposition = await import('@features/products/api/composition')
+  it('keeps todo UI exports on api and wiring exports on api/composition', async () => {
+    const todoApi = await import('@features/todo/api')
+    const todoComposition = await import('@features/todo/api/composition')
 
-    expect(Object.keys(productsApi).sort()).toEqual([
-      'ProductsPage',
-      'useCreateProduct',
-      'useProducts',
-    ])
-    expect(Object.keys(productsComposition).sort()).toEqual([
-      'ProductAdaptersProvider',
-      'createInMemoryProductRepository',
-      'createProductAdapters',
-      'createProductUseCases',
+    expect(Object.keys(todoApi).sort()).toEqual(['TodoPage', 'useCreateTodo', 'useTodos'])
+    expect(Object.keys(todoComposition).sort()).toEqual([
+      'TodoAdaptersProvider',
+      'createInMemoryTodoRepository',
+      'createTodoAdapters',
+      'createTodoUseCases',
     ])
   })
 })

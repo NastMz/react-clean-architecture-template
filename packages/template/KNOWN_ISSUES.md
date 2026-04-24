@@ -8,13 +8,13 @@ The template is usable, but several areas are still partial, uneven, or only dem
 
 ### Scope is still narrow
 
-- Two full vertical slices exist: `auth` and `products`.
-- The router currently exposes `/auth` and `/products`.
-- Cross-feature collaboration is only lightly proven through auth-protected access to products; list/detail flows, optimistic updates, pagination, and richer orchestration are still not covered.
+- Two full vertical slices exist: `auth` and `todo`.
+- The router currently exposes `/auth` and `/todo`.
+- Cross-feature collaboration is only lightly proven through auth-protected access to todo; list/detail flows, optimistic updates, pagination, and richer orchestration are still not covered.
 
 ### Feature public API pattern exists, but only one feature proves it
 
-- `auth` and `products` now have a split public API:
+- `auth` and `todo` now have a split public API:
   - `@features/auth/api` for UI-facing consumption
   - `@features/auth/api/composition` for wiring and tests
 - This is the intended pattern going forward.

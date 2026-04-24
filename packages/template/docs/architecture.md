@@ -2,7 +2,7 @@
 
 This document explains the architecture that `packages/template` actually ships today.
 
-The short version: there is one real vertical slice (`auth`), one explicit extensions registry for app wiring, and a small shared foundation. Anything beyond that is a pattern to extend, not a finished platform.
+The short version: there are two real vertical slices (`auth` and `todo`), one explicit extensions registry for app wiring, and a small shared foundation. Anything beyond that is a pattern to extend, not a finished platform.
 
 ## Current structure
 
@@ -20,6 +20,14 @@ src/
       composition/  # provider/context hook glue for auth adapters
       domain/       # feature types
       infra/        # in-memory and HTTP repositories
+      ui/           # page and UI-facing hooks
+    todo/
+      api/          # public surfaces consumed from outside the feature
+      adapters/     # React Query adapter factory
+      application/  # use cases and repository port
+      composition/  # provider/context hook glue for todo adapters
+      domain/       # feature types
+      infra/        # in-memory repository
       ui/           # page and UI-facing hooks
   shared/
     contracts/      # shared ports
@@ -89,7 +97,7 @@ The app now has an explicit registration center in `packages/template/src/app/ex
 What it wires today:
 
 - `packages/template/src/app/extensions/auth.tsx` defines the auth feature manifest
-- `packages/template/src/app/extensions/products.tsx` defines the products feature manifest
+- `packages/template/src/app/extensions/todo.tsx` defines the todo feature manifest
 - the auth manifest selects the repository from runtime config
 - the auth manifest creates auth use cases and auth adapters
 - `packages/template/src/app/composition/container.ts` still owns shared app services like `QueryClient` and telemetry
@@ -160,9 +168,9 @@ The router is intentionally tiny.
 
 - `/` redirects to `/auth`
 - `/auth` renders `AuthPage`
-- `ProtectedRoute` exists and is integration-tested, but no protected feature route is mounted in `routes.tsx` today
+- `/todo` renders `TodoPage` behind `ProtectedRoute`
 
-So yes, route protection exists as a pattern. No, the template does not ship a second protected feature proving the whole flow end to end.
+So yes, route protection exists as a pattern and is proven by the canonical protected `todo` flow.
 
 ## What this architecture is good at
 
