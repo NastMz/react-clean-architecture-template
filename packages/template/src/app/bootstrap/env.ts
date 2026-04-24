@@ -4,20 +4,7 @@ import { z } from 'zod'
  * Zod schema for validating environment variables
  * Ensures type safety and runtime validation of env configuration
  */
-const envSchema = z
-  .object({
-    VITE_API_BASE_URL: z.string().url().optional(),
-    VITE_USE_HTTP: z.enum(['true', 'false']).optional(),
-  })
-  .superRefine((env, context) => {
-    if (env.VITE_USE_HTTP === 'true' && !env.VITE_API_BASE_URL) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['VITE_API_BASE_URL'],
-        message: 'VITE_API_BASE_URL is required when VITE_USE_HTTP=true',
-      })
-    }
-  })
+const envSchema = z.object({})
 
 /**
  * Type-safe environment variables inferred from Zod schema

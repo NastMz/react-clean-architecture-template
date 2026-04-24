@@ -21,7 +21,7 @@ Relevant config files:
 
 - shared kernel/network/resilience primitives
 - bootstrap env/config
-- auth repositories
+- auth in-memory repository
 - todo repository and use cases
 
 ### Integration
@@ -46,7 +46,7 @@ Test use cases with faked ports and verify orchestration + `Result` behavior.
 
 ### Infra
 
-Test repository implementations directly (in-memory and HTTP behavior).
+Test repository implementations directly (in-memory behavior in the template baseline).
 
 ### Adapters
 

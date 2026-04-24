@@ -24,9 +24,6 @@ const collectRoutePaths = (routes: readonly RouteObject[]): string[] =>
   })
 
 const config: AppConfig = {
-  apiBaseUrl: 'https://api.example.com',
-  useHttp: false,
-  authRepositoryType: 'memory',
   featureFlags: {},
 }
 
@@ -49,7 +46,7 @@ describe('app feature registry helpers', () => {
       auth: {
         createAdapters: vi.fn((context: AppFeatureContext) => ({
           feature: 'auth',
-          baseUrl: context.config.apiBaseUrl,
+          featureFlags: context.config.featureFlags,
           queryClient: context.queryClient,
         })),
       },
@@ -69,7 +66,7 @@ describe('app feature registry helpers', () => {
     expect(registry.todo.createAdapters).toHaveBeenCalledWith(context)
     expect(adapters.auth).toEqual({
       feature: 'auth',
-      baseUrl: 'https://api.example.com',
+      featureFlags: {},
       queryClient: context.queryClient,
     })
     expect(adapters.todo).toEqual({

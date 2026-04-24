@@ -6,9 +6,6 @@ import { getEnv } from './env'
  * Defines settings for the application including API endpoints and feature flags
  */
 export interface AppConfig {
-  apiBaseUrl: string
-  useHttp: boolean
-  authRepositoryType: 'memory' | 'http'
   featureFlags: Record<string, never>
 }
 
@@ -18,11 +15,8 @@ export interface AppConfig {
  * @returns Application configuration object with API settings and feature flags
  */
 export const createAppConfig = (env: AppEnv): AppConfig => {
-  const useHttp = env.VITE_USE_HTTP === 'true'
+  void env
   return {
-    apiBaseUrl: env.VITE_API_BASE_URL ?? '',
-    useHttp,
-    authRepositoryType: useHttp ? 'http' : 'memory',
     featureFlags: {},
   }
 }

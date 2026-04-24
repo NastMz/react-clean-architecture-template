@@ -9,12 +9,6 @@ This file tracks practical limitations that consumers should know before extendi
 - The reference implementation is centered on two slices: `auth` and `todo`.
 - Route surface is currently `/auth` and `/todo`.
 
-### HTTP auth mode requires your backend
-
-- `createHttpAuthRepository` is available.
-- You must provide compatible `/auth/*` endpoints.
-- No bundled backend or mock API server is included.
-
 ### Testing scope is focused
 
 - Unit and integration coverage is strongest around auth, todo, bootstrap, and shared primitives.

@@ -41,11 +41,6 @@ Auth internals
   infra/inMemoryAuthRepository.ts
     -> default runtime mode
 
-  infra/httpAuthRepository.ts
-    -> optional runtime mode
-    -> shared/network/HttpClient.ts
-    -> shared/network/RetryPolicy.ts
-
 Shared foundation
   shared/kernel
   shared/contracts

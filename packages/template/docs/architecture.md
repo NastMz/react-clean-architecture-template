@@ -67,7 +67,7 @@ Current auth API exports:
 Current auth composition exports:
 
 - `createAuthAdapters`, `createAuthUseCases`
-- `createInMemoryAuthRepository`, `createHttpAuthRepository`
+- `createInMemoryAuthRepository`
 - `AuthAdaptersProvider`, `AuthAdapters`
 
 ## App wiring
@@ -76,18 +76,12 @@ Current auth composition exports:
 
 Each feature registers one manifest, and registry consumers derive providers, routes, navigation, and default route from those manifests.
 
-## Runtime modes
+## Runtime mode
 
-### In-memory mode (default)
+### In-memory auth
 
 - demo credentials: `demo@example.com` / `demo123`
 - session key: `demo_session`
-
-### HTTP mode (optional)
-
-- enable with `VITE_USE_HTTP=true`
-- requires `VITE_API_BASE_URL`
-- uses shared `HttpClient` and `RetryPolicy`
 
 ## Related docs
 

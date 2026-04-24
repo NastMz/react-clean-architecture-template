@@ -94,7 +94,6 @@ describe('feature scaffold public APIs', () => {
       'AuthAdaptersProvider',
       'createAuthAdapters',
       'createAuthUseCases',
-      'createHttpAuthRepository',
       'createInMemoryAuthRepository',
     ])
   })

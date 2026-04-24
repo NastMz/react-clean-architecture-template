@@ -24,7 +24,6 @@ Keep project-state details and internal follow-ups out of user-facing docs, whil
 - Keep docs/tests synchronized with the scaffold contract
 - Add ADRs under `docs/decisions/` when architecture decisions are made
 - Improve testing breadth (additional E2E flows and browser matrix) as the template grows
-- Decide whether and how to integrate `CircuitBreaker` in HTTP auth path
 
 ## Internal references
 

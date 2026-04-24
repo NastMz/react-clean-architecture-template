@@ -46,23 +46,7 @@ By default, auth uses the in-memory repository.
 - no backend required
 - session is persisted in `localStorage` under `demo_session`
 
-## 5. Optional: switch auth to HTTP mode
-
-Only enable this when your backend matches the auth contract.
-
-```env
-VITE_USE_HTTP=true
-VITE_API_BASE_URL=https://your-api.example.com
-```
-
-Expected endpoints:
-
-- `POST /auth/login`
-- `GET /auth/session`
-- `POST /auth/logout`
-- `POST /auth/refresh`
-
-## 6. Useful commands
+## 5. Useful commands
 
 From `packages/template`:
 
@@ -75,7 +59,7 @@ pnpm test:e2e
 pnpm storybook
 ```
 
-## 7. Sanity checks
+## 6. Sanity checks
 
 - visit `/auth`
 - submit the demo form
@@ -83,7 +67,7 @@ pnpm storybook
 - reload and verify the session persists
 - click logout and verify `/todo` redirects to `/auth`
 
-## 8. Next docs to read
+## 7. Next docs to read
 
 - `README.md`
 - `KNOWN_ISSUES.md`

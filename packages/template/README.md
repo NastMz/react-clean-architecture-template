@@ -33,28 +33,14 @@ Before any CLI/generator work happens, this template closes one canonical featur
 
 CLI/generator work stays out of scope until this contract is closed in docs, executable seams, examples, and validation.
 
-## Runtime modes
+## Runtime behavior
 
-Default mode is in-memory auth:
+Auth uses in-memory repository in this template:
 
 - routes: `/auth`, `/todo`
 - `/` redirects to the feature marked with `entryRoute.isDefault`
 - demo credentials: `demo@example.com` / `demo123`
 - session storage key: `demo_session`
-
-Optional HTTP auth mode requires your backend:
-
-```env
-VITE_USE_HTTP=true
-VITE_API_BASE_URL=https://your-api.example.com
-```
-
-Expected auth endpoints:
-
-- `POST /auth/login`
-- `GET /auth/session`
-- `POST /auth/logout`
-- `POST /auth/refresh`
 
 ## Commands
 
