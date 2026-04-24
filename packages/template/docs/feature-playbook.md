@@ -1,6 +1,6 @@
 # Feature Playbook
 
-This is the current, code-aligned way to add a feature to `packages/template`.
+Use this guide to add a feature without breaking the template boundaries.
 
 ## Canonical feature scaffold contract
 
@@ -13,10 +13,13 @@ The **required top-level folders** are:
 - `infra/`
 - `ui/`
 
-`composition/` is optional. In plain English: composition/ is optional.
+`composition/` is optional.
+
+composition/ is optional.
 
 `api/composition.ts` exists only when app composition or tests need wiring exports.
-In plain English: api/composition.ts exists only when app composition or tests need wiring exports.
+
+api/composition.ts exists only when app composition or tests need wiring exports.
 
 ## Public API split
 
@@ -40,3 +43,7 @@ Rules:
 - `todo`: protected CRUD business slice
 
 `todo` is intentionally simple and in-memory-first so teams can extend the pattern without backend noise.
+
+## Maintainer notes
+
+Template status and internal follow-ups live in `docs/maintainers/README.md`.

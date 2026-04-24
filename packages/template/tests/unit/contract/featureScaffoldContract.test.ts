@@ -55,6 +55,7 @@ describe('feature scaffold contract docs', () => {
       'docs/architecture.md',
       'docs/feature-playbook.md',
       'docs/testing-strategy.md',
+      'docs/maintainers/README.md',
     ] as const
 
     for (const relativePath of canonicalDocs) {
@@ -72,6 +73,14 @@ describe('feature scaffold contract docs', () => {
     expect(quickstart).toContain('- `/` redirects to `/auth`')
     expect(quickstart).toContain('- canonical protected feature route is `/todo`')
     expect(quickstart).toContain('- the app shell navigation exposes `Auth` and `Todo`')
+  })
+
+  it('keeps an explicit maintainer-facing documentation location', () => {
+    const readme = readTemplateFile('README.md')
+    const maintainerNotes = readTemplateFile('docs/maintainers/README.md')
+
+    expect(readme).toContain('Maintainer-facing docs')
+    expect(maintainerNotes).toContain('This document is maintainer-facing.')
   })
 })
 

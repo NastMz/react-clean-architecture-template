@@ -1,8 +1,6 @@
 # Decision Log
 
-This directory is reserved for ADRs.
-
-Important reality check: there are no actual ADR files here today. So this folder is a convention placeholder, not an active decision record set.
+Maintainer-facing ADR directory.
 
 ## When to add an ADR
 
@@ -40,4 +38,4 @@ What did we reject, and why?
 
 ## Recommendation
 
-If the team starts making template-level decisions repeatedly, write the ADR instead of letting the rationale rot in chat history or commit messages.
+When a decision impacts template architecture, boundaries, or extension contracts, capture it as an ADR in this folder.

@@ -1,6 +1,6 @@
 # Quickstart
 
-This is the shortest honest path to get `packages/template` running and verify what is actually implemented today.
+Fast path to run `packages/template` and validate the default flow.
 
 ## 1. Install
 
@@ -32,51 +32,35 @@ Current behavior:
 - canonical protected feature route is `/todo`
 - the app shell navigation exposes `Auth` and `Todo`
 
-## 3. Log in with the real demo credentials
-
-Use exactly this:
+## 3. Log in with demo credentials
 
 - email: `demo@example.com`
 - password: `demo123`
 
-The form is prefilled with those values in `src/features/auth/ui/AuthPage.tsx`.
-
 If login succeeds, you should see `Demo User` and a logout button.
 
-## 4. Understand the default runtime mode
+## 4. Default runtime mode
 
-By default, auth runs against the in-memory repository.
+By default, auth uses the in-memory repository.
 
-That means:
-
-- no backend is required
-- session state is persisted in `localStorage` under `demo_session`
-- this is good for demos and tests, not evidence of a finished backend integration
+- no backend required
+- session is persisted in `localStorage` under `demo_session`
 
 ## 5. Optional: switch auth to HTTP mode
 
-Only do this if you already have a backend that matches the contract.
-
-Required env values:
+Only enable this when your backend matches the auth contract.
 
 ```env
 VITE_USE_HTTP=true
 VITE_API_BASE_URL=https://your-api.example.com
 ```
 
-Expected endpoints today:
+Expected endpoints:
 
 - `POST /auth/login`
 - `GET /auth/session`
 - `POST /auth/logout`
 - `POST /auth/refresh`
-
-Important:
-
-- there is no bundled mock API server
-- there is no generated client
-- there is no completed auth platform around refresh/logout/token rotation
-- `createHttpAuthRepository` exists, but production readiness still depends on your backend and your auth policy
 
 ## 6. Useful commands
 
@@ -91,31 +75,16 @@ pnpm test:e2e
 pnpm storybook
 ```
 
-What these actually cover:
-
-- `lint`: TypeScript/React/import boundary rules, not Markdown docs
-- `format`: Prettier check, including Markdown
-- `test`: Vitest unit + integration tests
-- `test:e2e`: Playwright auth flow tests on Chromium
-- `storybook`: local component sandbox, currently centered on shared atoms
-
-## 7. Sanity checks after startup
+## 7. Sanity checks
 
 - visit `/auth`
-- submit the prefilled demo form
-- open `/todo` and verify todo CRUD is accessible while authenticated
-- reload the page and verify the session is still there
-- click logout and verify the form comes back
-- revisit `/todo` and verify you are redirected back to `/auth`
+- submit the demo form
+- open `/todo` and confirm todo CRUD is available while authenticated
+- reload and verify the session persists
+- click logout and verify `/todo` redirects to `/auth`
 
-If those steps fail, the template is not in a healthy state.
-
-## 8. Before adding another feature
-
-Read these first:
+## 8. Next docs to read
 
 - `README.md`
 - `KNOWN_ISSUES.md`
 - `docs/feature-playbook.md`
-
-Seriously. The template has a clear pattern now, but it is still a small codebase with sharp edges. If you skip the current constraints, you will create boundary debt fast.

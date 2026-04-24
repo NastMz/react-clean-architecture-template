@@ -1,23 +1,19 @@
 # E2E Testing with Playwright
 
-This package has real Playwright coverage, but keep your feet on the ground: it is one small Chromium-based suite focused on auth.
+Playwright is configured to validate the main auth flow against the running app.
 
 ## Current configuration
 
 Source of truth: `packages/template/playwright.config.ts`
 
-What it does today:
-
 - test directory: `tests/e2e`
 - base URL: `http://localhost:5173`
-- project matrix: Chromium only (`Desktop Chrome` device preset)
+- project matrix: Chromium (`Desktop Chrome`)
 - reporter: HTML
-- screenshots: only on failure
+- screenshots: on failure
 - traces: on first retry
-- local web server command: `pnpm dev`
-- CI behavior: 2 retries and 1 worker
-
-So yes, E2E exists. No, there is no broad browser matrix yet.
+- web server command: `pnpm dev`
+- CI defaults: retries enabled, single worker
 
 ## What the suite covers
 
@@ -26,11 +22,9 @@ So yes, E2E exists. No, there is no broad browser matrix yet.
 - auth page renders
 - login with valid credentials
 - logout flow
-- invalid credentials error path
+- invalid credentials behavior
 
-The suite exercises the running app, which means it validates the actual providers, router, feature wiring, and default in-memory auth mode together.
-
-## Running it
+## Running E2E
 
 From `packages/template`:
 
@@ -46,31 +40,14 @@ From repo root:
 pnpm -C packages/template test:e2e
 ```
 
-## Selector style
+## Selector guidance
 
-The current suite mixes semantic selectors and a few raw locators:
+Prefer accessible selectors such as `getByRole(...)`.
 
-- good: `getByRole(...)`
-- acceptable here: `input[name="email"]`, `input[type="password"]`
+Direct locators (for example `input[name="email"]`) are acceptable when semantic selectors are not practical.
 
-If you expand the suite, prefer accessible selectors first. They tend to survive refactors better and tell you more about whether the UI is actually usable.
+## Related docs
 
-## Limitations
-
-- only Chromium is configured
-- only auth flow is covered
-- no authenticated second route is exercised from the real router
-- no HTTP-backend E2E path exists
-- no dedicated page-object abstraction yet
-
-That is fine for a starter template. It is not fine if someone tries to market this as exhaustive end-to-end coverage.
-
-## When to add more E2E
-
-Add new Playwright tests when a flow is:
-
-- stable enough to keep
-- important enough to guard end to end
-- hard to trust with integration tests alone
-
-Do not dump every UI behavior into Playwright just because the tool is installed.
+- `packages/template/docs/testing-strategy.md`
+- `packages/template/KNOWN_ISSUES.md`
+- `packages/template/docs/maintainers/README.md`

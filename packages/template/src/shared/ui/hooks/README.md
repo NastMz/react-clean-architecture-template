@@ -1,52 +1,16 @@
-# Shared Presentation Hooks
+# Shared UI Hooks
 
-This directory contains **reusable UI hooks** that can be used across multiple features.
+This directory is reserved for reusable UI hooks that are truly cross-feature.
 
-## What Goes Here?
+## Use this folder for
 
-**Generic UI utilities** that don't belong to a specific feature:
+- generic UI behavior reusable across multiple features
+- hooks without feature-specific domain logic
 
-- `useToggle` - Boolean state toggle
-- `useDebounce` - Debounced value
-- `useMediaQuery` - Responsive breakpoint detection
-- `useLocalStorage` - Persistent local storage state
-- `useClickOutside` - Detect clicks outside an element
-- `useOnMount` / `useOnUnmount` - Lifecycle utilities
+## Do not place here
 
-## What DOESN'T Go Here?
+- feature-specific hooks (`src/features/<feature>/ui/...`)
+- composition-only wiring hooks
+- application/domain business logic
 
-❌ **Feature-specific hooks** → `features/<feature>/ui/hooks/`
-
-- Example: `useAuthForm`, `useProductFilters`
-
-❌ **Adapter hooks** (React Query wrappers) → Export from `features/<feature>/adapters/`
-
-- Example: `useLogin`, `useLogout`, `useSession`
-- These are already implemented! Import directly:
-  ```typescript
-  import { useLogin, useSession } from '@features/auth/adapters/authAdapters'
-  ```
-
-❌ **Domain/application logic** → Never in hooks! Keep in use cases.
-
-## Example Hook
-
-```typescript
-import { useState, useCallback } from 'react'
-
-export const useToggle = (initialValue = false): [boolean, () => void] => {
-  const [value, setValue] = useState(initialValue)
-  const toggle = useCallback(() => setValue((v) => !v), [])
-  return [value, toggle]
-}
-```
-
-## Importing
-
-```typescript
-// ✅ Correct
-import { useToggle } from '@shared/ui/hooks/useToggle'
-
-// ❌ Wrong (no default exports)
-import useToggle from '@shared/ui/hooks/useToggle'
-```
+If a hook becomes feature-specific over time, move it back to that feature.
