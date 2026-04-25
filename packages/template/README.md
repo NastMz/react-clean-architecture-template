@@ -46,6 +46,20 @@ Run these commands from the project root.
 - Demo credentials: `demo@example.com` / `demo123`
 - Session key used in storage: `demo_session`
 
+## Canonical feature scaffold contract
+
+Generate new features with explicit, editable files:
+
+```bash
+pnpm scaffold:feature -- --name billing --label Billing --route /billing
+```
+
+This command generates the required folders (`api`, `adapters`, `application`, `domain`, `infra`, `ui`) and optional composition wiring when requested.
+
+App integration stays explicit through `src/app/extensions/<feature>.tsx` plus `src/app/extensions/registry.tsx`.
+
+CLI/generator work stays out of scope until this contract is closed.
+
 ## Documentation
 
 - `QUICKSTART.md` — first run and smoke-check flow

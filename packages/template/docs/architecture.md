@@ -82,6 +82,8 @@ Current auth composition exports:
 
 Each feature registers one manifest, and registry consumers derive providers, routes, navigation, and default route from those manifests.
 
+Feature scaffolding preserves this seam by generating one explicit extension manifest and patching only `registry.tsx` anchors. There is no runtime auto-discovery or DI magic.
+
 ## Runtime mode
 
 ### In-memory auth

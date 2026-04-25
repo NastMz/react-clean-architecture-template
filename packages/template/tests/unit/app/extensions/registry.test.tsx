@@ -9,6 +9,9 @@ import {
   getFeatureRoutes,
   renderFeatureProviders,
 } from '@app/extensions/registry'
+import { readdirSync, readFileSync, statSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { AppFeatureContext } from '@app/extensions/contracts'
 import { QueryClient } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
@@ -22,6 +25,29 @@ const collectRoutePaths = (routes: readonly RouteObject[]): string[] =>
 
     return typeof route.path === 'string' ? [route.path, ...childPaths] : childPaths
   })
+
+const currentDirectory = path.dirname(fileURLToPath(import.meta.url))
+const templateRoot = path.resolve(currentDirectory, '../../../..')
+
+const listAppFilesRecursively = (relativePath: string): string[] => {
+  const absolutePath = path.join(templateRoot, relativePath)
+  const entries = readdirSync(absolutePath)
+  const files: string[] = []
+
+  for (const entry of entries) {
+    const absoluteEntryPath = path.join(absolutePath, entry)
+    const relativeEntryPath = path.join(relativePath, entry)
+
+    if (statSync(absoluteEntryPath).isDirectory()) {
+      files.push(...listAppFilesRecursively(relativeEntryPath))
+      continue
+    }
+
+    files.push(relativeEntryPath)
+  }
+
+  return files
+}
 
 const config: AppConfig = {
   featureFlags: {},
@@ -311,6 +337,36 @@ describe('app feature registry helpers', () => {
 
   it('keeps auth and todo as the canonical registered feature keys', () => {
     expect(Object.keys(appFeatureRegistry)).toEqual(['auth', 'todo'])
+  })
+
+  it('keeps scaffold patch anchors in registry to preserve explicit seam-only wiring', () => {
+    const registryFile = readFileSync(
+      path.join(templateRoot, 'src/app/extensions/registry.tsx'),
+      'utf8',
+    )
+
+    expect(registryFile).toContain('// @scaffold-feature-imports:start')
+    expect(registryFile).toContain('// @scaffold-feature-imports:end')
+    expect(registryFile).toContain('// @scaffold-feature-entries:start')
+    expect(registryFile).toContain('// @scaffold-feature-entries:end')
+  })
+
+  it('keeps wiring imports scoped to extension manifests only', () => {
+    const appFiles = listAppFilesRecursively('src/app').filter(
+      (relativePath) => relativePath.endsWith('.ts') || relativePath.endsWith('.tsx'),
+    )
+
+    for (const relativePath of appFiles) {
+      const normalizedPath = relativePath.replaceAll('\\', '/')
+      const content = readFileSync(path.join(templateRoot, relativePath), 'utf8')
+      const hasCompositionImport = /@features\/[^'"\n]+\/api\/composition/.test(content)
+
+      if (!hasCompositionImport) {
+        continue
+      }
+
+      expect(normalizedPath).toMatch(/^src\/app\/extensions\/.+\.tsx$/)
+    }
   })
 
   it('throws when an entry route does not match any declared feature route', () => {

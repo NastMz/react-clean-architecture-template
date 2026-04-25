@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "scaffold:feature": "node ./scripts/scaffold-feature.mjs",
     "build": "tsc -b && vite build",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
@@ -80,8 +81,7 @@
   "lint-staged": {
     "*.{ts,tsx}": [
       "prettier --write",
-      "eslint --fix --no-warn-ignored",
-      "tsc --noEmit"
+      "eslint --fix --no-warn-ignored"
     ],
     "*.{js,jsx,json,css,md}": [
       "prettier --write"

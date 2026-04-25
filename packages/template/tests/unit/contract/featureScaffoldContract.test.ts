@@ -129,14 +129,14 @@ describe('feature scaffold contract docs', () => {
     expect(playbook).toContain('domain/')
     expect(playbook).toContain('infra/')
     expect(playbook).toContain('ui/')
-    expect(playbook).toContain('composition/ is optional')
+    expect(playbook).toContain('`composition/` is optional')
   })
 
   it('explains when api/composition.ts exists', () => {
     const playbook = readTemplateFile('docs/feature-playbook.md')
 
     expect(playbook).toContain(
-      'api/composition.ts exists only when app composition or tests need wiring exports',
+      '`api/composition.ts` exists only when app composition or tests need wiring exports',
     )
   })
 
@@ -163,7 +163,6 @@ describe('feature scaffold contract docs', () => {
       'docs/architecture.md',
       'docs/feature-playbook.md',
       'docs/testing-strategy.md',
-      'docs/maintainers/README.md',
     ] as const
 
     for (const relativePath of canonicalDocs) {
@@ -183,12 +182,11 @@ describe('feature scaffold contract docs', () => {
     expect(quickstart).toContain('- the app shell navigation exposes `Auth` and `Todo`')
   })
 
-  it('keeps an explicit maintainer-facing documentation location', () => {
+  it('keeps template docs consumer-facing and excludes maintainer docs from the public surface', () => {
     const readme = readTemplateFile('README.md')
-    const maintainerNotes = readTemplateFile('docs/maintainers/README.md')
 
-    expect(readme).toContain('Maintainer-facing docs')
-    expect(maintainerNotes).toContain('This document is maintainer-facing.')
+    expect(readme).not.toContain('Maintainer-facing docs')
+    expect(() => readTemplateFile('docs/maintainers/README.md')).toThrow()
   })
 })
 
@@ -217,6 +215,26 @@ describe('feature scaffold public APIs', () => {
       'createTodoAdapters',
       'createTodoUseCases',
     ])
+  })
+})
+
+describe('feature scaffold tooling contract', () => {
+  it('exposes scaffold:feature command in package scripts', () => {
+    const packageJson = readTemplateFile('package.json')
+
+    expect(packageJson).toContain('"scaffold:feature": "node ./scripts/scaffold-feature.mjs"')
+  })
+
+  it('documents explicit scaffold flags in script usage output', () => {
+    const script = readTemplateFile('scripts/scaffold-feature.mjs')
+
+    expect(script).toContain('--name')
+    expect(script).toContain('--label')
+    expect(script).toContain('--route')
+    expect(script).toContain('--default')
+    expect(script).toContain('--composition')
+    expect(script).toContain('--dry-run')
+    expect(script).toContain('--skip-registry')
   })
 })
 

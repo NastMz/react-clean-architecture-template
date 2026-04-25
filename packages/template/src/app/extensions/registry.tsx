@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { RouteObject } from 'react-router-dom'
 
+// @scaffold-feature-imports:start
 import { authFeature } from './auth'
 import type {
   AppFeatureContext,
@@ -9,13 +10,16 @@ import type {
   AppFeatureNavigationItem,
 } from './contracts'
 import { todoFeature } from './todo'
+// @scaffold-feature-imports:end
 
 // Canonical app integration seam: register each app-facing feature once here.
 // Future tooling should append manifests here instead of patching adapters,
 // providers, routes, navigation, or the landing route independently.
 export const appFeatureRegistry = {
+  // @scaffold-feature-entries:start
   auth: authFeature,
   todo: todoFeature,
+  // @scaffold-feature-entries:end
 } as const
 
 type AppFeatureRegistry = typeof appFeatureRegistry
