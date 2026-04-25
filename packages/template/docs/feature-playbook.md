@@ -50,6 +50,6 @@ Rules:
 - avoid speculative shared abstractions.
 - keep single-feature UI local under `features/<feature>/ui` until reuse is proven.
 
-## Maintainer notes
+## Notes
 
-Template status and internal follow-ups live in `docs/maintainers/README.md`.
+For architecture-level decisions that affect this playbook, document them as ADRs in `docs/decisions/README.md`.

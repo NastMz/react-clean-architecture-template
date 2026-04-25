@@ -6,10 +6,10 @@ The template provides telemetry abstractions and a default OpenTelemetry-based a
 
 Relevant files:
 
-- `packages/template/src/shared/contracts/TelemetryPort.ts`
-- `packages/template/src/shared/observability/ConsoleTelemetry.ts`
-- `packages/template/src/shared/observability/OpenTelemetryAdapter.ts`
-- `packages/template/src/app/composition/container.ts`
+- `src/shared/contracts/TelemetryPort.ts`
+- `src/shared/observability/ConsoleTelemetry.ts`
+- `src/shared/observability/OpenTelemetryAdapter.ts`
+- `src/app/composition/container.ts`
 
 Container default behavior:
 
@@ -36,6 +36,6 @@ If your team needs backend tracing, add SDK/provider/exporter initialization bef
 
 ## Where telemetry is already used
 
-`packages/template/src/features/auth/application/authUseCases.ts` tracks auth lifecycle events (attempt, success, failure, logout).
+`src/features/auth/application/authUseCases.ts` tracks auth lifecycle events (attempt, success, failure, logout).
 
 Repository implementations also emit telemetry for auth operations and session-related errors.

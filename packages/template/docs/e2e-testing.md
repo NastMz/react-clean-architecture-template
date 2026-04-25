@@ -4,7 +4,7 @@ Playwright is configured to validate the main auth flow against the running app.
 
 ## Current configuration
 
-Source of truth: `packages/template/playwright.config.ts`
+Source of truth: `playwright.config.ts`
 
 - test directory: `tests/e2e`
 - base URL: `http://localhost:5173`
@@ -17,7 +17,7 @@ Source of truth: `packages/template/playwright.config.ts`
 
 ## What the suite covers
 
-`packages/template/tests/e2e/auth.spec.ts` currently checks:
+`tests/e2e/auth.spec.ts` currently checks:
 
 - auth page renders
 - login with valid credentials
@@ -26,18 +26,12 @@ Source of truth: `packages/template/playwright.config.ts`
 
 ## Running E2E
 
-From `packages/template`:
+From the project root:
 
 ```bash
 pnpm test:e2e
 pnpm test:e2e:ui
 pnpm test:e2e:report
-```
-
-From repo root:
-
-```bash
-pnpm -C packages/template test:e2e
 ```
 
 ## Selector guidance
@@ -48,6 +42,5 @@ Direct locators (for example `input[name="email"]`) are acceptable when semantic
 
 ## Related docs
 
-- `packages/template/docs/testing-strategy.md`
-- `packages/template/KNOWN_ISSUES.md`
-- `packages/template/docs/maintainers/README.md`
+- `docs/testing-strategy.md`
+- `KNOWN_ISSUES.md`

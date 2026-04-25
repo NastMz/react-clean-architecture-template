@@ -1,6 +1,6 @@
 # Architecture Guide
 
-This guide explains how the template is structured and where extensions should happen.
+This guide explains how this opinionated React SPA architecture template is structured and where extensions should happen.
 
 ## Current structure
 
@@ -91,8 +91,8 @@ Each feature registers one manifest, and registry consumers derive providers, ro
 
 ## Related docs
 
-- `packages/template/docs/feature-playbook.md`
-- `packages/template/docs/environment.md`
-- `packages/template/docs/testing-strategy.md`
-- `packages/template/docs/e2e-testing.md`
-- `packages/template/docs/opentelemetry.md`
+- `docs/feature-playbook.md`
+- `docs/environment.md`
+- `docs/testing-strategy.md`
+- `docs/e2e-testing.md`
+- `docs/opentelemetry.md`

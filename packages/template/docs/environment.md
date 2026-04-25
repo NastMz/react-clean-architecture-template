@@ -4,8 +4,8 @@ Environment handling is intentionally centralized.
 
 ## Source of truth
 
-- `packages/template/src/app/bootstrap/env.ts`
-- `packages/template/src/app/bootstrap/config.ts`
+- `src/app/bootstrap/env.ts`
+- `src/app/bootstrap/config.ts`
 
 Read env values in bootstrap/composition code, then consume derived config across the app.
 

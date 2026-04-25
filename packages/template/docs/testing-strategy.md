@@ -11,9 +11,9 @@ This template includes unit, integration, and E2E testing layers with a focused 
 
 Relevant config files:
 
-- `packages/template/vite.config.ts`
-- `packages/template/playwright.config.ts`
-- `packages/template/tsconfig.test.json`
+- `vite.config.ts`
+- `playwright.config.ts`
+- `tsconfig.test.json`
 
 ## Current coverage
 
@@ -32,7 +32,7 @@ Relevant config files:
 
 ### E2E
 
-- `packages/template/tests/e2e/auth.spec.ts` covering auth login/logout/invalid credentials
+- `tests/e2e/auth.spec.ts` covering auth login/logout/invalid credentials
 
 ## Layer guidance
 
@@ -63,7 +63,7 @@ Use integration tests with real providers (`QueryClientProvider`, container cont
 
 ## Running tests
 
-From `packages/template`:
+From the project root:
 
 ```bash
 pnpm test
@@ -73,11 +73,8 @@ pnpm test:e2e:ui
 pnpm test:e2e:report
 ```
 
-From repo root, run `pnpm -C packages/template <script>`.
-
 ## Related docs
 
-- `packages/template/docs/architecture.md`
-- `packages/template/docs/e2e-testing.md`
-- `packages/template/KNOWN_ISSUES.md`
-- `packages/template/docs/maintainers/README.md`
+- `docs/architecture.md`
+- `docs/e2e-testing.md`
+- `KNOWN_ISSUES.md`

@@ -1,6 +1,6 @@
 # Known Issues
 
-This file tracks practical limitations that consumers should know before extending the template.
+This file tracks practical limitations that consumers should know before extending this opinionated React SPA architecture template.
 
 ## Current limitations for consumers
 
@@ -23,9 +23,3 @@ This file tracks practical limitations that consumers should know before extendi
 
 - Telemetry ports and adapters are included.
 - Exporter/backend setup is project-specific and must be added by your team.
-
-## For maintainers
-
-Internal status notes and maintainer-only follow-ups are documented in:
-
-- `docs/maintainers/README.md`

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This file gives AI coding agents the working rules for `packages/template`.
+This file gives AI coding agents the working rules for this project.
 
 The template is intentionally small and opinionated. Preserve the contracts before adding convenience.
 
@@ -15,7 +15,9 @@ The template is intentionally small and opinionated. Preserve the contracts befo
 
 ## Template intent
 
-This template is the minimal Angular-like React foundation in this repository.
+This project is an opinionated architecture baseline for React SPAs.
+
+Its public intent is to make React SPA startup repeatable with consistent architectural standards and less accidental boilerplate.
 
 Canonical features:
 
@@ -90,7 +92,7 @@ Useful commands:
 ## Documentation rules
 
 - Keep user-facing docs focused on template consumers.
-- Put maintainer/internal status in `docs/maintainers/README.md`.
+- Keep maintainer/internal status out of consumer-facing template docs.
 - When changing contracts, update docs and contract tests together.
 
 ## High-value files

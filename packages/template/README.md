@@ -1,53 +1,33 @@
 # React Clean Architecture Template
 
-`packages/template` is a React 19 SPA template with a clear feature boundary model.
+This template is an opinionated architecture for React SPAs.
 
-It includes two complete slices (`auth`, `todo`), app-level extension wiring, and shared primitives you can reuse when adding features.
+Its goal is to turn React SPA bootstrap into a repeatable operation with consistent architectural standards and less accidental boilerplate.
 
-## What is included
+It is built on React 19 + TypeScript + Vite and focused on clean boundaries between app wiring, feature slices, and shared modules.
 
-- React 19 + TypeScript + Vite
-- Feature slices: `auth` and `todo`
-- App integration through `src/app/extensions/<feature>.tsx` + `src/app/extensions/registry.tsx`
-- Shared capabilities in `src/shared/{kernel,contracts,network,observability,ui}`
-- Zod runtime validation for env and auth-related inputs/responses
-- TanStack Query adapters for feature APIs
-- Vitest + Testing Library + Playwright setup
-- Storybook for shared UI components
+It includes runnable examples (`auth` and `todo`) so teams can extend the template with real use cases instead of starting from an empty shell.
 
-## Repo vs package
+## What you get
 
-- Package path: `packages/template`
-- Run scripts from repo root with `pnpm -C packages/template <script>`
-- Or run scripts directly inside `packages/template` with `pnpm <script>`
+- React 19 SPA baseline with Vite
+- Feature slices for `auth` and `todo`
+- App feature integration via `src/app/extensions/*`
+- Shared modules under `src/shared/*` (kernel, contracts, network, observability, UI)
+- Runtime validation with Zod
+- Data orchestration with TanStack Query
+- Testing setup: Vitest + Testing Library + Playwright
+- Storybook configured for UI exploration
 
-## Canonical feature scaffold contract
-
-Before any CLI/generator work happens, this template closes one canonical feature scaffold contract:
-
-- required feature folders: `api`, `adapters`, `application`, `domain`, `infra`, `ui`
-- optional folder: `composition`
-- UI-facing imports stay on `@features/<feature>/api`
-- wiring-facing imports stay on `@features/<feature>/api/composition` only when app composition or tests need them
-- app integration happens through `src/app/extensions/<feature>.tsx` plus `src/app/extensions/registry.tsx`
-
-CLI/generator work stays out of scope until this contract is closed in docs, executable seams, examples, and validation.
-
-## Runtime behavior
-
-Auth uses in-memory repository in this template:
-
-- routes: `/auth`, `/todo`
-- `/` redirects to the feature marked with `entryRoute.isDefault`
-- demo credentials: `demo@example.com` / `demo123`
-- session storage key: `demo_session`
-
-## Commands
-
-From `packages/template`:
+## How to run
 
 ```bash
 pnpm dev
+```
+
+## Common commands
+
+```bash
 pnpm lint
 pnpm format
 pnpm typecheck
@@ -56,20 +36,23 @@ pnpm test:e2e
 pnpm storybook
 ```
 
-## Documentation map
+Run these commands from the project root.
 
-### User-facing docs
+## Current runtime behavior
 
-- `QUICKSTART.md` — run and verify the template
-- `KNOWN_ISSUES.md` — practical limits that affect consumers
-- `docs/architecture.md` — architecture and dependency boundaries
-- `docs/feature-playbook.md` — feature scaffold and extension contract
-- `docs/environment.md` — env variables and runtime config rules
-- `docs/testing-strategy.md` — unit/integration testing approach
+- Routes available by default: `/auth`, `/todo`
+- `/` redirects to the default registered feature route
+- Auth uses an in-memory repository for demo purposes
+- Demo credentials: `demo@example.com` / `demo123`
+- Session key used in storage: `demo_session`
+
+## Documentation
+
+- `QUICKSTART.md` — first run and smoke-check flow
+- `KNOWN_ISSUES.md` — current limits and practical caveats
+- `docs/architecture.md` — architectural boundaries and module roles
+- `docs/feature-playbook.md` — how to add or evolve feature slices
+- `docs/environment.md` — env variables and bootstrap config
+- `docs/testing-strategy.md` — unit/integration strategy
 - `docs/e2e-testing.md` — Playwright setup and scope
 - `docs/opentelemetry.md` — telemetry extension points
-
-### Maintainer-facing docs
-
-- `docs/maintainers/README.md` — template status, internal notes, and follow-up areas
-- `docs/decisions/README.md` — ADR convention

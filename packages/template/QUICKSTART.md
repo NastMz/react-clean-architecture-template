@@ -1,10 +1,10 @@
 # Quickstart
 
-Fast path to run `packages/template` and validate the default flow.
+Fast path to run this opinionated React SPA architecture template and validate the default flow.
 
 ## 1. Install
 
-From repo root:
+From the project root:
 
 ```bash
 pnpm install
@@ -12,13 +12,7 @@ pnpm install
 
 ## 2. Start the template
 
-From repo root:
-
-```bash
-pnpm -C packages/template dev
-```
-
-Or from `packages/template`:
+From the project root:
 
 ```bash
 pnpm dev
@@ -48,7 +42,7 @@ By default, auth uses the in-memory repository.
 
 ## 5. Useful commands
 
-From `packages/template`:
+From the project root:
 
 ```bash
 pnpm lint
