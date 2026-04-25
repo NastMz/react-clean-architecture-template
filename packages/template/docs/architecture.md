@@ -40,6 +40,9 @@ src/
 
 ## Dependency direction
 
+- Runtime contract dependencies stay explicit: React Router and Zod.
+- Global state libraries (for example Zustand) remain out of baseline until a dedicated architecture decision assigns one.
+
 ## UI ownership thesis
 
 - container orchestrates feature state, hook wiring, mutation callbacks, and error derivation.

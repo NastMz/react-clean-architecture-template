@@ -5,7 +5,7 @@ import {
   mutationOptions,
 } from '@tanstack/react-query'
 import { render, screen, waitForElementToBeRemoved } from '@testing-library/react'
-import { MemoryRouter, BrowserRouter, Routes, Route } from 'react-router-dom'
+import { MemoryRouter, BrowserRouter, Routes, Route } from 'react-router'
 import { describe, it, expect } from 'vitest'
 
 import { ContainerContext } from '@app/composition/ContainerContext'

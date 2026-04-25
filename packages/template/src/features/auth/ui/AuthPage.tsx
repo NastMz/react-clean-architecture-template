@@ -16,7 +16,11 @@ import { LoginForm } from './LoginForm'
  * Serves as a template for wiring UI to adapters and use cases
  */
 const credentialsSchema = z.object({
-  email: z.string({ required_error: 'Email is required' }).email('Invalid email address'),
+  email: z
+    .string({ error: 'Email is required' })
+    .trim()
+    .min(1, { error: 'Email is required' })
+    .email('Invalid email address'),
   password: z.string().min(1, 'Password is required'),
 })
 

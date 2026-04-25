@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import type { RouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router'
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -17,8 +17,8 @@ describe('AppRouter route configuration', () => {
       getAppFeatureRoutes: () => [{ path: '/invite', element: <div>invite landing</div> }],
     }))
 
-    vi.doMock('react-router-dom', async () => {
-      const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom')
+    vi.doMock('react-router', async () => {
+      const actual = await vi.importActual<typeof import('react-router')>('react-router')
 
       return {
         ...actual,
@@ -58,8 +58,8 @@ describe('AppRouter route configuration', () => {
       ],
     }))
 
-    vi.doMock('react-router-dom', async () => {
-      const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom')
+    vi.doMock('react-router', async () => {
+      const actual = await vi.importActual<typeof import('react-router')>('react-router')
 
       return {
         ...actual,

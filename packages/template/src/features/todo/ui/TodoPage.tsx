@@ -12,7 +12,11 @@ import { useCreateTodo, useRemoveTodo, useTodos, useToggleTodo, useUpdateTodo } 
 import { TodoList } from './TodoList'
 
 const createTodoSchema = z.object({
-  title: z.string({ required_error: 'Title is required' }).trim().min(2, 'Title is too short'),
+  title: z
+    .string({ error: 'Title is required' })
+    .trim()
+    .min(1, { error: 'Title is required' })
+    .min(2, 'Title is too short'),
 })
 
 type CreateTodoForm = z.infer<typeof createTodoSchema>

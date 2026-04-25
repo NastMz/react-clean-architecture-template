@@ -14,7 +14,7 @@ import {
 } from '@features/todo/api/composition'
 import { ConsoleTelemetry } from '@shared/observability/ConsoleTelemetry'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactElement } from 'react'
 import { describe, expect, it, beforeEach } from 'vitest'
@@ -92,6 +92,22 @@ describe('AuthPage integration', () => {
     await waitFor(() => {
       expect(screen.getByText(/Validation.*Credenciales/i)).toBeInTheDocument()
     })
+  })
+
+  it('shows required field errors when login fields are empty', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<AuthPage />)
+
+    const emailInput = screen.getByRole('textbox', { name: /email/i })
+    const passwordInput = screen.getByLabelText(/password/i)
+    const loginForm = screen.getByRole('form', { name: /auth login form/i })
+
+    await user.clear(emailInput)
+    await user.clear(passwordInput)
+    fireEvent.submit(loginForm)
+
+    expect(await screen.findByText('Email is required')).toBeInTheDocument()
+    expect(screen.getByText('Password is required')).toBeInTheDocument()
   })
 
   it('can be composed in tests through feature public APIs only', async () => {

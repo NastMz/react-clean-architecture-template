@@ -4,7 +4,8 @@ import {
   getAppFeatureRoutes,
 } from '@app/extensions/registry'
 import { RootLayout } from '@shared/ui/RootLayout'
-import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
+// React Router 7 exposes browser + data router APIs from `react-router`.
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router'
 
 /**
  * Application router configuration

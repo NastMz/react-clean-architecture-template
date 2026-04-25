@@ -16,7 +16,7 @@ import type { AppFeatureContext } from '@app/extensions/contracts'
 import { QueryClient } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import type { ReactNode } from 'react'
-import type { RouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 
 const collectRoutePaths = (routes: readonly RouteObject[]): string[] =>

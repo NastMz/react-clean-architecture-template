@@ -14,7 +14,7 @@ import {
 } from '@features/todo/api/composition'
 import { ConsoleTelemetry } from '@shared/observability/ConsoleTelemetry'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactElement } from 'react'
 import { describe, expect, it } from 'vitest'
@@ -51,6 +51,17 @@ const renderWithProviders = (ui: ReactElement) => {
 }
 
 describe('TodoPage integration', () => {
+  it('shows required field error when todo title is empty', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<TodoPage />)
+    const createTodoForm = screen.getByRole('form', { name: /create todo form/i })
+
+    await user.clear(screen.getByRole('textbox', { name: /title/i }))
+    fireEvent.submit(createTodoForm)
+
+    expect(await screen.findByText('Title is required')).toBeInTheDocument()
+  })
+
   it('can create, complete, edit, and delete todos from feature public APIs only', async () => {
     const user = userEvent.setup()
     renderWithProviders(<TodoPage />)

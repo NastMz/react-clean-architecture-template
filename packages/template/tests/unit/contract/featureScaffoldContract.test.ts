@@ -10,6 +10,9 @@ const templateRoot = path.resolve(currentDirectory, '../../..')
 const readTemplateFile = (relativePath: string): string =>
   readFileSync(path.join(templateRoot, relativePath), 'utf8')
 
+const readTemplatePackageJson = (): { dependencies?: Record<string, string> } =>
+  JSON.parse(readTemplateFile('package.json')) as { dependencies?: Record<string, string> }
+
 const normalizeRelativePath = (relativePath: string): string => relativePath.replaceAll('\\', '/')
 
 const listFilesRecursively = (relativePath: string): string[] => {
@@ -148,6 +151,17 @@ describe('feature scaffold contract docs', () => {
     expect(architecture).toContain('single app integration seam')
   })
 
+  it('documents the runtime dependency scope lock (Router + Zod, no baseline Zustand)', () => {
+    const architecture = readTemplateFile('docs/architecture.md')
+
+    expect(architecture).toContain(
+      'Runtime contract dependencies stay explicit: React Router and Zod',
+    )
+    expect(architecture).toContain(
+      'Global state libraries (for example Zustand) remain out of baseline',
+    )
+  })
+
   it('summarizes the contract in the README and warns that CLI work stays out of scope', () => {
     const readme = readTemplateFile('README.md')
 
@@ -235,6 +249,15 @@ describe('feature scaffold tooling contract', () => {
     expect(script).toContain('--composition')
     expect(script).toContain('--dry-run')
     expect(script).toContain('--skip-registry')
+  })
+
+  it('keeps dependency scope lock explicit in package contracts', () => {
+    const dependencies = readTemplatePackageJson().dependencies ?? {}
+
+    expect(dependencies).toHaveProperty('react-router')
+    expect(dependencies).toHaveProperty('zod')
+    expect(dependencies).not.toHaveProperty('react-router-dom')
+    expect(dependencies).not.toHaveProperty('zustand')
   })
 })
 

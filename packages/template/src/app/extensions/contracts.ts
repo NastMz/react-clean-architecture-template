@@ -2,7 +2,7 @@ import type { AppConfig } from '@app/bootstrap/config'
 import type { LoggerPort, TelemetryPort } from '@shared/contracts/TelemetryPort'
 import type { QueryClient } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
-import type { RouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router'
 
 export interface AppFeatureNavigationItem {
   label: string

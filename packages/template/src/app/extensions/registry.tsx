@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { RouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router'
 
 // @scaffold-feature-imports:start
 import { authFeature } from './auth'

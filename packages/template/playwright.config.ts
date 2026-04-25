@@ -1,5 +1,9 @@
 import { defineConfig, devices } from '@playwright/test'
 
+const e2eHost = '127.0.0.1'
+const e2ePort = Number(process.env.PLAYWRIGHT_WEB_SERVER_PORT ?? 4173)
+const e2eBaseUrl = `http://${e2eHost}:${e2ePort}`
+
 /**
  * Playwright configuration for E2E tests
  * @see https://playwright.dev/docs/test-configuration
@@ -13,7 +17,7 @@ export default defineConfig({
   reporter: 'html',
 
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: e2eBaseUrl,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
@@ -26,8 +30,8 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'pnpm dev',
-    url: 'http://localhost:5173',
+    command: `pnpm dev --host ${e2eHost} --port ${e2ePort}`,
+    url: e2eBaseUrl,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },

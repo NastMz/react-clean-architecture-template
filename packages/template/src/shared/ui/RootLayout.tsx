@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router'
 
 import { AppHeader, AppMain, AppNav, AppShell, Brand } from './atoms/Layout'
 

@@ -1,6 +1,6 @@
 import { useAuth } from '@app/composition/useAuth'
 import type { ReactElement } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate } from 'react-router'
 
 /**
  * Guard component to protect routes based on authentication status
