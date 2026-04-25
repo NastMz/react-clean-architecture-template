@@ -4,11 +4,16 @@
   "version": "0.0.0",
   "packageManager": "pnpm@10.33.0",
   "scripts": {
+    "prepare": "husky",
     "build": "pnpm -C packages/template build",
     "format": "pnpm -C packages/template format",
     "lint": "pnpm -C packages/template lint",
     "test": "pnpm -C packages/template test",
     "typecheck": "pnpm -C packages/template typecheck"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2"
   },
   "pnpm": {
     "overrides": {
