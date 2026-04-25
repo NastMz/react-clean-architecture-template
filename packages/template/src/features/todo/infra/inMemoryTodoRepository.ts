@@ -19,7 +19,8 @@ const defaultTodos: Todo[] = [
   { id: 'todo-2', title: 'Prepare testing checklist', completed: true },
 ]
 
-const findTodoIndexById = (todos: Todo[], id: string): number => todos.findIndex((todo) => todo.id === id)
+const findTodoIndexById = (todos: Todo[], id: string): number =>
+  todos.findIndex((todo) => todo.id === id)
 
 const getDuplicateTitleError = ({
   todos,

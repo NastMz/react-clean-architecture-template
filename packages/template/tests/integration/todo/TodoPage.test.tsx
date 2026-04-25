@@ -59,17 +59,23 @@ describe('TodoPage integration', () => {
     await user.click(screen.getByRole('button', { name: /add todo/i }))
 
     await waitFor(() => {
-      expect(screen.getByRole('listitem', { name: /todo write integration tests/i })).toBeInTheDocument()
+      expect(
+        screen.getByRole('listitem', { name: /todo write integration tests/i }),
+      ).toBeInTheDocument()
     })
 
-    await user.click(screen.getByRole('checkbox', { name: /mark write integration tests as complete/i }))
+    await user.click(
+      screen.getByRole('checkbox', { name: /mark write integration tests as complete/i }),
+    )
 
     await waitFor(() => {
       expect(screen.getByText(/Status: done/i)).toBeInTheDocument()
     })
 
     await user.click(screen.getByRole('button', { name: /edit write integration tests/i }))
-    const editField = screen.getByRole('textbox', { name: /edit title for write integration tests/i })
+    const editField = screen.getByRole('textbox', {
+      name: /edit title for write integration tests/i,
+    })
     await user.clear(editField)
     await user.type(editField, 'Write stronger integration tests')
     await user.click(screen.getByRole('button', { name: /save write stronger integration tests/i }))
@@ -80,8 +86,12 @@ describe('TodoPage integration', () => {
       ).toBeInTheDocument()
     })
 
-    const todoItem = screen.getByRole('listitem', { name: /todo write stronger integration tests/i })
-    await user.click(within(todoItem).getByRole('button', { name: /delete write stronger integration tests/i }))
+    const todoItem = screen.getByRole('listitem', {
+      name: /todo write stronger integration tests/i,
+    })
+    await user.click(
+      within(todoItem).getByRole('button', { name: /delete write stronger integration tests/i }),
+    )
 
     await waitFor(() => {
       expect(
@@ -102,7 +112,9 @@ describe('TodoPage integration', () => {
     await user.click(screen.getByRole('button', { name: /add todo/i }))
 
     const item = await screen.findByRole('listitem', { name: /todo split todo components/i })
-    expect(within(item).getByRole('button', { name: /edit split todo components/i })).toBeInTheDocument()
+    expect(
+      within(item).getByRole('button', { name: /edit split todo components/i }),
+    ).toBeInTheDocument()
     expect(
       within(item).getByRole('checkbox', { name: /mark split todo components as complete/i }),
     ).toBeInTheDocument()

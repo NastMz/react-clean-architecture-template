@@ -18,6 +18,7 @@ The template is intentionally small and opinionated. Preserve the contracts befo
 This template is the minimal Angular-like React foundation in this repository.
 
 Canonical features:
+
 - `auth` → cross-cutting session/protection example
 - `todo` → simple business feature example
 
@@ -33,6 +34,7 @@ Do not re-introduce demo features unless the user explicitly asks.
 ## Feature scaffold contract
 
 Required feature folders:
+
 - `api/`
 - `adapters/`
 - `application/`
@@ -41,9 +43,11 @@ Required feature folders:
 - `ui/`
 
 Optional folder:
+
 - `composition/`
 
 Public API split:
+
 - `@features/<feature>/api` → UI-facing consumption
 - `@features/<feature>/api/composition` → wiring/tests only
 
@@ -77,6 +81,7 @@ Frontend maintainability here depends on small composable units with clear respo
 - Do not build as a validation step.
 
 Useful commands:
+
 - `pnpm test`
 - `pnpm test:e2e`
 - `pnpm typecheck`

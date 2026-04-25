@@ -42,9 +42,13 @@ const FEATURE_CONTAINER_ALLOWLIST = {
 type FeatureContainerAllowlistPath =
   (typeof FEATURE_CONTAINER_ALLOWLIST)[keyof typeof FEATURE_CONTAINER_ALLOWLIST]
 
-const isContainerOrHookFile = (relativePath: string): relativePath is FeatureContainerAllowlistPath => {
+const isContainerOrHookFile = (
+  relativePath: string,
+): relativePath is FeatureContainerAllowlistPath => {
   const normalizedPath = normalizeRelativePath(relativePath)
-  return Object.values(FEATURE_CONTAINER_ALLOWLIST).includes(normalizedPath as FeatureContainerAllowlistPath)
+  return Object.values(FEATURE_CONTAINER_ALLOWLIST).includes(
+    normalizedPath as FeatureContainerAllowlistPath,
+  )
 }
 
 const listFeatureUiPresentationalFiles = (): string[] => {
@@ -294,20 +298,28 @@ describe('ui thesis hardening contract', () => {
 
     expect(architecture).toContain('container orchestrates')
     expect(architecture).toContain('presentational components render')
-    expect(architecture).toContain('presentational components must not import hooks, adapters, use cases, or repositories')
+    expect(architecture).toContain(
+      'presentational components must not import hooks, adapters, use cases, or repositories',
+    )
   })
 
   it('documents shared-ui promotion rule based on demonstrated reuse', () => {
     const playbook = readTemplateFile('docs/feature-playbook.md')
 
-    expect(playbook).toContain('promote to shared UI only after demonstrated reuse in at least 2 features')
+    expect(playbook).toContain(
+      'promote to shared UI only after demonstrated reuse in at least 2 features',
+    )
     expect(playbook).toContain('avoid speculative shared abstractions')
   })
 
   it('aligns testing strategy with boundary and thesis enforcement language', () => {
     const testingStrategy = readTemplateFile('docs/testing-strategy.md')
 
-    expect(testingStrategy).toContain('contract tests enforce container vs presentational boundaries')
-    expect(testingStrategy).toContain('integration tests verify auth and todo composition still behaves correctly')
+    expect(testingStrategy).toContain(
+      'contract tests enforce container vs presentational boundaries',
+    )
+    expect(testingStrategy).toContain(
+      'integration tests verify auth and todo composition still behaves correctly',
+    )
   })
 })

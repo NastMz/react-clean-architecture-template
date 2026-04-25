@@ -74,7 +74,9 @@ describe('AppRouter route configuration', () => {
     await import('@app/router/routes')
 
     const rootRoute = capturedRoutes[0]
-    const rootElement = rootRoute?.element as ReactElement<{ navigationItems: typeof featureNavigation }>
+    const rootElement = rootRoute?.element as ReactElement<{
+      navigationItems: typeof featureNavigation
+    }>
     const childPaths = rootRoute?.children?.slice(1).map((route) => route.path)
 
     expect(rootElement.props.navigationItems).toEqual(featureNavigation)
