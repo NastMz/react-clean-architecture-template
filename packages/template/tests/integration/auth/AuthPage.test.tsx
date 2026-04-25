@@ -14,8 +14,9 @@ import {
 } from '@features/todo/api/composition'
 import { ConsoleTelemetry } from '@shared/observability/ConsoleTelemetry'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import type { ReactElement } from 'react'
 import { describe, expect, it, beforeEach } from 'vitest'
 
 const createContainerFromFeaturePublicApis = (): AppContainer => {
@@ -37,7 +38,7 @@ const createContainerFromFeaturePublicApis = (): AppContainer => {
   }
 }
 
-const renderWithProviders = (ui: React.ReactElement) => {
+const renderWithProviders = (ui: ReactElement) => {
   const container = createContainerFromFeaturePublicApis()
   return render(
     <ContainerContext.Provider value={container}>
@@ -98,5 +99,27 @@ describe('AuthPage integration', () => {
 
     expect(screen.getByRole('heading', { name: /session demo/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /login/i })).toBeEnabled()
+  })
+
+  it('keeps container orchestration while composing login form and session panel units', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<AuthPage />)
+
+    expect(screen.getByRole('form', { name: /auth login form/i })).toBeInTheDocument()
+
+    await user.clear(screen.getByRole('textbox', { name: /email/i }))
+    await user.type(screen.getByRole('textbox', { name: /email/i }), 'demo@example.com')
+    await user.clear(screen.getByLabelText(/password/i))
+    await user.type(screen.getByLabelText(/password/i), 'demo123')
+    await user.click(screen.getByRole('button', { name: /login/i }))
+
+    const sessionPanel = await screen.findByRole('region', { name: /authenticated session panel/i })
+    expect(within(sessionPanel).getByText(/demo user/i)).toBeInTheDocument()
+
+    await user.click(within(sessionPanel).getByRole('button', { name: /logout/i }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('form', { name: /auth login form/i })).toBeInTheDocument()
+    })
   })
 })

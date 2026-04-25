@@ -1,5 +1,4 @@
-import type { InputHTMLAttributes } from 'react'
-import { forwardRef } from 'react'
+import type { InputHTMLAttributes, Ref } from 'react'
 
 import styles from './Input.module.css'
 
@@ -7,8 +6,10 @@ import styles from './Input.module.css'
  * Input atom component
  * Reusable text input field
  */
-export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
-  (props, ref) => {
-    return <input ref={ref} className={styles.textField} {...props} />
-  },
-)
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  ref?: Ref<HTMLInputElement>
+}
+
+export const Input = ({ ref, ...props }: InputProps) => {
+  return <input ref={ref} className={styles.textField} {...props} />
+}

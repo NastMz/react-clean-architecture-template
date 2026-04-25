@@ -1,4 +1,5 @@
 import { useAuth } from '@app/composition/useAuth'
+import type { ReactElement } from 'react'
 import { Navigate } from 'react-router-dom'
 
 /**
@@ -23,9 +24,9 @@ export const ProtectedRoute = ({
   fallback = '/auth',
   loadingElement,
 }: {
-  element: React.ReactElement
+  element: ReactElement
   fallback?: string
-  loadingElement?: React.ReactElement
+  loadingElement?: ReactElement
 }) => {
   const { isAuthenticated, isLoading } = useAuth()
 

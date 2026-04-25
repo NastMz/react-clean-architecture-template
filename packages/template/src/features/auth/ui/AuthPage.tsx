@@ -1,15 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { formatAppError } from '@shared/kernel/AppError'
-import { Button } from '@shared/ui/atoms/Button'
 import { Card, CardHeader } from '@shared/ui/atoms/Card'
-import { Input } from '@shared/ui/atoms/Input'
-import { Row, Stack } from '@shared/ui/atoms/Layout'
-import { Alert, Eyebrow, Muted, Title } from '@shared/ui/atoms/Typography'
-import { SessionCard } from '@shared/ui/molecules/SessionCard'
+import { Alert, Eyebrow, Muted } from '@shared/ui/atoms/Typography'
+import type { FormEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
+import { AuthenticatedSessionPanel } from './AuthenticatedSessionPanel'
 import { useLogin, useLogout, useSession } from './authHooks'
+import { LoginForm } from './LoginForm'
 
 /**
  * Example form-driven page using queries and mutations
@@ -35,9 +34,13 @@ export const AuthPage = () => {
   const loginMutation = useLogin()
   const logoutMutation = useLogout()
 
-  const onSubmit = form.handleSubmit((data) => {
+  const submitCredentials = form.handleSubmit((data) => {
     loginMutation.mutate(data)
   })
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    void submitCredentials(event)
+  }
 
   const activeError = sessionQuery.error ?? loginMutation.error ?? logoutMutation.error
 
@@ -54,47 +57,21 @@ export const AuthPage = () => {
       {activeError ? <Alert>{formatAppError(activeError)}</Alert> : null}
 
       {sessionQuery.data ? (
-        <SessionCard>
-          <Eyebrow>Logged in</Eyebrow>
-          <Title>{sessionQuery.data.user.name}</Title>
-          <Muted>{sessionQuery.data.user.email}</Muted>
-          <Button
-            variant="ghost"
-            onClick={() => logoutMutation.mutate()}
-            disabled={logoutMutation.isPending}
-          >
-            {logoutMutation.isPending ? 'Closing session…' : 'Logout'}
-          </Button>
-        </SessionCard>
+        <AuthenticatedSessionPanel
+          email={sessionQuery.data.user.email}
+          isLoggingOut={logoutMutation.isPending}
+          name={sessionQuery.data.user.name}
+          onLogout={() => logoutMutation.mutate()}
+        />
       ) : (
-        <form
-          onSubmit={(e) => {
-            void onSubmit(e)
-          }}
-        >
-          <Stack>
-            <label>
-              <span>Email</span>
-              <Input type="email" {...form.register('email')} required />
-              {form.formState.errors.email ? (
-                <Muted>{form.formState.errors.email.message}</Muted>
-              ) : null}
-            </label>
-            <label>
-              <span>Password</span>
-              <Input type="password" {...form.register('password')} required />
-              {form.formState.errors.password ? (
-                <Muted>{form.formState.errors.password.message}</Muted>
-              ) : null}
-            </label>
-            <Row>
-              <Button type="submit" disabled={loginMutation.isPending}>
-                {loginMutation.isPending ? 'Signing in…' : 'Login'}
-              </Button>
-              <Muted>Use demo@example.com / demo123</Muted>
-            </Row>
-          </Stack>
-        </form>
+        <LoginForm
+          emailError={form.formState.errors.email?.message}
+          emailInputProps={form.register('email')}
+          isSubmitting={loginMutation.isPending}
+          onSubmit={handleSubmit}
+          passwordError={form.formState.errors.password?.message}
+          passwordInputProps={form.register('password')}
+        />
       )}
     </Card>
   )

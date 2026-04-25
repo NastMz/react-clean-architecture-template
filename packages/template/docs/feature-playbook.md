@@ -44,6 +44,12 @@ Rules:
 
 `todo` is intentionally simple and in-memory-first so teams can extend the pattern without backend noise.
 
+## Shared UI promotion rule
+
+- promote to shared UI only after demonstrated reuse in at least 2 features.
+- avoid speculative shared abstractions.
+- keep single-feature UI local under `features/<feature>/ui` until reuse is proven.
+
 ## Maintainer notes
 
 Template status and internal follow-ups live in `docs/maintainers/README.md`.

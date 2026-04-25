@@ -1,16 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { formatAppError } from '@shared/kernel/AppError'
-import { Button } from '@shared/ui/atoms/Button'
 import { Card, CardHeader } from '@shared/ui/atoms/Card'
-import { Input } from '@shared/ui/atoms/Input'
-import { Row, Stack } from '@shared/ui/atoms/Layout'
-import { Alert, Eyebrow, Muted, Title } from '@shared/ui/atoms/Typography'
-import { useState } from 'react'
+import { Alert, Eyebrow, Muted } from '@shared/ui/atoms/Typography'
+import { type FormEvent, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import type { Todo } from '../domain/Todo'
+import { CreateTodoForm } from './CreateTodoForm'
 import { useCreateTodo, useRemoveTodo, useTodos, useToggleTodo, useUpdateTodo } from './todoHooks'
+import { TodoList } from './TodoList'
 
 const createTodoSchema = z.object({
   title: z.string({ required_error: 'Title is required' }).trim().min(2, 'Title is too short'),
@@ -34,13 +33,17 @@ export const TodoPage = () => {
   const updateTodoMutation = useUpdateTodo()
   const removeTodoMutation = useRemoveTodo()
 
-  const onSubmit = form.handleSubmit((data) => {
+  const submitTodo = form.handleSubmit((data) => {
     createTodoMutation.mutate(data, {
       onSuccess: () => {
         form.reset({ title: '' })
       },
     })
   })
+
+  const handleCreateSubmit = (event: FormEvent<HTMLFormElement>) => {
+    void submitTodo(event)
+  }
 
   const activeError =
     todosQuery.error ??
@@ -79,98 +82,28 @@ export const TodoPage = () => {
 
       {activeError ? <Alert>{formatAppError(activeError)}</Alert> : null}
 
-      <form
-        onSubmit={(event) => {
-          void onSubmit(event)
+      <CreateTodoForm
+        isSubmitting={createTodoMutation.isPending}
+        onSubmit={handleCreateSubmit}
+        titleError={form.formState.errors.title?.message}
+        titleInputProps={form.register('title')}
+      />
+
+      <TodoList
+        editingTitle={editingTitle}
+        editingTodoId={editingTodoId}
+        isLoading={todosQuery.isLoading}
+        onDeleteTodo={(todoId) => {
+          removeTodoMutation.mutate(todoId)
         }}
-      >
-        <Stack>
-          <label>
-            <span>Title</span>
-            <Input type="text" {...form.register('title')} required />
-            {form.formState.errors.title ? <Muted>{form.formState.errors.title.message}</Muted> : null}
-          </label>
-          <Row>
-            <Button type="submit" disabled={createTodoMutation.isPending}>
-              {createTodoMutation.isPending ? 'Saving…' : 'Add todo'}
-            </Button>
-            <Muted>Protected route backed by in-memory feature state.</Muted>
-          </Row>
-        </Stack>
-      </form>
-
-      <Stack>
-        <Title>Todo list</Title>
-        {todosQuery.isLoading ? <Muted>Loading todos…</Muted> : null}
-        {!todosQuery.isLoading && todos.length === 0 ? (
-          <Muted>No todos yet. Add one to verify the flow.</Muted>
-        ) : null}
-        <ul>
-          {todos.map((todo) => {
-            const isEditing = editingTodoId === todo.id
-
-            return (
-              <li key={todo.id} aria-label={`Todo ${todo.title}`}>
-                <Stack>
-                  <label>
-                    <Input
-                      type="checkbox"
-                      aria-label={`Mark ${todo.title} as complete`}
-                      checked={todo.completed}
-                      onChange={() => {
-                        toggleTodoMutation.mutate(todo.id)
-                      }}
-                    />
-                    <span>{todo.title}</span>
-                  </label>
-                  <Muted>Status: {todo.completed ? 'done' : 'pending'}</Muted>
-                  {isEditing ? (
-                    <Row>
-                      <Input
-                        type="text"
-                        aria-label={`Edit title for ${todo.title}`}
-                        value={editingTitle}
-                        onChange={(event) => {
-                          setEditingTitle(event.target.value)
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        onClick={() => {
-                          saveEdit(todo.id)
-                        }}
-                      >
-                        Save {editingTitle}
-                      </Button>
-                    </Row>
-                  ) : (
-                    <Row>
-                      <Button
-                        type="button"
-                        onClick={() => {
-                          startEditing(todo)
-                        }}
-                      >
-                        Edit {todo.title}
-                      </Button>
-                    </Row>
-                  )}
-                  <Row>
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        removeTodoMutation.mutate(todo.id)
-                      }}
-                    >
-                      Delete {todo.title}
-                    </Button>
-                  </Row>
-                </Stack>
-              </li>
-            )
-          })}
-        </ul>
-      </Stack>
+        onEditTitleChange={setEditingTitle}
+        onSaveEdit={saveEdit}
+        onStartEdit={startEditing}
+        onToggleTodo={(todoId) => {
+          toggleTodoMutation.mutate(todoId)
+        }}
+        todos={todos}
+      />
     </Card>
   )
 }

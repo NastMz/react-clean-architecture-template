@@ -36,6 +36,11 @@ Relevant config files:
 
 ## Layer guidance
 
+## Thesis enforcement
+
+- contract tests enforce container vs presentational boundaries.
+- integration tests verify auth and todo composition still behaves correctly.
+
 ### Domain
 
 Use pure unit tests (no React/DOM/network).

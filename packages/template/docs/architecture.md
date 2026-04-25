@@ -40,6 +40,12 @@ src/
 
 ## Dependency direction
 
+## UI ownership thesis
+
+- container orchestrates feature state, hook wiring, mutation callbacks, and error derivation.
+- presentational components render structure and visual states from props.
+- presentational components must not import hooks, adapters, use cases, or repositories.
+
 Inside each feature:
 
 - `domain` -> no feature-layer dependencies

@@ -89,4 +89,22 @@ describe('TodoPage integration', () => {
       ).not.toBeInTheDocument()
     })
   })
+
+  it('composes dedicated create/list/item ui units while preserving todo behaviors', async () => {
+    const user = userEvent.setup()
+    renderWithProviders(<TodoPage />)
+
+    expect(screen.getByRole('form', { name: /create todo form/i })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: /todo list panel/i })).toBeInTheDocument()
+    expect(await screen.findByText(/no todos yet/i)).toBeInTheDocument()
+
+    await user.type(screen.getByRole('textbox', { name: /title/i }), 'Split todo components')
+    await user.click(screen.getByRole('button', { name: /add todo/i }))
+
+    const item = await screen.findByRole('listitem', { name: /todo split todo components/i })
+    expect(within(item).getByRole('button', { name: /edit split todo components/i })).toBeInTheDocument()
+    expect(
+      within(item).getByRole('checkbox', { name: /mark split todo components as complete/i }),
+    ).toBeInTheDocument()
+  })
 })

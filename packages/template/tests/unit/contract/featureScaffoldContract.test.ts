@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -9,6 +9,110 @@ const templateRoot = path.resolve(currentDirectory, '../../..')
 
 const readTemplateFile = (relativePath: string): string =>
   readFileSync(path.join(templateRoot, relativePath), 'utf8')
+
+const normalizeRelativePath = (relativePath: string): string => relativePath.replaceAll('\\', '/')
+
+const listFilesRecursively = (relativePath: string): string[] => {
+  const absolutePath = path.join(templateRoot, relativePath)
+  const entries = readdirSync(absolutePath)
+  const files: string[] = []
+
+  for (const entry of entries) {
+    const entryAbsolutePath = path.join(absolutePath, entry)
+    const entryRelativePath = path.join(relativePath, entry)
+
+    if (statSync(entryAbsolutePath).isDirectory()) {
+      files.push(...listFilesRecursively(entryRelativePath))
+      continue
+    }
+
+    files.push(entryRelativePath)
+  }
+
+  return files
+}
+
+const FEATURE_CONTAINER_ALLOWLIST = {
+  AUTH_PAGE: 'src/features/auth/ui/AuthPage.tsx',
+  AUTH_HOOKS: 'src/features/auth/ui/authHooks.tsx',
+  TODO_HOOKS: 'src/features/todo/ui/todoHooks.tsx',
+  TODO_PAGE: 'src/features/todo/ui/TodoPage.tsx',
+} as const
+
+type FeatureContainerAllowlistPath =
+  (typeof FEATURE_CONTAINER_ALLOWLIST)[keyof typeof FEATURE_CONTAINER_ALLOWLIST]
+
+const isContainerOrHookFile = (relativePath: string): relativePath is FeatureContainerAllowlistPath => {
+  const normalizedPath = normalizeRelativePath(relativePath)
+  return Object.values(FEATURE_CONTAINER_ALLOWLIST).includes(normalizedPath as FeatureContainerAllowlistPath)
+}
+
+const listFeatureUiPresentationalFiles = (): string[] => {
+  const featureUiFiles = listFilesRecursively('src/features').filter(
+    (relativePath) => /[\\/]ui[\\/]/.test(relativePath) && relativePath.endsWith('.tsx'),
+  )
+
+  return featureUiFiles.filter((relativePath) => !isContainerOrHookFile(relativePath))
+}
+
+const listFeatureUiFiles = (): string[] =>
+  listFilesRecursively('src/features').filter(
+    (relativePath) => /[\\/]ui[\\/]/.test(relativePath) && relativePath.endsWith('.tsx'),
+  )
+
+const extractFeatureNameFromUiPath = (relativePath: string): string | null => {
+  const normalizedPath = normalizeRelativePath(relativePath)
+  const featurePathMatch = /^src\/features\/([^/]+)\/ui\/.+\.tsx$/.exec(normalizedPath)
+
+  return featurePathMatch?.[1] ?? null
+}
+
+const SHARED_UI_IMPORT_PATTERN = /from\s+['"]@shared\/ui\/([^'"]+)['"]/g
+
+const collectSharedUiUsageByFeature = (): Map<string, string[]> => {
+  const sharedUiUsage = new Map<string, Set<string>>()
+
+  for (const relativePath of listFeatureUiFiles()) {
+    const featureName = extractFeatureNameFromUiPath(relativePath)
+
+    if (!featureName) {
+      continue
+    }
+
+    const fileContent = readTemplateFile(relativePath)
+
+    for (const sharedUiImportMatch of fileContent.matchAll(SHARED_UI_IMPORT_PATTERN)) {
+      const [, sharedUiModulePath] = sharedUiImportMatch
+
+      if (!sharedUiModulePath) {
+        continue
+      }
+
+      if (!sharedUiUsage.has(sharedUiModulePath)) {
+        sharedUiUsage.set(sharedUiModulePath, new Set<string>())
+      }
+
+      sharedUiUsage.get(sharedUiModulePath)?.add(featureName)
+    }
+  }
+
+  const usageByFeatureList = new Map<string, string[]>()
+
+  for (const [sharedUiModulePath, featureNames] of sharedUiUsage.entries()) {
+    usageByFeatureList.set(sharedUiModulePath, [...featureNames].sort())
+  }
+
+  return usageByFeatureList
+}
+
+const FORBIDDEN_PRESENTATIONAL_IMPORT_PATTERNS = [
+  /from\s+['"][^'"]*\/ui\/.*Hooks['"]/,
+  /from\s+['"][^'"]*\/adapters\//,
+  /from\s+['"][^'"]*\/application\//,
+  /from\s+['"][^'"]*\/infra\//,
+  /from\s+['"][^'"]*\/composition\//,
+  /from\s+['"]@app\//,
+] as const
 
 describe('feature scaffold contract docs', () => {
   it('declares the canonical required and optional feature folders in the playbook', () => {
@@ -59,7 +163,7 @@ describe('feature scaffold contract docs', () => {
     ] as const
 
     for (const relativePath of canonicalDocs) {
-      const content = readTemplateFile(relativePath)
+      const content = readTemplateFile(normalizeRelativePath(relativePath))
 
       expect(content).not.toContain('`products`')
       expect(content).not.toContain('/products')
@@ -109,5 +213,101 @@ describe('feature scaffold public APIs', () => {
       'createTodoAdapters',
       'createTodoUseCases',
     ])
+  })
+})
+
+describe('ui thesis hardening contract', () => {
+  it('requires demonstrated cross-feature reuse for canonical shared ui atoms', () => {
+    const sharedUiUsageByFeature = collectSharedUiUsageByFeature()
+
+    const promotedSharedAtoms = [
+      'atoms/Button',
+      'atoms/Card',
+      'atoms/Input',
+      'atoms/Layout',
+      'atoms/Typography',
+    ] as const
+
+    for (const promotedSharedAtom of promotedSharedAtoms) {
+      const featuresUsingAtom = sharedUiUsageByFeature.get(promotedSharedAtom)
+
+      expect(featuresUsingAtom).toBeDefined()
+      expect(featuresUsingAtom).toEqual(expect.arrayContaining(['auth', 'todo']))
+      expect(featuresUsingAtom?.length).toBeGreaterThanOrEqual(2)
+    }
+  })
+
+  it('keeps feature-specific molecules out of shared ui', () => {
+    const authPage = readTemplateFile('src/features/auth/ui/AuthPage.tsx')
+
+    expect(authPage).not.toContain('@shared/ui/molecules/SessionCard')
+    expect(() => readTemplateFile('src/shared/ui/molecules/SessionCard.tsx')).toThrow()
+    expect(() => readTemplateFile('src/shared/ui/molecules/TodoList.tsx')).toThrow()
+  })
+
+  it('keeps Input aligned with React 19 ref-as-prop style', () => {
+    const input = readTemplateFile('src/shared/ui/atoms/Input.tsx')
+
+    expect(input).not.toContain('forwardRef')
+  })
+
+  it('removes React namespace types from canonical shared and router files', () => {
+    const filesToCheck = [
+      'src/shared/ui/atoms/Layout.tsx',
+      'src/shared/ui/atoms/Typography.tsx',
+      'src/app/router/ProtectedRoute.tsx',
+      'tests/integration/auth/AuthPage.test.tsx',
+    ] as const
+
+    for (const relativePath of filesToCheck) {
+      const content = readTemplateFile(relativePath)
+
+      expect(content).not.toMatch(/\bReact\./)
+    }
+  })
+
+  it('keeps presentational feature ui files free from orchestration imports', () => {
+    const presentationalFiles = listFeatureUiPresentationalFiles()
+
+    expect(presentationalFiles.length).toBeGreaterThan(0)
+
+    for (const relativePath of presentationalFiles) {
+      const content = readTemplateFile(relativePath)
+
+      for (const forbiddenPattern of FORBIDDEN_PRESENTATIONAL_IMPORT_PATTERNS) {
+        expect(content).not.toMatch(forbiddenPattern)
+      }
+    }
+  })
+
+  it('keeps an explicit container/hook allowlist for canonical feature ui orchestration', () => {
+    const allowlistValues = Object.values(FEATURE_CONTAINER_ALLOWLIST)
+
+    expect(allowlistValues).toContain('src/features/auth/ui/AuthPage.tsx')
+    expect(allowlistValues).toContain('src/features/todo/ui/TodoPage.tsx')
+    expect(allowlistValues).toContain('src/features/auth/ui/authHooks.tsx')
+    expect(allowlistValues).toContain('src/features/todo/ui/todoHooks.tsx')
+  })
+
+  it('documents container-orchestrates and presentational-renders ownership in architecture docs', () => {
+    const architecture = readTemplateFile('docs/architecture.md')
+
+    expect(architecture).toContain('container orchestrates')
+    expect(architecture).toContain('presentational components render')
+    expect(architecture).toContain('presentational components must not import hooks, adapters, use cases, or repositories')
+  })
+
+  it('documents shared-ui promotion rule based on demonstrated reuse', () => {
+    const playbook = readTemplateFile('docs/feature-playbook.md')
+
+    expect(playbook).toContain('promote to shared UI only after demonstrated reuse in at least 2 features')
+    expect(playbook).toContain('avoid speculative shared abstractions')
+  })
+
+  it('aligns testing strategy with boundary and thesis enforcement language', () => {
+    const testingStrategy = readTemplateFile('docs/testing-strategy.md')
+
+    expect(testingStrategy).toContain('contract tests enforce container vs presentational boundaries')
+    expect(testingStrategy).toContain('integration tests verify auth and todo composition still behaves correctly')
   })
 })
