@@ -18,7 +18,7 @@ importers:
         specifier: ^15.5.2
         version: 15.5.2
 
-  packages/foundry: {}
+  packages/cli: {}
 
   packages/template:
     dependencies:

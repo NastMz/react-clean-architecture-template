@@ -1,0 +1,9 @@
+{
+  "name": "@nastmz/react-clean-architecture-template-cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "create-react-spa-template": "./dist/index.js"
+  }
+}
