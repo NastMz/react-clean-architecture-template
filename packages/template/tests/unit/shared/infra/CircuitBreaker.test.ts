@@ -1,13 +1,13 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest'
 
 import { CircuitBreaker, CircuitBreakerError } from '@shared/network/CircuitBreaker'
 
 describe('CircuitBreaker', () => {
-  let mockFn: ReturnType<typeof vi.fn>
+  let mockFn: Mock<() => Promise<string>>
   let breaker: CircuitBreaker<string>
 
   beforeEach(() => {
-    mockFn = vi.fn()
+    mockFn = vi.fn<() => Promise<string>>()
     breaker = new CircuitBreaker(mockFn, {
       failureThreshold: 3,
       resetTimeout: 100,

@@ -8,6 +8,11 @@ It is built on React 19 + TypeScript + Vite and focused on clean boundaries betw
 
 It includes runnable examples (`auth` and `todo`) so teams can extend the template with real use cases instead of starting from an empty shell.
 
+## Prerequisites
+
+- Node.js `>=20.19.0` (or `>=22.12.0`)
+- pnpm 10+
+
 ## What you get
 
 - React 19 SPA baseline with Vite
@@ -35,8 +40,6 @@ pnpm test
 pnpm test:e2e
 pnpm storybook
 ```
-
-Run these commands from the project root.
 
 ## Current runtime behavior
 

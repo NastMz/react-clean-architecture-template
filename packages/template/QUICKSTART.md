@@ -2,6 +2,11 @@
 
 Fast path to run this opinionated React SPA architecture template and validate the default flow.
 
+## Prerequisites
+
+- Node.js `>=20.19.0` (or `>=22.12.0`)
+- pnpm 10+
+
 ## 1. Install
 
 From the project root:

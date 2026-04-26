@@ -2,6 +2,10 @@
 
 This template includes unit, integration, and E2E testing layers with a focused baseline.
 
+## Runtime baseline
+
+- Node.js `>=20.19.0` (or `>=22.12.0`)
+
 ## Toolchain
 
 - Vitest for unit/integration tests
@@ -11,7 +15,7 @@ This template includes unit, integration, and E2E testing layers with a focused 
 
 Relevant config files:
 
-- `vite.config.ts`
+- `vitest.config.ts`
 - `playwright.config.ts`
 - `tsconfig.test.json`
 
@@ -71,6 +75,7 @@ pnpm test:watch
 pnpm test:e2e
 pnpm test:e2e:ui
 pnpm test:e2e:report
+pnpm storybook
 ```
 
 ## Related docs

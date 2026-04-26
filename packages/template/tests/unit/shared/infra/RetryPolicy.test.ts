@@ -1,13 +1,13 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest'
 
 import { RetryPolicy } from '@shared/network/RetryPolicy'
 
 describe('RetryPolicy', () => {
-  let mockFn: ReturnType<typeof vi.fn>
+  let mockFn: Mock<() => Promise<string>>
   let policy: RetryPolicy
 
   beforeEach(() => {
-    mockFn = vi.fn()
+    mockFn = vi.fn<() => Promise<string>>()
     policy = new RetryPolicy(3, {
       baseDelay: 10, // short delay for tests
       maxDelay: 100,
@@ -17,7 +17,7 @@ describe('RetryPolicy', () => {
   it('executes function successfully on first try', async () => {
     mockFn.mockResolvedValue('success')
 
-    const result = await policy.execute(mockFn)
+    const result = await policy.execute<string>(mockFn)
 
     expect(result).toBe('success')
     expect(mockFn).toHaveBeenCalledTimes(1)
@@ -26,7 +26,7 @@ describe('RetryPolicy', () => {
   it('retries on network errors', async () => {
     mockFn.mockRejectedValueOnce(new TypeError('Network error')).mockResolvedValue('success')
 
-    const result = await policy.execute(mockFn)
+    const result = await policy.execute<string>(mockFn)
 
     expect(result).toBe('success')
     expect(mockFn).toHaveBeenCalledTimes(2)
@@ -38,7 +38,7 @@ describe('RetryPolicy', () => {
 
     mockFn.mockRejectedValueOnce(error503).mockResolvedValue('success')
 
-    const result = await policy.execute(mockFn)
+    const result = await policy.execute<string>(mockFn)
 
     expect(result).toBe('success')
     expect(mockFn).toHaveBeenCalledTimes(2)
