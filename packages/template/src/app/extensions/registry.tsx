@@ -79,7 +79,7 @@ export const renderFeatureProviders = <TRegistry extends FeatureRegistry>(
     return renderProvider({
       adapters: adapters[featureKey],
       children: tree,
-    } as never)
+    })
   }, children)
 
 export const renderAppFeatureProviders = (

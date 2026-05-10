@@ -14,6 +14,9 @@ interface PackageJson {
 }
 
 interface TsConfig {
+  compilerOptions?: {
+    ignoreDeprecations?: string
+  }
   include?: string[]
 }
 
@@ -116,6 +119,26 @@ describe('tooling contract', () => {
     }
 
     expect(readMajorMinor(devDependencies['@chromatic-com/storybook'] ?? '')).toBe('5.1')
+  })
+
+  it('tracks the Stage A TypeScript and typed lint baselines', () => {
+    const packageJson = readTemplatePackageJson()
+    const devDependencies = packageJson.devDependencies ?? {}
+    const eslintConfig = readTemplateFile('eslint.config.js')
+
+    expect(readMajorMinor(devDependencies.typescript ?? '')).toBe('6.0')
+    expect(readMajorMinor(devDependencies['typescript-eslint'] ?? '')).toBe('8.59')
+    expect(eslintConfig).toContain('projectService: true')
+    expect(eslintConfig).toContain('recommendedTypeChecked')
+    expect(eslintConfig).toContain('stylisticTypeChecked')
+  })
+
+  it('keeps TS6 project references explicit about accepted compiler deprecations', () => {
+    const appConfig = readTemplateFile('tsconfig.app.json')
+    const testConfig = readTemplateFile('tsconfig.test.json')
+
+    expect(appConfig).toContain('"ignoreDeprecations": "6.0"')
+    expect(testConfig).toContain('"ignoreDeprecations": "6.0"')
   })
 
   it('keeps public docs free of internal migration framing', () => {
