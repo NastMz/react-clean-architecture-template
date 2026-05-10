@@ -203,7 +203,14 @@ export const buildScaffoldPlan = ({
   }
 
   return {
-    options: { featureKey, featureLabel, routePath, isDefaultRoute, includeComposition, skipRegistry },
+    options: {
+      featureKey,
+      featureLabel,
+      routePath,
+      isDefaultRoute,
+      includeComposition,
+      skipRegistry,
+    },
     folders: plannedFolders,
     files: plannedFiles.sort(),
   }
@@ -286,7 +293,10 @@ export const patchRegistryContent = ({ registryContent, featureKey, featureSymbo
     `${importLine}\n${REGISTRY_IMPORT_ANCHOR_END}`,
   )
 
-  return withImport.replace(REGISTRY_ENTRY_ANCHOR_END, `${entryLine}\n  ${REGISTRY_ENTRY_ANCHOR_END}`)
+  return withImport.replace(
+    REGISTRY_ENTRY_ANCHOR_END,
+    `${entryLine}\n  ${REGISTRY_ENTRY_ANCHOR_END}`,
+  )
 }
 
 const makeUiApiContent = ({ names }) =>
@@ -313,7 +323,14 @@ const makeRepositoryContent = ({ names }) =>
 const makeProviderContent = ({ names }) =>
   `import type { ReactNode } from 'react'\n\nimport type { ${names.adaptersTypeName} } from '../adapters/${names.adaptersFileName.replace('.ts', '')}'\n\nexport const ${names.providerName} = ({\n  children,\n}: {\n  adapters: ${names.adaptersTypeName}\n  children: ReactNode\n}): ReactNode => children\n`
 
-const makeExtensionContent = ({ names, featureKey, routePath, featureLabel, includeComposition, isDefaultRoute }) => {
+const makeExtensionContent = ({
+  names,
+  featureKey,
+  routePath,
+  featureLabel,
+  includeComposition,
+  isDefaultRoute,
+}) => {
   const routeEntryLine = isDefaultRoute
     ? `  entryRoute: { to: '${routePath}', isDefault: true },`
     : `  entryRoute: { to: '${routePath}' },`
