@@ -65,6 +65,7 @@ Teams lose time on boilerplate instead of product features, and each new project
 - **FR-03**: Project initialization supports both interactive and scriptable usage.
 - **FR-04**: Initialization validates project naming and destination conflicts.
 - **FR-05**: Generated output includes clear next steps for local execution.
+- **FR-06**: Project initialization is package-manager agnostic across npm, pnpm, yarn, and bun.
 
 ### Non-Functional Requirements
 
@@ -88,9 +89,8 @@ Teams lose time on boilerplate instead of product features, and each new project
 
 ## Open Questions
 
-1. What should be the final public command naming for project creation?
-2. Should dependency installation default to on or off in initial flow?
-3. What minimal telemetry/feedback loop (if any) is appropriate for adoption tracking?
+1. Should dependency installation default to on or off in initial flow?
+2. What minimal telemetry/feedback loop (if any) is appropriate for adoption tracking?
 
 ## Milestones
 

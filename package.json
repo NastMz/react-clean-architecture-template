@@ -8,7 +8,7 @@
     "build": "pnpm -C packages/template build",
     "format": "pnpm -C packages/template format",
     "lint": "pnpm -C packages/template lint",
-    "test": "pnpm -C packages/template test",
+    "test": "pnpm -C packages/template test && pnpm -C packages/cli test",
     "typecheck": "pnpm -C packages/template typecheck"
   },
   "devDependencies": {

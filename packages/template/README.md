@@ -11,7 +11,20 @@ It includes runnable examples (`auth` and `todo`) so teams can extend the templa
 ## Prerequisites
 
 - Node.js `>=20.19.0` (or `>=22.12.0`)
-- pnpm 10+
+- npm, pnpm, yarn, or bun
+
+## Create a project
+
+Use the package manager you already use:
+
+```bash
+npm create clean-react@latest my-app
+pnpm create clean-react my-app
+yarn create clean-react my-app
+bun create clean-react my-app
+```
+
+Then follow the printed next steps for that same package manager.
 
 ## What you get
 
@@ -27,18 +40,19 @@ It includes runnable examples (`auth` and `todo`) so teams can extend the templa
 ## How to run
 
 ```bash
-pnpm dev
+npm run dev
+# or: pnpm dev / yarn dev / bun run dev
 ```
 
 ## Common commands
 
 ```bash
-pnpm lint
-pnpm format
-pnpm typecheck
-pnpm test
-pnpm test:e2e
-pnpm storybook
+npm run lint
+npm run format
+npm run typecheck
+npm run test
+npm run test:e2e
+npm run storybook
 ```
 
 ## Current runtime behavior
@@ -54,14 +68,12 @@ pnpm storybook
 Generate new features with explicit, editable files:
 
 ```bash
-pnpm scaffold:feature -- --name billing --label Billing --route /billing
+npm run scaffold:feature -- --name billing --label Billing --route /billing
 ```
 
 This command generates the required folders (`api`, `adapters`, `application`, `domain`, `infra`, `ui`) and optional composition wiring when requested.
 
 App integration stays explicit through `src/app/extensions/<feature>.tsx` plus `src/app/extensions/registry.tsx`.
-
-CLI/generator work stays out of scope until this contract is closed.
 
 ## Documentation
 

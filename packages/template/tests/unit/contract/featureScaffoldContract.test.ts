@@ -162,11 +162,11 @@ describe('feature scaffold contract docs', () => {
     )
   })
 
-  it('summarizes the contract in the README and warns that CLI work stays out of scope', () => {
+  it('summarizes the contract in the README and keeps feature scaffolding explicit', () => {
     const readme = readTemplateFile('README.md')
 
     expect(readme).toContain('Canonical feature scaffold contract')
-    expect(readme).toContain('CLI/generator work stays out of scope until this contract is closed')
+    expect(readme).toContain('Generate new features with explicit, editable files')
   })
 
   it('keeps canonical docs aligned to auth + todo and blocks stale products references', () => {

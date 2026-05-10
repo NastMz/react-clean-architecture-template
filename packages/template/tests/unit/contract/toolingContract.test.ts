@@ -176,8 +176,8 @@ describe('tooling contract', () => {
     expect(readme).toContain('>=20.19.0')
     expect(quickstart).toContain('>=20.19.0')
     expect(testingStrategy).toContain('vitest.config.ts')
-    expect(readme).toContain('pnpm storybook')
-    expect(quickstart).toContain('pnpm dev')
+    expect(readme).toContain('npm, pnpm, yarn, or bun')
+    expect(quickstart).toContain('npm create clean-react@latest my-app')
   })
 
   it('avoids monorepo-only command forms in consumer-facing docs', () => {

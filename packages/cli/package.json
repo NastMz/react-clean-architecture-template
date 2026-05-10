@@ -1,9 +1,23 @@
 {
-  "name": "@nastmz/react-clean-architecture-template-cli",
+  "name": "create-clean-react",
   "version": "0.0.0",
-  "private": true,
+  "private": false,
   "type": "module",
+  "description": "Create a React Clean Architecture SPA from the canonical template.",
   "bin": {
-    "create-react-spa-template": "./dist/index.js"
+    "create-clean-react": "./bin/index.js"
+  },
+  "files": [
+    "bin",
+    "template",
+    "README.md",
+    "docs"
+  ],
+  "scripts": {
+    "prepack": "node ./scripts/sync-template.mjs",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20.19.0"
   }
 }

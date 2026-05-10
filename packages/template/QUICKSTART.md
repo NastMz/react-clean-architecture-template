@@ -5,22 +5,41 @@ Fast path to run this opinionated React SPA architecture template and validate t
 ## Prerequisites
 
 - Node.js `>=20.19.0` (or `>=22.12.0`)
-- pnpm 10+
+- npm, pnpm, yarn, or bun
 
-## 1. Install
+## 1. Create a project
 
-From the project root:
+Use the package manager you already use:
 
 ```bash
-pnpm install
+npm create clean-react@latest my-app
+pnpm create clean-react my-app
+yarn create clean-react my-app
+bun create clean-react my-app
 ```
 
-## 2. Start the template
-
-From the project root:
+Then enter the generated app:
 
 ```bash
-pnpm dev
+cd my-app
+```
+
+## 2. Install
+
+Use the same package manager:
+
+```bash
+npm install
+# or: pnpm install / yarn install / bun install
+```
+
+## 3. Start the template
+
+Use the matching run command:
+
+```bash
+npm run dev
+# or: pnpm dev / yarn dev / bun run dev
 ```
 
 Open `http://localhost:5173`.
@@ -31,34 +50,34 @@ Current behavior:
 - canonical protected feature route is `/todo`
 - the app shell navigation exposes `Auth` and `Todo`
 
-## 3. Log in with demo credentials
+## 4. Log in with demo credentials
 
 - email: `demo@example.com`
 - password: `demo123`
 
 If login succeeds, you should see `Demo User` and a logout button.
 
-## 4. Default runtime mode
+## 5. Default runtime mode
 
 By default, auth uses the in-memory repository.
 
 - no backend required
 - session is persisted in `localStorage` under `demo_session`
 
-## 5. Useful commands
+## 6. Useful commands
 
 From the project root:
 
 ```bash
-pnpm lint
-pnpm format
-pnpm typecheck
-pnpm test
-pnpm test:e2e
-pnpm storybook
+npm run lint
+npm run format
+npm run typecheck
+npm run test
+npm run test:e2e
+npm run storybook
 ```
 
-## 6. Sanity checks
+## 7. Sanity checks
 
 - visit `/auth`
 - submit the demo form
@@ -66,7 +85,7 @@ pnpm storybook
 - reload and verify the session persists
 - click logout and verify `/todo` redirects to `/auth`
 
-## 7. Next docs to read
+## 8. Next docs to read
 
 - `README.md`
 - `KNOWN_ISSUES.md`
