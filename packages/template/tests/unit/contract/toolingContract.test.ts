@@ -35,6 +35,11 @@ const parseJsonc = <T>(rawContent: string): T => {
 const readTemplatePackageJson = (): PackageJson =>
   parseJsonc<PackageJson>(readTemplateFile('package.json'))
 
+const readTemplateDevDependencies = (): Record<string, string> =>
+  readTemplatePackageJson().devDependencies ?? {}
+
+const readWorkspaceLockfile = (): string => readWorkspaceFile('pnpm-lock.yaml')
+
 const readTsConfig = (relativePath: string): TsConfig =>
   parseJsonc<TsConfig>(readTemplateFile(relativePath))
 
@@ -98,8 +103,7 @@ describe('tooling contract', () => {
   })
 
   it('keeps Storybook ecosystem aligned to the Stage B baseline', () => {
-    const packageJson = readTemplatePackageJson()
-    const devDependencies = packageJson.devDependencies ?? {}
+    const devDependencies = readTemplateDevDependencies()
 
     const storybookFamily = [
       'storybook',
@@ -122,8 +126,7 @@ describe('tooling contract', () => {
   })
 
   it('tracks the Stage A TypeScript and typed lint baselines', () => {
-    const packageJson = readTemplatePackageJson()
-    const devDependencies = packageJson.devDependencies ?? {}
+    const devDependencies = readTemplateDevDependencies()
     const eslintConfig = readTemplateFile('eslint.config.js')
 
     expect(readMajorMinor(devDependencies.typescript ?? '')).toBe('6.0')
@@ -131,6 +134,18 @@ describe('tooling contract', () => {
     expect(eslintConfig).toContain('projectService: true')
     expect(eslintConfig).toContain('recommendedTypeChecked')
     expect(eslintConfig).toContain('stylisticTypeChecked')
+  })
+
+  it('pins the Stage B ESLint 9 defer baseline while import plugin peers exclude ESLint 10', () => {
+    const devDependencies = readTemplateDevDependencies()
+    const lockfile = readWorkspaceLockfile()
+
+    expect(devDependencies.eslint).toBe('~9.39.2')
+    expect(devDependencies['@eslint/js']).toBe('~9.39.2')
+    expect(devDependencies['eslint-config-prettier']).toBe('^9.1.0')
+    expect(lockfile).toContain('eslint-plugin-import@2.32.0')
+    expect(lockfile).toContain('eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8 || ^9')
+    expect(lockfile).toContain('eslint@9.39.2')
   })
 
   it('keeps TS6 project references explicit about accepted compiler deprecations', () => {
