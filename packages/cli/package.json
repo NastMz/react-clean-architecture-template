@@ -1,6 +1,6 @@
 {
   "name": "@nastmz/create-clean-react",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": false,
   "type": "module",
   "description": "Create a React Clean Architecture SPA from the canonical template.",
