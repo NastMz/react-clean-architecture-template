@@ -18,10 +18,10 @@ It includes runnable examples (`auth` and `todo`) so teams can extend the templa
 Use the package manager you already use:
 
 ```bash
-npm create clean-react@latest my-app
-pnpm create clean-react my-app
-yarn create clean-react my-app
-bun create clean-react my-app
+npm create @nastmz/clean-react@latest my-app
+pnpm create @nastmz/clean-react my-app
+yarn create @nastmz/clean-react my-app
+bun create @nastmz/clean-react my-app
 ```
 
 Then follow the printed next steps for that same package manager.

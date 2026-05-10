@@ -7,10 +7,10 @@ Create a React Clean Architecture SPA without manually copying the template.
 Use the package manager you already use:
 
 ```bash
-npm create clean-react@latest my-app
-pnpm create clean-react my-app
-yarn create clean-react my-app
-bun create clean-react my-app
+npm create @nastmz/clean-react@latest my-app
+pnpm create @nastmz/clean-react my-app
+yarn create @nastmz/clean-react my-app
+bun create @nastmz/clean-react my-app
 ```
 
 The CLI detects the invoking package manager and prints matching next steps.

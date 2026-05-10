@@ -125,7 +125,7 @@ function detectPackageManager(userAgent = process.env.npm_config_user_agent ?? "
 
 function validateProjectName(projectName) {
   if (!projectName) {
-    throw new Error("Missing project name. Example: npm create clean-react@latest my-app");
+    throw new Error("Missing project name. Example: npm create @nastmz/clean-react@latest my-app");
   }
 
   if (!GENERATED_NAME_PATTERN.test(projectName)) {
@@ -272,10 +272,10 @@ function printHelp() {
   console.log(`create-clean-react
 
 Usage:
-  npm create clean-react@latest my-app
-  pnpm create clean-react my-app
-  yarn create clean-react my-app
-  bun create clean-react my-app
+  npm create @nastmz/clean-react@latest my-app
+  pnpm create @nastmz/clean-react my-app
+  yarn create @nastmz/clean-react my-app
+  bun create @nastmz/clean-react my-app
 
 Options:
   --pm <npm|pnpm|yarn|bun>  Override package manager detection

@@ -1,5 +1,5 @@
 {
-  "name": "create-clean-react",
+  "name": "@nastmz/create-clean-react",
   "version": "0.0.0",
   "private": false,
   "type": "module",
@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "prepack": "node ./scripts/sync-template.mjs",
-    "test": "node --test"
+    "test": "node --test test/*.test.js"
   },
   "engines": {
     "node": ">=20.19.0"

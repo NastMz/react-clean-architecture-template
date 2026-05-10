@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   publish-cli:
-    name: Publish create-clean-react
+    name: Publish @nastmz/create-clean-react
     runs-on: ubuntu-latest
 
     steps:
