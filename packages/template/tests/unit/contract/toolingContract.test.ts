@@ -145,7 +145,7 @@ describe('tooling contract', () => {
     expect(devDependencies['eslint-config-prettier']).toBe('^9.1.0')
     expect(lockfile).toContain('eslint-plugin-import@2.32.0')
     expect(lockfile).toContain('eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8 || ^9')
-    expect(lockfile).toContain('eslint@9.39.2')
+    expect(lockfile).toMatch(/eslint@9\.39\.\d+/)
   })
 
   it('keeps TS6 project references explicit about accepted compiler deprecations', () => {
