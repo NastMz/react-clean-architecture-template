@@ -10,6 +10,7 @@ import type { Todo } from '../domain/Todo'
 import { CreateTodoForm } from './CreateTodoForm'
 import { useCreateTodo, useRemoveTodo, useTodos, useToggleTodo, useUpdateTodo } from './todoHooks'
 import { TodoList } from './TodoList'
+import styles from './TodoPage.module.css'
 
 const createTodoSchema = z.object({
   title: z
@@ -75,11 +76,11 @@ export const TodoPage = () => {
   }
 
   return (
-    <Card>
+    <Card className={styles.card}>
       <CardHeader>
-        <div>
+        <div className={styles.header}>
           <Eyebrow>Todo feature</Eyebrow>
-          <h2>Todo board</h2>
+          <h2 className={styles.title}>Todo board</h2>
           <Muted>Simple protected CRUD flow for the canonical business slice.</Muted>
         </div>
       </CardHeader>

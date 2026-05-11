@@ -4,6 +4,24 @@
   "private": false,
   "type": "module",
   "description": "Create a React Clean Architecture SPA from the canonical template.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NastMz/react-clean-architecture-template.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/NastMz/react-clean-architecture-template/issues"
+  },
+  "homepage": "https://github.com/NastMz/react-clean-architecture-template#readme",
+  "keywords": [
+    "react",
+    "clean-architecture",
+    "vite",
+    "typescript",
+    "template",
+    "create"
+  ],
   "bin": {
     "create-clean-react": "./bin/index.js"
   },

@@ -1,8 +1,9 @@
 import { Button } from '@shared/ui/atoms/Button'
 import { Input } from '@shared/ui/atoms/Input'
-import { Row, Stack } from '@shared/ui/atoms/Layout'
 import { Muted } from '@shared/ui/atoms/Typography'
 import type { FormEventHandler, InputHTMLAttributes } from 'react'
+
+import styles from './CreateTodoForm.module.css'
 
 interface CreateTodoFormProps {
   isSubmitting: boolean
@@ -18,20 +19,18 @@ export const CreateTodoForm = ({
   titleInputProps,
 }: CreateTodoFormProps) => {
   return (
-    <form aria-label="Create todo form" onSubmit={onSubmit}>
-      <Stack>
-        <label>
+    <form className={styles.form} aria-label="Create todo form" onSubmit={onSubmit}>
+      <div className={styles.fieldGroup}>
+        <label className={styles.label}>
           <span>Title</span>
           <Input type="text" required {...titleInputProps} />
           {titleError ? <Muted>{titleError}</Muted> : null}
         </label>
-        <Row>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving…' : 'Add todo'}
-          </Button>
-          <Muted>Protected route backed by in-memory feature state.</Muted>
-        </Row>
-      </Stack>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving…' : 'Add todo'}
+        </Button>
+      </div>
+      <Muted>Protected route backed by in-memory feature state.</Muted>
     </form>
   )
 }

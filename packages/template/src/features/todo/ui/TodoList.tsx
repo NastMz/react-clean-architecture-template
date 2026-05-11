@@ -3,6 +3,7 @@ import { Muted, Title } from '@shared/ui/atoms/Typography'
 
 import type { Todo } from '../domain/Todo'
 import { TodoEmptyState } from './TodoEmptyState'
+import styles from './TodoList.module.css'
 import { TodoListItem } from './TodoListItem'
 
 interface TodoListProps {
@@ -29,11 +30,14 @@ export const TodoList = ({
   todos,
 }: TodoListProps) => {
   return (
-    <Stack role="region" aria-label="Todo list panel">
-      <Title>Todo list</Title>
+    <Stack className={styles.panel} role="region" aria-label="Todo list panel">
+      <div className={styles.header}>
+        <Title>Tasks</Title>
+        <Muted>{todos.length} items</Muted>
+      </div>
       {isLoading ? <Muted>Loading todos…</Muted> : null}
       {!isLoading && todos.length === 0 ? <TodoEmptyState /> : null}
-      <ul>
+      <ul className={styles.list}>
         {todos.map((todo) => {
           const isEditing = editingTodoId === todo.id
 
