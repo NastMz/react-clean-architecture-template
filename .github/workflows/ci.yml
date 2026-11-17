@@ -2,48 +2,91 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  ci:
-    name: CI Pipeline
+  checks:
+    name: Checks (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
-
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: 24.x
-          cache: 'pnpm'
+          node-version: ${{ matrix.node }}
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run TypeScript check
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=low
+
+      - name: Typecheck
         run: pnpm -C packages/template typecheck
 
-      - name: Run linter
+      - name: Lint
         run: pnpm -C packages/template lint
 
-      - name: Run format check
+      - name: Lint architecture (Feature-Sliced Design)
+        run: pnpm -C packages/template lint:fsd
+
+      - name: Check formatting
         run: pnpm -C packages/template format
 
-      - name: Run unit tests
+      - name: Unit and integration tests
         run: pnpm -C packages/template test
 
-      - name: Install Playwright browsers
-        run: pnpm -C packages/template exec playwright install chromium --with-deps
+      - name: Build
+        run: pnpm -C packages/template build
 
-      - name: Run E2E tests
+      - name: Build Storybook
+        run: pnpm -C packages/template build-storybook --quiet
+
+      - name: CLI tests
+        run: pnpm -C packages/cli test
+
+  e2e:
+    name: End-to-end tests
+    runs-on: ubuntu-latest
+    needs: checks
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browser
+        run: pnpm -C packages/template exec playwright install --with-deps chromium
+
+      - name: Run end-to-end tests
         run: pnpm -C packages/template test:e2e
 
-      - name: Build application
-        run: pnpm -C packages/template build
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: packages/template/playwright-report
+          retention-days: 7

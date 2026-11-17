@@ -18,7 +18,8 @@ export const createRoutes = (queryClient: QueryClient): RouteObject[] => [
     ErrorBoundary: RouteErrorBoundary,
     HydrateFallback: PageFallback,
     children: [
-      { index: true, loader: () => redirect(paths.todos) },
+      // The redirect resolves before render; the component only satisfies the router.
+      { index: true, loader: () => redirect(paths.todos), Component: PageFallback },
       {
         path: paths.login,
         middleware: [redirectIfAuthenticated(queryClient)],
