@@ -6,7 +6,7 @@ The app follows [Feature-Sliced Design v2.1](https://feature-sliced.design). FSD
 
 Each layer may import only from the layers **below** it.
 
-| Layer      | Holds                                                        | In this template                                         |
+| Layer      | Holds                                                        | In the full example                                      |
 | ---------- | ------------------------------------------------------------ | -------------------------------------------------------- |
 | `app`      | Everything app-wide: entrypoint, router, layout, query cache | `entrypoint/`, `routes/`, `layout/`, `cache/`, `styles/` |
 | `pages`    | One slice per screen, with its page-only forms and requests  | `login`, `todos`, `todo-details`, `not-found`            |
@@ -42,6 +42,8 @@ page / feature UI
 - **Errors**: non-2xx responses become `ApiError` with the server's `message` and `status`. 4xx are not retried. Route errors render `RouteErrorBoundary`.
 
 ## Authentication
+
+Applies to the `full` and `minimal` templates; `blank` ships without sign-in.
 
 - `entities/session` owns the session: `login`, `logout`, `getCurrentUser` and the `currentUser` query.
 - `features/auth` provides the `LoginForm` and `LogoutButton` user actions.

@@ -2,7 +2,7 @@ import type { QueryClient } from '@tanstack/react-query'
 import { type MiddlewareFunction, redirect } from 'react-router'
 
 import { sessionQueries } from '@/entities/session'
-import { paths } from '@/shared/routes'
+import { defaultRoute, paths } from '@/shared/routes'
 
 /**
  * Runs before any loader of the protected branch, so child loaders never fire
@@ -28,6 +28,6 @@ export const redirectIfAuthenticated =
     const user = await queryClient.query(sessionQueries.currentUser())
 
     if (user) {
-      throw redirect(paths.todos)
+      throw redirect(defaultRoute)
     }
   }

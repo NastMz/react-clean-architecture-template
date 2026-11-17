@@ -1,9 +1,9 @@
 {
-  "name": "@nastmz/create-clean-react",
+  "name": "@nastmz/create-react-starter",
   "version": "0.1.0",
   "private": false,
   "type": "module",
-  "description": "Create a React SPA organized with Feature-Sliced Design from the canonical template.",
+  "description": "Create a production-ready React SPA organized with Feature-Sliced Design.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -16,19 +16,21 @@
   "homepage": "https://github.com/NastMz/react-clean-architecture-template#readme",
   "keywords": [
     "react",
+    "starter",
+    "template",
     "feature-sliced-design",
     "fsd",
     "vite",
     "typescript",
-    "template",
     "create"
   ],
   "bin": {
-    "create-clean-react": "./bin/index.js"
+    "create-react-starter": "./bin/index.js"
   },
   "files": [
     "bin",
     "template",
+    "variants",
     "README.md"
   ],
   "scripts": {

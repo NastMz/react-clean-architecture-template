@@ -1,0 +1,10 @@
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+public/mockServiceWorker.js
+dist
+coverage
+storybook-static
+playwright-report
+test-results

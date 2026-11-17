@@ -1,0 +1,23 @@
+# pnpm settings for this project. Works with pnpm 10 and 11.
+
+# Install scripts are denied unless listed here (pnpm 11 fails on unlisted ones).
+# esbuild works without its postinstall step, so it stays disabled.
+allowBuilds:
+  esbuild: false
+
+# Same decision for pnpm 10.
+ignoredBuiltDependencies:
+  - esbuild
+
+# Security overrides for transitive dependencies whose parents still pin vulnerable
+# ranges (mostly Storybook's docgen chain and Babel's browserslist). Remove an entry
+# once `pnpm why <name>` shows the parent ships a patched range on its own.
+overrides:
+  '@babel/core@<7.29.6': ^7.29.6
+  baseline-browser-mapping@<2.11.0: ^2.11.0
+  brace-expansion@>=3.0.0 <5.0.12: ^5.0.12
+  browserslist@<4.28.7: ^4.28.7
+  esbuild@<0.28.1: ^0.28.1
+  glob@>=9.0.0 <14.0.2: ^14.0.2
+  minimatch@>=7.0.0 <11.0.1: ^11.0.1
+  source-map-js@<1.2.2: ^1.2.2

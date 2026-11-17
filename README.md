@@ -1,4 +1,4 @@
-# React Feature-Sliced Template
+# React Starter
 
 A production-ready React SPA starter built on [Feature-Sliced Design](https://feature-sliced.design) v2.1, the standard architecture for frontend apps, with its rules enforced in CI by [Steiger](https://github.com/feature-sliced/steiger).
 
@@ -7,15 +7,29 @@ React 19 + React Compiler · TypeScript · Vite 8 · React Router 8 · TanStack 
 ## Create a project
 
 ```bash
-npm create @nastmz/clean-react@latest my-app
-# or: pnpm create @nastmz/clean-react my-app
+npm create @nastmz/react-starter@latest my-app
+# or: pnpm create @nastmz/react-starter my-app
 ```
 
 ```bash
 cd my-app
 pnpm install
-pnpm dev        # sign in with demo@example.com / demo123
+pnpm dev        # demo sign-in: demo@example.com / demo123
 ```
+
+### Pick a starting point
+
+| `--template`     | You get                                                               | Use it to                        |
+| ---------------- | --------------------------------------------------------------------- | -------------------------------- |
+| `full` (default) | A small todo app: sign-in, pages, a reusable feature, entities, mocks | Learn the conventions by example |
+| `minimal`        | Sign-in, an empty home page and the full toolchain, no example data   | Start your own app with auth     |
+| `blank`          | An empty home page and the full toolchain, no sign-in                 | Start an app without auth        |
+
+```bash
+pnpm create @nastmz/react-starter my-app --template minimal
+```
+
+Every template passes the same checks in CI: typecheck, ESLint, Steiger, Prettier, tests, build, `pnpm audit` and end-to-end tests.
 
 No backend is needed to start: a Mock Service Worker backend serves the API in development and tests. Two env variables point the app at your real API.
 
@@ -23,6 +37,7 @@ No backend is needed to start: a Mock Service Worker backend serves the API in d
 
 | Option                        | Effect                                   |
 | ----------------------------- | ---------------------------------------- |
+| `-t, --template <name>`       | `full` (default), `minimal` or `blank`   |
 | `--pm <npm\|pnpm\|yarn\|bun>` | Override package-manager detection       |
 | `--install`                   | Install dependencies after scaffolding   |
 | `--force`                     | Allow writing into a non-empty directory |
@@ -55,7 +70,7 @@ Start with the template's [README](packages/template/README.md) and [architectur
 ```text
 packages/
   template/   # the generated application (source of truth)
-  cli/        # @nastmz/create-clean-react, bundles the template on publish
+  cli/        # @nastmz/create-react-starter: bundles the template and the minimal/blank variants
 ```
 
 Contributing to this repository:
@@ -75,7 +90,7 @@ Requires Node.js 22.22 or later and pnpm 10.
 - [Adding a slice](packages/template/docs/adding-a-slice.md)
 - [Testing](packages/template/docs/testing.md)
 - [Environment and connecting a real API](packages/template/docs/environment.md)
-- [Architecture decisions](packages/template/docs/decisions/README.md)
+- [Architecture decisions](docs/decisions/README.md) (maintainers)
 - [CLI](packages/cli/README.md)
 
 ## License

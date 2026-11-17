@@ -1,4 +1,4 @@
-# Feature-Sliced React App
+# React Starter
 
 A production-ready React SPA starter organized with [Feature-Sliced Design](https://feature-sliced.design) (FSD v2.1), with the architecture rules enforced by a linter instead of left to convention.
 
@@ -6,7 +6,7 @@ A production-ready React SPA starter organized with [Feature-Sliced Design](http
 
 ```bash
 pnpm install
-pnpm dev          # http://localhost:5173 — sign in with demo@example.com / demo123
+pnpm dev          # http://localhost:5173 (demo sign-in: demo@example.com / demo123)
 pnpm check        # typecheck, ESLint, Steiger (FSD), Prettier and tests
 ```
 
@@ -31,9 +31,9 @@ There is no backend to start: in development a [Mock Service Worker](https://msw
 ```text
 src/
   app/        # entrypoint, router, layout, query cache, global styles
-  pages/      # one slice per screen: login, todos, todo-details, not-found
-  features/   # user actions reused across pages: auth, toggle-todo
-  entities/   # business concepts: session, todo
+  pages/      # one slice per screen
+  features/   # user actions reused across pages
+  entities/   # business concepts: schemas, rules, API requests
   shared/     # api client, config, route paths, UI kit (no business logic)
 mocks/        # MSW mock backend (dev + tests)
 test/         # test setup and render helpers
@@ -61,8 +61,8 @@ A module may only import from layers **below** it, and only through a slice's pu
 - [Adding a slice](docs/adding-a-slice.md): step-by-step guide with a worked example.
 - [Testing](docs/testing.md): what each test layer covers and how to write one.
 - [Environment](docs/environment.md): configuration and connecting a real API.
-- [Decisions](docs/decisions/README.md): why the template looks the way it does.
+- [Decisions](docs/decisions/README.md): where to record your own architecture decisions.
 
-## Removing the demo
+## Example code
 
-The `todos` and `todo-details` pages, the `todo` entity, the `toggle-todo` feature and the todo handlers in `mocks/` are examples. Delete them, keep `auth` and `session` if you need sign-in, and start adding your own slices.
+Projects created with `--template full` include a small todo app: the `todos` and `todo-details` pages, the `todo` entity, the `toggle-todo` feature and the todo handlers in `mocks/`. Use it as a reference, or start from a clean slate with `--template minimal` (sign-in and an empty home page) or `--template blank` (no sign-in).

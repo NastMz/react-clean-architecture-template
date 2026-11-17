@@ -7,6 +7,7 @@ import { paths } from '@/shared/routes'
 import { Spinner } from '@/shared/ui'
 
 import styles from './AppLayout.module.css'
+import { navigationItems } from './navigation'
 
 export function PageFallback() {
   return (
@@ -24,18 +25,21 @@ export function AppLayout() {
     <div className={styles.shell}>
       <header className={styles.header}>
         <Link to={paths.home} className={styles.brand}>
-          Clean React
+          React Starter
         </Link>
         {user ? (
           <nav className={styles.nav} aria-label="Main">
-            <NavLink
-              to={paths.todos}
-              className={({ isActive }) =>
-                isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
-              }
-            >
-              Todos
-            </NavLink>
+            {navigationItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) =>
+                  isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
           </nav>
         ) : null}
         <div className={styles.session}>

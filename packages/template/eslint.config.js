@@ -57,6 +57,7 @@ export default defineConfig([
         { allow: [{ from: 'lib', name: 'Response' }], allowRethrowing: true },
       ],
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'import-x/first': 'error',
       'import-x/newline-after-import': 'error',
       'import-x/no-duplicates': ['error', { 'prefer-inline': true }],

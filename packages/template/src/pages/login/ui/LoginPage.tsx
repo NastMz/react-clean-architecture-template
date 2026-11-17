@@ -1,7 +1,7 @@
 import { useNavigate, useSearchParams } from 'react-router'
 
 import { LoginForm } from '@/features/auth'
-import { getSafeRedirect, paths } from '@/shared/routes'
+import { defaultRoute, getSafeRedirect } from '@/shared/routes'
 import { Alert, Card } from '@/shared/ui'
 
 import styles from './LoginPage.module.css'
@@ -9,7 +9,7 @@ import styles from './LoginPage.module.css'
 export function LoginPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const redirectTo = getSafeRedirect(searchParams.get('redirectTo'), paths.todos)
+  const redirectTo = getSafeRedirect(searchParams.get('redirectTo'), defaultRoute)
 
   return (
     <Card

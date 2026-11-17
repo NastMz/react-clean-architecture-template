@@ -1,7 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query'
 import { redirect, type RouteObject } from 'react-router'
 
-import { paths, routePatterns } from '@/shared/routes'
+import { defaultRoute, paths, routePatterns } from '@/shared/routes'
 
 import { AppLayout, PageFallback } from '../layout/AppLayout'
 import { redirectIfAuthenticated, requireSession } from './auth-middleware'
@@ -19,7 +19,7 @@ export const createRoutes = (queryClient: QueryClient): RouteObject[] => [
     HydrateFallback: PageFallback,
     children: [
       // The redirect resolves before render; the component only satisfies the router.
-      { index: true, loader: () => redirect(paths.todos), Component: PageFallback },
+      { index: true, loader: () => redirect(defaultRoute), Component: PageFallback },
       {
         path: paths.login,
         middleware: [redirectIfAuthenticated(queryClient)],

@@ -6,9 +6,9 @@ const meta = {
   title: 'Shared/Card',
   component: Card,
   args: {
-    eyebrow: 'Workspace',
-    title: 'Your todos',
-    description: 'Everything you planned for today.',
+    eyebrow: 'Account',
+    title: 'Profile',
+    description: 'Manage how others see you.',
     children: 'Card content',
   },
 } satisfies Meta<typeof Card>

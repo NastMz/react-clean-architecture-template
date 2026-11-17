@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn } from "node:child_process";
-import { constants, cp, mkdir, readFile, readdir, rename, writeFile } from "node:fs/promises";
+import { constants, cp, mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import { accessSync, existsSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
@@ -28,6 +28,13 @@ const PACKAGE_MANAGERS = {
 
 const GENERATED_NAME_PATTERN = /^[a-z0-9][a-z0-9._-]*$/;
 
+// `full` is the template as-is; the others apply a variant from ../variants.
+const TEMPLATES = {
+  full: "Todo example app with sign-in, pages, features and entities.",
+  minimal: "Sign-in flow and an empty home page, without the todo example.",
+  blank: "An empty home page with no sign-in and no example data.",
+};
+
 const EXCLUDED_ENTRIES = new Set([
   ".git",
   "node_modules",
@@ -47,6 +54,7 @@ const EXCLUDED_ENTRIES = new Set([
 function parseArgs(argv) {
   const options = {
     projectName: undefined,
+    template: undefined,
     packageManager: undefined,
     install: false,
     force: false,
@@ -73,6 +81,21 @@ function parseArgs(argv) {
 
     if (arg === "--force") {
       options.force = true;
+      continue;
+    }
+
+    if (arg === "--template" || arg === "-t") {
+      const value = argv[index + 1];
+      if (!value) {
+        throw new Error(`Missing value for --template. Use ${Object.keys(TEMPLATES).join(", ")}.`);
+      }
+      options.template = parseTemplate(value);
+      index += 1;
+      continue;
+    }
+
+    if (arg.startsWith("--template=")) {
+      options.template = parseTemplate(arg.slice("--template=".length));
       continue;
     }
 
@@ -105,6 +128,14 @@ function parseArgs(argv) {
   return options;
 }
 
+function parseTemplate(value) {
+  if (Object.hasOwn(TEMPLATES, value)) {
+    return value;
+  }
+
+  throw new Error(`Unknown template: ${value}. Use ${Object.keys(TEMPLATES).join(", ")}.`);
+}
+
 function parsePackageManager(value) {
   if (Object.hasOwn(PACKAGE_MANAGERS, value)) {
     return value;
@@ -125,7 +156,9 @@ function detectPackageManager(userAgent = process.env.npm_config_user_agent ?? "
 
 function validateProjectName(projectName) {
   if (!projectName) {
-    throw new Error("Missing project name. Example: npm create @nastmz/clean-react@latest my-app");
+    throw new Error(
+      "Missing project name. Example: npm create @nastmz/react-starter@latest my-app",
+    );
   }
 
   if (!GENERATED_NAME_PATTERN.test(projectName)) {
@@ -165,7 +198,71 @@ function resolveTemplateDirectory(cliDirectory = path.dirname(fileURLToPath(impo
     }
   }
 
-  throw new Error("Cannot find the bundled React Clean Architecture template.");
+  throw new Error("Cannot find the bundled React Starter template.");
+}
+
+function resolveVariantsDirectory(cliDirectory = path.dirname(fileURLToPath(import.meta.url))) {
+  return path.resolve(cliDirectory, "..", "variants");
+}
+
+async function loadVariantChain(variantsDirectory, name) {
+  const chain = [];
+  let current = name;
+
+  while (current) {
+    if (chain.some((variant) => variant.name === current)) {
+      throw new Error(`Circular variant inheritance at "${current}".`);
+    }
+
+    const directory = path.join(variantsDirectory, current);
+    const manifest = JSON.parse(await readFile(path.join(directory, "variant.json"), "utf8"));
+    chain.unshift({ name: current, directory, manifest });
+    current = manifest.extends;
+  }
+
+  return chain;
+}
+
+/**
+ * Turns the full template into a smaller one: each variant in the chain (base
+ * first) removes paths, then overlays its own files on top.
+ */
+async function applyVariant({ destination, template, variantsDirectory }) {
+  if (template === "full") {
+    return;
+  }
+
+  for (const { directory, manifest } of await loadVariantChain(variantsDirectory, template)) {
+    for (const relativePath of manifest.remove ?? []) {
+      const target = path.resolve(destination, relativePath);
+
+      if (!target.startsWith(destination + path.sep)) {
+        throw new Error(`Variant path escapes the project: ${relativePath}`);
+      }
+
+      await rm(target, { recursive: true, force: true });
+      await removeEmptyParents(path.dirname(target), destination);
+    }
+
+    const filesDirectory = path.join(directory, "files");
+    if (existsSync(filesDirectory)) {
+      await cp(filesDirectory, destination, { recursive: true, force: true });
+    }
+  }
+}
+
+/** Deletes directories left empty by a removal, stopping at the project root. */
+async function removeEmptyParents(directory, destination) {
+  let current = directory;
+
+  while (current.startsWith(destination + path.sep) && existsSync(current)) {
+    if ((await readdir(current)).length > 0) {
+      return;
+    }
+
+    await rm(current, { recursive: true });
+    current = path.dirname(current);
+  }
 }
 
 async function copyTemplate({ templateDirectory, destination, projectName }) {
@@ -180,8 +277,14 @@ async function copyTemplate({ templateDirectory, destination, projectName }) {
   await renderPackageJson(path.join(destination, "package.json"), projectName);
 }
 
-// npm never publishes `.gitignore`, so the bundled template ships it as `_gitignore`.
-const DOTFILE_RENAMES = [["_gitignore", ".gitignore"]];
+// Files the template cannot ship under their real name:
+// - npm never publishes `.gitignore`, so the bundled template ships `_gitignore`.
+// - a real `pnpm-workspace.yaml` inside the template would turn it into a nested
+//   workspace in this repository, so the project's pnpm settings ship renamed.
+const DOTFILE_RENAMES = [
+  ["_gitignore", ".gitignore"],
+  ["_pnpm-workspace.yaml", "pnpm-workspace.yaml"],
+];
 
 async function restoreDotfiles(destination) {
   for (const [bundledName, finalName] of DOTFILE_RENAMES) {
@@ -249,6 +352,7 @@ async function createProject(rawOptions, environment = {}) {
   const options = {
     ...rawOptions,
     packageManager: rawOptions.packageManager ?? detectPackageManager(environment.userAgent),
+    template: rawOptions.template ?? "full",
   };
 
   validateProjectName(options.projectName);
@@ -259,6 +363,11 @@ async function createProject(rawOptions, environment = {}) {
 
   await assertDestination(destination, { force: options.force });
   await copyTemplate({ templateDirectory, destination, projectName: options.projectName });
+  await applyVariant({
+    destination,
+    template: options.template,
+    variantsDirectory: environment.variantsDirectory ?? resolveVariantsDirectory(),
+  });
 
   if (options.install) {
     await runInstall(destination, options.packageManager);
@@ -267,6 +376,7 @@ async function createProject(rawOptions, environment = {}) {
   return {
     destination,
     packageManager: options.packageManager,
+    template: options.template,
     nextSteps: getNextSteps(options.projectName, options.packageManager, options.install),
   };
 }
@@ -283,15 +393,23 @@ function getNextSteps(projectName, packageManager, installed) {
 }
 
 function printHelp() {
-  console.log(`create-clean-react
+  const templates = Object.entries(TEMPLATES)
+    .map(([name, description]) => `  ${name.padEnd(8)} ${description}`)
+    .join("\n");
+
+  console.log(`create-react-starter
 
 Usage:
-  npm create @nastmz/clean-react@latest my-app
-  pnpm create @nastmz/clean-react my-app
-  yarn create @nastmz/clean-react my-app
-  bun create @nastmz/clean-react my-app
+  npm create @nastmz/react-starter@latest my-app
+  pnpm create @nastmz/react-starter my-app
+  yarn create @nastmz/react-starter my-app
+  bun create @nastmz/react-starter my-app
+
+Templates (--template, default: full):
+${templates}
 
 Options:
+  -t, --template <name>     Starting point: full, minimal or blank
   --pm <npm|pnpm|yarn|bun>  Override package manager detection
   --install                 Install dependencies after scaffolding
   --no-install              Skip dependency installation (default)
@@ -313,7 +431,9 @@ async function main() {
       userAgent: process.env.npm_config_user_agent,
     });
 
-    console.log(`\nCreated ${path.basename(result.destination)} with React Clean Architecture.`);
+    console.log(
+      `\nCreated ${path.basename(result.destination)} from the "${result.template}" template.`,
+    );
     console.log("\nNext steps:");
     for (const step of result.nextSteps) {
       console.log(`  ${step}`);
@@ -331,6 +451,7 @@ if (isEntrypoint) {
 }
 
 export {
+  applyVariant,
   copyTemplate,
   createProject,
   detectPackageManager,
