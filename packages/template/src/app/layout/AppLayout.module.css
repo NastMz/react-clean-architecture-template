@@ -1,0 +1,86 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem clamp(1rem, 4vw, 3rem);
+  background-color: rgba(255, 255, 255, 0.78);
+  border-bottom: 1px solid var(--color-border);
+  backdrop-filter: blur(16px);
+}
+
+.brand {
+  font-size: 0.95rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.nav {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background-color: var(--color-surface-muted);
+}
+
+.navLink {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.navLink:hover {
+  color: var(--color-text);
+}
+
+.active {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.session {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.user {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: flex-start;
+  width: min(100%, 1040px);
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 2rem);
+}
+
+.fallback {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 1rem;
+}
+
+@media (max-width: 640px) {
+  .header {
+    flex-wrap: wrap;
+  }
+
+  .user {
+    display: none;
+  }
+}
