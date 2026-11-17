@@ -104,3 +104,23 @@ test("createProject copies the template, renders package.json, and omits local a
     await rm(templateDirectory, { recursive: true, force: true });
   }
 });
+
+test("createProject restores the .gitignore that npm cannot publish", async () => {
+  const cwd = await mkdtemp(path.join(os.tmpdir(), "clean-react-output-"));
+  const templateDirectory = await createFixtureTemplate();
+  await writeFile(path.join(templateDirectory, "_gitignore"), "node_modules\n");
+
+  try {
+    await createProject(
+      { projectName: "my-app", install: false, force: false },
+      { cwd, templateDirectory, userAgent: "pnpm/10.33.0 npm/? node/v24" },
+    );
+
+    const destination = path.join(cwd, "my-app");
+    assert.equal(await readFile(path.join(destination, ".gitignore"), "utf8"), "node_modules\n");
+    assert.equal(existsSync(path.join(destination, "_gitignore")), false);
+  } finally {
+    await rm(cwd, { recursive: true, force: true });
+    await rm(templateDirectory, { recursive: true, force: true });
+  }
+});

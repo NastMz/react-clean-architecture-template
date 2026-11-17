@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn } from "node:child_process";
-import { constants, cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { constants, cp, mkdir, readFile, readdir, rename, writeFile } from "node:fs/promises";
 import { accessSync, existsSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
@@ -176,7 +176,21 @@ async function copyTemplate({ templateDirectory, destination, projectName }) {
     filter: (source) => !shouldExclude(source, templateDirectory),
   });
 
+  await restoreDotfiles(destination);
   await renderPackageJson(path.join(destination, "package.json"), projectName);
+}
+
+// npm never publishes `.gitignore`, so the bundled template ships it as `_gitignore`.
+const DOTFILE_RENAMES = [["_gitignore", ".gitignore"]];
+
+async function restoreDotfiles(destination) {
+  for (const [bundledName, finalName] of DOTFILE_RENAMES) {
+    const bundledPath = path.join(destination, bundledName);
+
+    if (existsSync(bundledPath) && !existsSync(path.join(destination, finalName))) {
+      await rename(bundledPath, path.join(destination, finalName));
+    }
+  }
 }
 
 function shouldExclude(source, templateDirectory) {

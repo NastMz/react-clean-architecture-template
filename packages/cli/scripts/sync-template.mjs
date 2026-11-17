@@ -1,4 +1,5 @@
-import { cp, mkdir, rm } from "node:fs/promises";
+import { cp, mkdir, rename, rm } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -30,6 +31,11 @@ await cp(sourceTemplate, bundledTemplate, {
   recursive: true,
   filter: (source) => !shouldExclude(source),
 });
+
+// npm drops `.gitignore` from published packages; the CLI renames it back on create.
+if (existsSync(path.join(bundledTemplate, ".gitignore"))) {
+  await rename(path.join(bundledTemplate, ".gitignore"), path.join(bundledTemplate, "_gitignore"));
+}
 
 function shouldExclude(source) {
   const relativePath = path.relative(sourceTemplate, source);
