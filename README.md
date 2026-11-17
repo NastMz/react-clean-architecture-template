@@ -93,6 +93,14 @@ Requires Node.js 22.22 or later and pnpm 10.
 - [Architecture decisions](docs/decisions/README.md) (maintainers)
 - [CLI](packages/cli/README.md)
 
+## Releasing (maintainers)
+
+1. Create a GitHub release with a tag such as `v1.2.0`.
+2. The [CD workflow](.github/workflows/cd.yml) tests the CLI and stages it on npm with `npm stage publish`, authenticated through trusted publishing (OIDC) and with provenance. Nothing is public yet.
+3. Review the staged version (`npm stage list`, `npm stage download <id>`), then approve it with 2FA: `npm stage approve <id>`, or **Staged Packages** on npmjs.com.
+
+The trusted publisher on npmjs.com (package settings, **Trusted publishing**) points at `NastMz/react-starter` and `cd.yml`, and allows only `npm stage publish`, so a compromised workflow cannot publish on its own.
+
 ## License
 
 MIT

@@ -14,3 +14,12 @@ overrides:
   glob@>=9.0.0 <14.0.2: ^14.0.2
   minimatch@>=7.0.0 <11.0.1: ^11.0.1
   source-map-js@<1.2.2: ^1.2.2
+
+# Advisories with no patched release yet. Each entry says why it does not apply here;
+# remove it as soon as a fixed version ships and an override can replace it.
+auditConfig:
+  ignoreGhsas:
+    # picomatch <=4.0.7 ReDoS (no fix released). Exploitable only with attacker-supplied
+    # glob patterns; picomatch runs only in dev tooling (lint-staged, Storybook, Steiger)
+    # on patterns written in this repository.
+    - GHSA-fc5q-39xc-vjpf
