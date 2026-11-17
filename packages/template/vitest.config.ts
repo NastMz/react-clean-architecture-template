@@ -23,10 +23,5 @@ export default defineConfig({
     coverage: {
       reporter: ['text', 'html'],
     },
-    server: {
-      deps: {
-        inline: ['vitest-canvas-mock'],
-      },
-    },
   },
 })

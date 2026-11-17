@@ -2,7 +2,6 @@ import { getConfig } from '@app/bootstrap/config'
 import { createAppFeatureAdapters } from '@app/extensions/registry'
 import type { LoggerPort, TelemetryPort } from '@shared/contracts/TelemetryPort'
 import { ConsoleTelemetry } from '@shared/observability/ConsoleTelemetry'
-import { OpenTelemetryAdapter } from '@shared/observability/OpenTelemetryAdapter'
 import { QueryClient } from '@tanstack/react-query'
 
 /**
@@ -24,7 +23,7 @@ export interface AppContainer {
  * Initializes only app-global concerns and delegates feature assembly to registry manifests.
  *
  * @param telemetry - Optional custom telemetry implementation
- *                    Defaults to: OpenTelemetryAdapter in browser, ConsoleTelemetry in Node.js/SSR
+ *                    Defaults to ConsoleTelemetry
  * @returns Fully configured application container with all dependencies
  */
 export const createContainer = (telemetry?: TelemetryPort & LoggerPort): AppContainer => {
@@ -38,12 +37,9 @@ export const createContainer = (telemetry?: TelemetryPort & LoggerPort): AppCont
   })
 
   // Default telemetry selection:
-  // - Browser: OpenTelemetryAdapter (invisible without backend exporter)
   // - Node.js/Tests: ConsoleTelemetry (visible for debugging)
   // - Custom: use provided implementation
-  const selectedTelemetry =
-    telemetry ??
-    (typeof window !== 'undefined' ? new OpenTelemetryAdapter() : new ConsoleTelemetry())
+  const selectedTelemetry = telemetry ?? new ConsoleTelemetry()
 
   const config = getConfig()
 

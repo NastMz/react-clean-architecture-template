@@ -3,12 +3,7 @@
  * Helps determine appropriate error handling strategies
  */
 export type AppErrorKind =
-  | 'Validation'
-  | 'Unauthorized'
-  | 'Network'
-  | 'Conflict'
-  | 'ServiceUnavailable'
-  | 'Unknown'
+  'Validation' | 'Unauthorized' | 'Network' | 'Conflict' | 'ServiceUnavailable' | 'Unknown'
 
 /**
  * Structured application error object

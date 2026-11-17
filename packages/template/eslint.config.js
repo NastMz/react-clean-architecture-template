@@ -7,7 +7,7 @@ import storybook from 'eslint-plugin-storybook'
 
 import js from '@eslint/js'
 import globals from 'globals'
-import importPlugin from 'eslint-plugin-import'
+import importPlugin from 'eslint-plugin-import-x'
 import playwright from 'eslint-plugin-playwright'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'

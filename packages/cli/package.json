@@ -36,6 +36,6 @@
     "test": "node --test test/*.test.js"
   },
   "engines": {
-    "node": ">=20.19.0"
+    "node": ">=22.22.0"
   }
 }
