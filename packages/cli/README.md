@@ -34,7 +34,7 @@ pnpm create @nastmz/react-starter my-app --template minimal
 | `--install`                   | Install dependencies after scaffolding (skipped by default) |
 | `--force`                     | Allow writing into a non-empty directory                    |
 
-Requires Node.js 22.22 or later. See the [template documentation](https://github.com/NastMz/react-clean-architecture-template/tree/main/packages/template) for the architecture and workflows.
+Requires Node.js 22.22 or later. See the [template documentation](https://github.com/NastMz/react-starter/tree/main/packages/template) for the architecture and workflows.
 
 ## How templates work
 

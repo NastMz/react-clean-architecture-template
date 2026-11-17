@@ -7,13 +7,13 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NastMz/react-clean-architecture-template.git",
+    "url": "git+https://github.com/NastMz/react-starter.git",
     "directory": "packages/cli"
   },
   "bugs": {
-    "url": "https://github.com/NastMz/react-clean-architecture-template/issues"
+    "url": "https://github.com/NastMz/react-starter/issues"
   },
-  "homepage": "https://github.com/NastMz/react-clean-architecture-template#readme",
+  "homepage": "https://github.com/NastMz/react-starter#readme",
   "keywords": [
     "react",
     "starter",
