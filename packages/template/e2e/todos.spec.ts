@@ -24,6 +24,17 @@ test('returns to the requested page after signing in', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Read the architecture guide' })).toBeVisible()
 })
 
+test('keeps the session after a full page reload', async ({ page }) => {
+  await page.goto('/todos/todo-2')
+  await signIn(page)
+  await expect(page.getByRole('heading', { name: 'Read the architecture guide' })).toBeVisible()
+
+  await page.reload()
+
+  await expect(page.getByRole('heading', { name: 'Read the architecture guide' })).toBeVisible()
+  await expect(page.getByText('Demo User')).toBeVisible()
+})
+
 test('manages a todo from creation to deletion', async ({ page }) => {
   const title = 'Write an end-to-end test'
   await page.goto('/')
