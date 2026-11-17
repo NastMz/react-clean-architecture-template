@@ -1,38 +1,32 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const e2eHost = '127.0.0.1'
-const e2ePort = Number(process.env.PLAYWRIGHT_WEB_SERVER_PORT ?? 4173)
-const e2eBaseUrl = `http://${e2eHost}:${e2ePort}`
+const host = '127.0.0.1'
+const port = Number(process.env.PLAYWRIGHT_PORT ?? 4173)
+const baseURL = `http://${host}:${port}`
 
 /**
- * Playwright configuration for E2E tests
+ * End-to-end tests run against the Vite dev server, where the MSW mock backend
+ * is enabled by default. Point `VITE_API_URL` at a real API and set
+ * `VITE_API_MOCKING=disabled` to run them against your backend instead.
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
-  testDir: './tests/e2e',
+  testDir: './e2e',
   fullyParallel: true,
-  forbidOnly: !!process.env.CI,
+  forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
-
+  reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'html',
   use: {
-    baseURL: e2eBaseUrl,
+    baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
-
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-  ],
-
+  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: `pnpm dev --host ${e2eHost} --port ${e2ePort}`,
-    url: e2eBaseUrl,
+    command: `pnpm exec vite --host ${host} --port ${port} --strictPort`,
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    timeout: 120_000,
   },
 })

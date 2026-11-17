@@ -1,23 +1,15 @@
-# Decision Log
+# Architecture decisions
 
-Maintainer-facing ADR directory.
+Record the decisions that shape this app as short ADRs (Architecture Decision Records), one file per decision: `001-use-zustand-for-cart-state.md`, `002-…`. Add one when a decision is architectural, not obvious, and likely to be questioned later.
 
-## When to add an ADR
-
-Add one when a decision is architectural, non-obvious, and likely to be revisited, for example:
-
-- why a feature exposes `api` and `api/composition`
-- why a transport or auth strategy was chosen
-- why a boundary rule exists in ESLint
-- why a shared primitive belongs in `shared/network` or `shared/kernel`
+The conventions this project started with (Feature-Sliced Design, MSW, TanStack Query, route middleware for auth) are explained in [../architecture.md](../architecture.md).
 
 ## Template
 
 ```markdown
-# ADR-XXX: Title
+# ADR-NNN: Title
 
-**Date:** YYYY-MM-DD
-**Status:** Accepted | Deprecated | Superseded
+**Date:** YYYY-MM-DD · **Status:** Accepted | Superseded by ADR-NNN
 
 ## Context
 
@@ -25,17 +17,13 @@ What problem or pressure are we responding to?
 
 ## Decision
 
-What are we choosing and what is in scope?
+What did we choose, and what is in scope?
 
 ## Consequences
 
-What trade-offs, limitations, or follow-up work does this introduce?
+What trade-offs or follow-up work does this create?
 
-## Alternatives Considered
+## Alternatives considered
 
 What did we reject, and why?
 ```
-
-## Recommendation
-
-When a decision impacts template architecture, boundaries, or extension contracts, capture it as an ADR in this folder.

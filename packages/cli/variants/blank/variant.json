@@ -1,0 +1,12 @@
+{
+  "description": "An empty home page with no sign-in and no example data.",
+  "extends": "minimal",
+  "remove": [
+    "src/pages/login",
+    "src/features/auth",
+    "src/entities/session",
+    "src/app/routes/auth-middleware.ts",
+    "src/shared/api/auth-token.ts",
+    "e2e/auth.spec.ts"
+  ]
+}

@@ -1,6 +1,6 @@
-import type { Preview } from '@storybook/react'
+import '../src/app/styles/global.css'
 
-import '../src/index.css'
+import type { Preview } from '@storybook/react-vite'
 
 const preview: Preview = {
   parameters: {
@@ -10,8 +10,8 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
-    docs: {
-      autodocs: true,
+    a11y: {
+      test: 'error',
     },
   },
   tags: ['autodocs'],

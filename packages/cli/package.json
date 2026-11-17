@@ -1,41 +1,43 @@
 {
-  "name": "@nastmz/create-clean-react",
+  "name": "@nastmz/create-react-starter",
   "version": "0.1.0",
   "private": false,
   "type": "module",
-  "description": "Create a React Clean Architecture SPA from the canonical template.",
+  "description": "Create a production-ready React SPA organized with Feature-Sliced Design.",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NastMz/react-clean-architecture-template.git",
+    "url": "git+https://github.com/NastMz/react-starter.git",
     "directory": "packages/cli"
   },
   "bugs": {
-    "url": "https://github.com/NastMz/react-clean-architecture-template/issues"
+    "url": "https://github.com/NastMz/react-starter/issues"
   },
-  "homepage": "https://github.com/NastMz/react-clean-architecture-template#readme",
+  "homepage": "https://github.com/NastMz/react-starter#readme",
   "keywords": [
     "react",
-    "clean-architecture",
+    "starter",
+    "template",
+    "feature-sliced-design",
+    "fsd",
     "vite",
     "typescript",
-    "template",
     "create"
   ],
   "bin": {
-    "create-clean-react": "./bin/index.js"
+    "create-react-starter": "./bin/index.js"
   },
   "files": [
     "bin",
     "template",
-    "README.md",
-    "docs"
+    "variants",
+    "README.md"
   ],
   "scripts": {
     "prepack": "node ./scripts/sync-template.mjs",
     "test": "node --test test/*.test.js"
   },
   "engines": {
-    "node": ">=20.19.0"
+    "node": ">=22.22.0"
   }
 }

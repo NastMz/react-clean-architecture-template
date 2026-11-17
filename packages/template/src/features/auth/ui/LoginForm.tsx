@@ -1,46 +1,52 @@
-import { Button } from '@shared/ui/atoms/Button'
-import { Input } from '@shared/ui/atoms/Input'
-import { Row, Stack } from '@shared/ui/atoms/Layout'
-import { Muted } from '@shared/ui/atoms/Typography'
-import type { FormEventHandler, InputHTMLAttributes } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 
-interface LoginFormProps {
-  emailError?: string
-  emailInputProps: InputHTMLAttributes<HTMLInputElement>
-  isSubmitting: boolean
-  onSubmit: FormEventHandler<HTMLFormElement>
-  passwordError?: string
-  passwordInputProps: InputHTMLAttributes<HTMLInputElement>
+import { type Credentials, credentialsSchema, type User } from '@/entities/session'
+import { getErrorMessage } from '@/shared/api'
+import { Alert, Button, TextField } from '@/shared/ui'
+
+import { useLogin } from '../model/useLogin'
+import styles from './LoginForm.module.css'
+
+export interface LoginFormProps {
+  onSuccess?: (user: User) => void
 }
 
-export const LoginForm = ({
-  emailError,
-  emailInputProps,
-  isSubmitting,
-  onSubmit,
-  passwordError,
-  passwordInputProps,
-}: LoginFormProps) => {
+export function LoginForm({ onSuccess }: LoginFormProps) {
+  const loginMutation = useLogin()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Credentials>({
+    resolver: zodResolver(credentialsSchema),
+    defaultValues: { email: '', password: '' },
+  })
+
+  const submit = handleSubmit((credentials) => {
+    loginMutation.mutate(credentials, { onSuccess })
+  })
+
   return (
-    <form aria-label="Auth login form" onSubmit={onSubmit}>
-      <Stack>
-        <label>
-          <span>Email</span>
-          <Input type="email" required {...emailInputProps} />
-          {emailError ? <Muted>{emailError}</Muted> : null}
-        </label>
-        <label>
-          <span>Password</span>
-          <Input type="password" required {...passwordInputProps} />
-          {passwordError ? <Muted>{passwordError}</Muted> : null}
-        </label>
-        <Row>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Signing in…' : 'Login'}
-          </Button>
-          <Muted>Use demo@example.com / demo123</Muted>
-        </Row>
-      </Stack>
+    <form className={styles.form} noValidate onSubmit={submit}>
+      {loginMutation.isError ? <Alert>{getErrorMessage(loginMutation.error)}</Alert> : null}
+      <TextField
+        label="Email"
+        type="email"
+        autoComplete="email"
+        error={errors.email?.message}
+        {...register('email')}
+      />
+      <TextField
+        label="Password"
+        type="password"
+        autoComplete="current-password"
+        error={errors.password?.message}
+        {...register('password')}
+      />
+      <Button type="submit" disabled={loginMutation.isPending}>
+        {loginMutation.isPending ? 'Signing in…' : 'Sign in'}
+      </Button>
     </form>
   )
 }

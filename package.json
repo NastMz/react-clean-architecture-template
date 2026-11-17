@@ -1,18 +1,22 @@
 {
-  "name": "react-clean-architecture-template-workspace",
+  "name": "react-starter-workspace",
   "private": true,
   "version": "0.0.0",
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "prepare": "husky",
     "build": "pnpm -C packages/template build",
+    "check": "pnpm -C packages/template check && pnpm -C packages/cli test",
     "format": "pnpm -C packages/template format",
-    "lint": "pnpm -C packages/template lint",
+    "lint": "pnpm -C packages/template lint && pnpm -C packages/template lint:fsd",
     "test": "pnpm -C packages/template test && pnpm -C packages/cli test",
     "typecheck": "pnpm -C packages/template typecheck"
   },
   "devDependencies": {
     "husky": "^9.1.7",
-    "lint-staged": "^15.5.2"
+    "lint-staged": "^17.6.1"
+  },
+  "engines": {
+    "node": ">=22.22.0"
   }
 }

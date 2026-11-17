@@ -1,0 +1,11 @@
+{
+  "description": "Sign-in flow and an empty home page, without the todo example.",
+  "remove": [
+    "src/pages/todos",
+    "src/pages/todo-details",
+    "src/entities/todo",
+    "src/features/toggle-todo",
+    "src/shared/routes/paths.test.ts",
+    "e2e/todos.spec.ts"
+  ]
+}

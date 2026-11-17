@@ -1,29 +1,29 @@
-# Environment Configuration
+# Environment
 
-Environment handling is intentionally centralized.
+Configuration is read once at startup in `src/shared/config/env.ts` and validated with Zod, so a bad value fails immediately with a clear error.
 
-## Source of truth
+| Variable           | Default                                | Purpose                                        |
+| ------------------ | -------------------------------------- | ---------------------------------------------- |
+| `VITE_API_URL`     | `/api`                                 | Base URL of the backend (trailing `/` removed) |
+| `VITE_API_MOCKING` | `enabled` in dev, `disabled` in builds | Serve the API from the MSW mock backend        |
 
-- `src/app/bootstrap/env.ts`
-- `src/app/bootstrap/config.ts`
+Set them in `.env.local` (git-ignored) or in your CI/hosting provider. Only `VITE_`-prefixed variables reach the browser, so never put secrets in them.
 
-Read env values in bootstrap/composition code, then consume derived config across the app.
+## Connecting a real API
 
-## Supported variables
+1. `.env.local`:
 
-The template currently does not require env variables.
+   ```bash
+   VITE_API_URL=https://api.example.com
+   VITE_API_MOCKING=disabled
+   ```
 
-`env.ts` and `config.ts` are still the centralized place to add runtime variables when a consuming app defines its own integrations.
+2. Make sure the backend allows your origin (CORS), or proxy `/api` through Vite with `server.proxy` in `vite.config.ts` and keep `VITE_API_URL=/api`.
+3. Keep the response shapes in sync with the Zod schemas in `entities/*/model`. A mismatch surfaces as `Unexpected response from GET /...`.
+4. When the backend covers everything, delete `mocks/browser.ts`, the `enableApiMocking` call in `src/app/entrypoint/main.tsx` and `public/mockServiceWorker.js`. Keep `mocks/handlers.ts` and `mocks/node.ts` for tests.
 
-## Validation
+## Adding a variable
 
-`env.ts` uses Zod for runtime parsing and can be extended with project-specific variables.
-
-Invalid env values fail fast at startup.
-
-For demo mode, no `.env` file is required.
-
-## Vite notes
-
-- client vars must use `VITE_` prefix
-- restart the dev server after changing env files
+1. Add it to the schema in `src/shared/config/env.ts` and expose it on `AppEnv`.
+2. Declare it in `src/vite-env.d.ts` for editor autocompletion.
+3. Read it through `env` from `@/shared/config`, never through `import.meta.env` directly.

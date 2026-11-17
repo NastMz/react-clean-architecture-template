@@ -1,106 +1,29 @@
 # AGENTS.md
 
-## Purpose
+Working rules for AI coding agents in this project. Humans: see [README.md](README.md) and [docs/architecture.md](docs/architecture.md).
 
-This file gives AI coding agents the working rules for this project.
+## Architecture (Feature-Sliced Design v2.1)
 
-The template is intentionally small and opinionated. Preserve the contracts before adding convenience.
+- Layers, top to bottom: `app` → `pages` → `features` → `entities` → `shared`. Import only from lower layers.
+- Slices on the same layer never import each other. Entities may cross-reference only through `entities/<a>/@x/<b>.ts`.
+- Import other slices through their public API with the `@/` alias (`@/entities/todo`). Inside a slice, use relative imports.
+- Every slice has an `index.ts` with explicit named exports. Never `export *`.
+- Segment names describe purpose: `ui`, `model`, `api`, `lib`, `config`. Never `hooks`, `components`, `types`, `utils`, `helpers`, `services`, `store` or `providers`.
+- Pages first: code used by one page stays in that page. Extract to `features`/`entities` only when a second consumer exists.
+- New slices: `pnpm slice <layer> <name>`. New routes: `src/app/routes/routes.tsx`, with paths in `src/shared/routes/paths.ts`.
 
-## Core rules
+## Data and state
 
-- Do not build after changes.
-- Do not create commits unless the user explicitly asks.
-- Verify technical claims in code/tests/docs before stating them.
-- Prefer minimal, contract-preserving changes over broad rewrites.
+- Server state uses TanStack Query. Add reads as query-option factories in the entity's `api` segment and invalidate by their keys.
+- HTTP goes through `apiClient` from `@/shared/api` with a Zod schema for every response body.
+- Every new endpoint needs a handler in `mocks/handlers.ts`.
+- Forms use React Hook Form with `zodResolver` and a schema from the entity `model`.
 
-## Template intent
+## React and TypeScript
 
-This project is an opinionated architecture baseline for React SPAs.
+- React 19 with the React Compiler: no `useMemo`/`useCallback`/`memo` by default, no `forwardRef` (pass `ref` as a prop), named imports from `react`.
+- No `any`, no non-null assertions, type-only imports with `import type`.
 
-Its public intent is to make React SPA startup repeatable with consistent architectural standards and less accidental boilerplate.
+## Verification
 
-Canonical features:
-
-- `auth` → cross-cutting session/protection example
-- `todo` → simple business feature example
-
-Do not re-introduce demo features unless the user explicitly asks.
-
-## Architecture rules
-
-- App integration happens through `src/app/extensions/<feature>.tsx` and `src/app/extensions/registry.tsx`.
-- Do not wire features directly in parallel app files when the registry contract can handle it.
-- `src/app/*` may consume features only through `@features/*/api` or `@features/*/api/composition`.
-- `src/shared/*` must stay independent from `@app/*` and `@features/*`.
-
-## Feature scaffold contract
-
-Required feature folders:
-
-- `api/`
-- `adapters/`
-- `application/`
-- `domain/`
-- `infra/`
-- `ui/`
-
-Optional folder:
-
-- `composition/`
-
-Public API split:
-
-- `@features/<feature>/api` → UI-facing consumption
-- `@features/<feature>/api/composition` → wiring/tests only
-
-## UI thesis rules
-
-Frontend maintainability here depends on small composable units with clear responsibilities.
-
-- Page/container components orchestrate hooks, mutation callbacks, and error derivation.
-- Presentational components render structure and visual states from props.
-- Presentational components must not import hooks, adapters, use cases, repositories, or `@app/*`.
-- Separate layout, presentation, state, and domain concerns when the feature complexity justifies it.
-- Do not force abstraction by size alone; extract only when reuse or clarity justifies it.
-
-## Shared UI promotion rule
-
-- Keep single-feature UI inside `src/features/<feature>/ui`.
-- Promote UI into `src/shared/ui/*` only after demonstrated reuse in at least 2 features.
-- Avoid speculative shared abstractions and orphan components.
-
-## React / TypeScript rules
-
-- Use React 19 style: no `React.` namespace types, no default React import.
-- Do not add `useMemo` / `useCallback` by default.
-- Prefer explicit `import type` for type-only imports.
-- Do not use `any`.
-
-## Testing rules
-
-- Follow strict TDD when changing behavior: RED → GREEN → REFACTOR.
-- Prefer targeted validation for touched areas.
-- Do not build as a validation step.
-
-Useful commands:
-
-- `pnpm test`
-- `pnpm test:e2e`
-- `pnpm typecheck`
-- `pnpm lint`
-
-## Documentation rules
-
-- Keep user-facing docs focused on template consumers.
-- Keep maintainer/internal status out of consumer-facing template docs.
-- When changing contracts, update docs and contract tests together.
-
-## High-value files
-
-- `README.md`
-- `docs/architecture.md`
-- `docs/feature-playbook.md`
-- `tests/unit/contract/featureScaffoldContract.test.ts`
-- `src/app/extensions/registry.tsx`
-
-When in doubt, preserve the template's minimal surface and strengthen the contract instead of adding more demo code.
+Run `pnpm check` (typecheck, ESLint, Steiger, Prettier, tests) before finishing. Add or update a colocated test for every behavior change; use `renderApp` from `test/render.tsx` for page-level tests. Update the docs when you change a convention.

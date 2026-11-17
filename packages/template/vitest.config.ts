@@ -1,32 +1,20 @@
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { defineConfig, mergeConfig } from 'vitest/config'
 
-import { defineConfig } from 'vitest/config'
+import viteConfig from './vite.config.ts'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-
-export default defineConfig({
-  resolve: {
-    alias: {
-      '@app': resolve(__dirname, 'src/app'),
-      '@shared': resolve(__dirname, 'src/shared'),
-      '@features': resolve(__dirname, 'src/features'),
-      '@tests': resolve(__dirname, 'tests'),
-    },
-  },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./tests/setup.ts'],
-    exclude: ['**/node_modules/**', '**/dist/**', '**/tests/e2e/**', '**/*.e2e.ts', '**/*.spec.ts'],
-    coverage: {
-      reporter: ['text', 'html'],
-    },
-    server: {
-      deps: {
-        inline: ['vitest-canvas-mock'],
+export default mergeConfig(
+  viteConfig,
+  defineConfig({
+    test: {
+      environment: 'jsdom',
+      setupFiles: ['./test/setup.ts'],
+      include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.{ts,mjs}'],
+      coverage: {
+        provider: 'v8',
+        include: ['src/**/*.{ts,tsx}'],
+        exclude: ['src/**/*.stories.tsx', 'src/app/entrypoint/**'],
+        reporter: ['text', 'html'],
       },
     },
-  },
-})
+  }),
+)
