@@ -68,9 +68,11 @@ jobs:
       fail-fast: false
       matrix:
         template: [full, minimal, blank]
+    # Outside the checkout, so pnpm treats the project as standalone, not as part
+    # of this repository's workspace. (`runner.temp` is not allowed in `defaults`.)
     defaults:
       run:
-        working-directory: ${{ runner.temp }}/app
+        working-directory: /tmp/app
     steps:
       - uses: actions/checkout@v7
 
@@ -81,7 +83,7 @@ jobs:
           node-version: 24
 
       - name: Create project with the CLI
-        working-directory: ${{ runner.temp }}
+        working-directory: /tmp
         run: node "$GITHUB_WORKSPACE/packages/cli/bin/index.js" app --template ${{ matrix.template }}
 
       - name: Install dependencies
