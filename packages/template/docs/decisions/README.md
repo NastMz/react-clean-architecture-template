@@ -1,12 +1,8 @@
 # Architecture decisions
 
-Short records of choices that shape the template. Add one when a decision is architectural, not obvious, and likely to be questioned later.
+Record the decisions that shape this app as short ADRs (Architecture Decision Records), one file per decision: `001-use-zustand-for-cart-state.md`, `002-…`. Add one when a decision is architectural, not obvious, and likely to be questioned later.
 
-| ADR                                    | Decision                                                          |
-| -------------------------------------- | ----------------------------------------------------------------- |
-| [001](001-feature-sliced-design.md)    | Feature-Sliced Design instead of layered Clean Architecture       |
-| [002](002-msw-mock-backend.md)         | MSW as the mock backend for development and tests                 |
-| [003](003-server-state-and-routing.md) | TanStack Query for server state, React Router middleware for auth |
+The conventions this project started with (Feature-Sliced Design, MSW, TanStack Query, route middleware for auth) are explained in [../architecture.md](../architecture.md).
 
 ## Template
 
@@ -17,9 +13,17 @@ Short records of choices that shape the template. Add one when a decision is arc
 
 ## Context
 
+What problem or pressure are we responding to?
+
 ## Decision
+
+What did we choose, and what is in scope?
 
 ## Consequences
 
+What trade-offs or follow-up work does this create?
+
 ## Alternatives considered
+
+What did we reject, and why?
 ```
