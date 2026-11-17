@@ -1,10 +1,8 @@
 # create-clean-react
 
-Create a React Clean Architecture SPA without manually copying the template.
+Create a React SPA organized with [Feature-Sliced Design](https://feature-sliced.design), with React Router 8, TanStack Query, Zod, MSW, Vitest, Playwright and Storybook already wired.
 
 ## Usage
-
-Use the package manager you already use:
 
 ```bash
 npm create @nastmz/clean-react@latest my-app
@@ -13,21 +11,14 @@ yarn create @nastmz/clean-react my-app
 bun create @nastmz/clean-react my-app
 ```
 
-The CLI detects the invoking package manager and prints matching next steps.
+The CLI detects the invoking package manager and prints matching next steps. The generated project's scripts, Git hooks and CI use pnpm.
 
 ## Options
 
-```bash
-create-clean-react my-app --pm npm
-create-clean-react my-app --pm pnpm
-create-clean-react my-app --pm yarn
-create-clean-react my-app --pm bun
-create-clean-react my-app --install
-create-clean-react my-app --force
-```
+| Option                        | Effect                                                      |
+| ----------------------------- | ----------------------------------------------------------- |
+| `--pm <npm\|pnpm\|yarn\|bun>` | Override package-manager detection                          |
+| `--install`                   | Install dependencies after scaffolding (skipped by default) |
+| `--force`                     | Allow writing into a non-empty directory                    |
 
-- `--pm` overrides package-manager detection.
-- `--install` installs dependencies after scaffolding.
-- `--force` allows writing into an existing directory.
-
-By default, dependency installation is skipped and the CLI prints the commands to run next.
+Requires Node.js 22.22 or later. See the [template documentation](https://github.com/NastMz/react-clean-architecture-template/tree/main/packages/template) for the architecture and workflows.

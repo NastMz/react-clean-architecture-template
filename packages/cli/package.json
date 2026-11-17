@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": false,
   "type": "module",
-  "description": "Create a React Clean Architecture SPA from the canonical template.",
+  "description": "Create a React SPA organized with Feature-Sliced Design from the canonical template.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -16,7 +16,8 @@
   "homepage": "https://github.com/NastMz/react-clean-architecture-template#readme",
   "keywords": [
     "react",
-    "clean-architecture",
+    "feature-sliced-design",
+    "fsd",
     "vite",
     "typescript",
     "template",
@@ -28,8 +29,7 @@
   "files": [
     "bin",
     "template",
-    "README.md",
-    "docs"
+    "README.md"
   ],
   "scripts": {
     "prepack": "node ./scripts/sync-template.mjs",

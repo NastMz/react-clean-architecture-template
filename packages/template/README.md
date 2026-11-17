@@ -1,87 +1,68 @@
-# React Clean Architecture Template
+# Feature-Sliced React App
 
-This template is an opinionated architecture for React SPAs.
+A production-ready React SPA starter organized with [Feature-Sliced Design](https://feature-sliced.design) (FSD v2.1), with the architecture rules enforced by a linter instead of left to convention.
 
-Its goal is to turn React SPA bootstrap into a repeatable operation with consistent architectural standards and less accidental boilerplate.
-
-It is built on React 19 + TypeScript + Vite and focused on clean boundaries between app wiring, feature slices, and shared modules.
-
-It includes runnable examples (`auth` and `todo`) so teams can extend the template with real use cases instead of starting from an empty shell.
-
-## Prerequisites
-
-- Node.js `>=20.19.0` (or `>=22.12.0`)
-- npm, pnpm, yarn, or bun
-
-## Create a project
-
-Use the package manager you already use:
+## Quick path
 
 ```bash
-npm create @nastmz/clean-react@latest my-app
-pnpm create @nastmz/clean-react my-app
-yarn create @nastmz/clean-react my-app
-bun create @nastmz/clean-react my-app
+pnpm install
+pnpm dev          # http://localhost:5173 — sign in with demo@example.com / demo123
+pnpm check        # typecheck, ESLint, Steiger (FSD), Prettier and tests
 ```
 
-Then follow the printed next steps for that same package manager.
+There is no backend to start: in development a [Mock Service Worker](https://mswjs.io) backend serves `/api`. Point the app at your own API with two env variables, see [docs/environment.md](docs/environment.md).
 
-## What you get
+## Stack
 
-- React 19 SPA baseline with Vite
-- Feature slices for `auth` and `todo`
-- App feature integration via `src/app/extensions/*`
-- Shared modules under `src/shared/*` (kernel, contracts, network, observability, UI)
-- Runtime validation with Zod
-- Data orchestration with TanStack Query
-- Testing setup: Vitest + Testing Library + Playwright
-- Storybook configured for UI exploration
+| Concern           | Choice                                                                                       |
+| ----------------- | -------------------------------------------------------------------------------------------- |
+| Build             | Vite 8, React 19 with the React Compiler, TypeScript (strict)                                |
+| Architecture      | Feature-Sliced Design v2.1, enforced by [Steiger](https://github.com/feature-sliced/steiger) |
+| Routing           | React Router 8 (data mode): lazy pages, loaders, auth middleware                             |
+| Server state      | TanStack Query with query-option factories                                                   |
+| Forms, validation | React Hook Form + Zod (forms, API responses and env)                                         |
+| API mocking       | MSW, shared by the dev server and the tests                                                  |
+| Tests             | Vitest + Testing Library + MSW, Playwright for end-to-end                                    |
+| UI docs           | Storybook 10 with the accessibility addon                                                    |
+| Quality           | ESLint 10 (typescript-eslint strict), Prettier, Husky + lint-staged                          |
 
-## How to run
+## Project structure
 
-```bash
-npm run dev
-# or: pnpm dev / yarn dev / bun run dev
+```text
+src/
+  app/        # entrypoint, router, layout, query cache, global styles
+  pages/      # one slice per screen: login, todos, todo-details, not-found
+  features/   # user actions reused across pages: auth, toggle-todo
+  entities/   # business concepts: session, todo
+  shared/     # api client, config, route paths, UI kit (no business logic)
+mocks/        # MSW mock backend (dev + tests)
+test/         # test setup and render helpers
+e2e/          # Playwright specs
 ```
 
-## Common commands
+A module may only import from layers **below** it, and only through a slice's public `index.ts`. `pnpm lint:fsd` fails the build when that rule is broken. Read [docs/architecture.md](docs/architecture.md) for the full picture.
 
-```bash
-npm run lint
-npm run format
-npm run typecheck
-npm run test
-npm run test:e2e
-npm run storybook
-```
+## Scripts
 
-## Current runtime behavior
-
-- Routes available by default: `/auth`, `/todo`
-- `/` redirects to the default registered feature route
-- Auth uses an in-memory repository for demo purposes
-- Demo credentials: `demo@example.com` / `demo123`
-- Session key used in storage: `demo_session`
-
-## Canonical feature scaffold contract
-
-Generate new features with explicit, editable files:
-
-```bash
-npm run scaffold:feature -- --name billing --label Billing --route /billing
-```
-
-This command generates the required folders (`api`, `adapters`, `application`, `domain`, `infra`, `ui`) and optional composition wiring when requested.
-
-App integration stays explicit through `src/app/extensions/<feature>.tsx` plus `src/app/extensions/registry.tsx`.
+| Script                             | What it does                                         |
+| ---------------------------------- | ---------------------------------------------------- |
+| `pnpm dev`                         | Dev server with the mock backend                     |
+| `pnpm build` / `pnpm preview`      | Type-checked production build and local preview      |
+| `pnpm check`                       | Every static check plus unit and integration tests   |
+| `pnpm lint` / `pnpm lint:fsd`      | ESLint / Steiger (architecture)                      |
+| `pnpm test` / `pnpm test:coverage` | Vitest                                               |
+| `pnpm test:e2e`                    | Playwright (run `pnpm exec playwright install` once) |
+| `pnpm slice <layer> <name>`        | Scaffold a new slice with its public API             |
+| `pnpm storybook`                   | Component workbench for `shared/ui`                  |
 
 ## Documentation
 
-- `QUICKSTART.md` — first run and smoke-check flow
-- `KNOWN_ISSUES.md` — current limits and practical caveats
-- `docs/architecture.md` — architectural boundaries and module roles
-- `docs/feature-playbook.md` — how to add or evolve feature slices
-- `docs/environment.md` — env variables and bootstrap config
-- `docs/testing-strategy.md` — unit/integration strategy
-- `docs/e2e-testing.md` — Playwright setup and scope
-- `docs/opentelemetry.md` — telemetry extension points
+- [Architecture](docs/architecture.md): layers, import rules, data flow and authentication.
+- [Adding a slice](docs/adding-a-slice.md): step-by-step guide with a worked example.
+- [Testing](docs/testing.md): what each test layer covers and how to write one.
+- [Environment](docs/environment.md): configuration and connecting a real API.
+- [Decisions](docs/decisions/README.md): why the template looks the way it does.
+
+## Removing the demo
+
+The `todos` and `todo-details` pages, the `todo` entity, the `toggle-todo` feature and the todo handlers in `mocks/` are examples. Delete them, keep `auth` and `session` if you need sign-in, and start adding your own slices.
